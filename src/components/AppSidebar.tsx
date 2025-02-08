@@ -24,7 +24,7 @@ const menuItems = [
   { title: "Menu", icon: ChefHat, path: "/menu" },
   { title: "Inventory", icon: Package, path: "/inventory" },
   { title: "Waste Analytics", icon: PieChart, path: "/waste" },
-  { title: "Staff", icon: Users, path: "/staff" },
+  { title: "Staff Scheduling", icon: Users, path: "/staff" },
 ];
 
 export function AppSidebar() {
