@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { FixedSizeGrid } from 'react-window';
 import { MenuItem } from '@/types/menu';
-import { MenuItemCard } from './MenuItemCard';
+import { Skeleton } from "@/components/ui/skeleton";
+
+const MenuItemCard = lazy(() => import('./MenuItemCard'));
 
 interface VirtualizedMenuListProps {
   items: MenuItem[];
@@ -18,8 +20,8 @@ const VirtualizedMenuList = React.memo(({
   columnCount 
 }: VirtualizedMenuListProps) => {
   const rowCount = Math.ceil(items.length / columnCount);
-  const cellWidth = window.innerWidth / columnCount - 24; // Account for gap
-  const cellHeight = 500; // Adjust based on your card height
+  const cellWidth = window.innerWidth / columnCount - 24;
+  const cellHeight = 500;
 
   const Cell = ({ columnIndex, rowIndex, style }: any) => {
     const itemIndex = rowIndex * columnCount + columnIndex;
@@ -32,11 +34,15 @@ const VirtualizedMenuList = React.memo(({
         ...style,
         padding: '12px',
       }}>
-        <MenuItemCard
-          item={item}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
+        <Suspense fallback={
+          <div className="w-full h-[500px] rounded-lg bg-card animate-pulse" />
+        }>
+          <MenuItemCard
+            item={item}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        </Suspense>
       </div>
     );
   };
@@ -48,7 +54,9 @@ const VirtualizedMenuList = React.memo(({
       height={Math.min(window.innerHeight * 0.8, rowCount * cellHeight)}
       rowCount={rowCount}
       rowHeight={cellHeight}
-      width={window.innerWidth - 48} // Account for page padding
+      width={window.innerWidth - 48}
+      overscanRowCount={2}
+      overscanColumnCount={1}
     >
       {Cell}
     </FixedSizeGrid>
