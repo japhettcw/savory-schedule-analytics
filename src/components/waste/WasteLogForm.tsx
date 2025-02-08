@@ -25,7 +25,7 @@ const inventoryItems = [
   { label: "Chicken Breast", value: "chicken-breast" },
   { label: "Rice", value: "rice" },
   { label: "Pasta", value: "pasta" },
-] as const;
+] as { label: string; value: string }[];
 
 const wasteReasons = [
   { label: "Spoiled", value: "spoiled" },
@@ -33,7 +33,7 @@ const wasteReasons = [
   { label: "Expired", value: "expired" },
   { label: "Customer Return", value: "customer-return" },
   { label: "Other", value: "other" },
-] as const;
+] as { label: string; value: string }[];
 
 const formSchema = z.object({
   itemName: z.string().min(1, "Item name is required"),
