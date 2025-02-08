@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -15,6 +14,9 @@ import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
 import { LowStockAlert } from "@/components/inventory/LowStockAlert";
 import { ExpirationTracker } from "@/components/inventory/ExpirationTracker";
 import { OutOfStockNotification } from "@/components/inventory/OutOfStockNotification";
+import { SupplierManagement } from "@/components/inventory/SupplierManagement";
+import { AutomaticReorderSystem } from "@/components/inventory/AutomaticReorderSystem";
+import { OrderTracker } from "@/components/inventory/OrderTracker";
 
 // Temporary mock data until we integrate with a backend
 const inventoryData = [
@@ -82,6 +84,7 @@ export default function Inventory() {
       <LowStockAlert items={inventoryData} />
       <ExpirationTracker items={inventoryData} />
       <OutOfStockNotification items={inventoryData} />
+      <AutomaticReorderSystem items={inventoryData} />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-6">
@@ -149,6 +152,9 @@ export default function Inventory() {
           </div>
         </div>
       </Card>
+
+      <SupplierManagement />
+      <OrderTracker />
 
       <AddInventoryDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
     </div>
