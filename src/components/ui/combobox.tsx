@@ -25,8 +25,11 @@ interface ComboboxProps {
   placeholder?: string;
 }
 
-export function Combobox({ items, value, onChange, placeholder }: ComboboxProps) {
+export function Combobox({ items = [], value, onChange, placeholder }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
+
+  // Ensure items is always an array
+  const safeItems = Array.isArray(items) ? items : [];
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -38,7 +41,7 @@ export function Combobox({ items, value, onChange, placeholder }: ComboboxProps)
           className="w-full justify-between"
         >
           {value
-            ? items.find((item) => item.value === value)?.label
+            ? safeItems.find((item) => item.value === value)?.label
             : placeholder || "Select item..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -48,7 +51,7 @@ export function Combobox({ items, value, onChange, placeholder }: ComboboxProps)
           <CommandInput placeholder={placeholder || "Search items..."} />
           <CommandEmpty>No item found.</CommandEmpty>
           <CommandGroup>
-            {items.map((item) => (
+            {safeItems.map((item) => (
               <CommandItem
                 key={item.value}
                 value={item.value}
