@@ -17,14 +17,18 @@ export function useRealtimeSync(
   useEffect(() => {
     const channel = supabase
       .channel('schema-db-changes')
-      .on('postgres_changes', {
-        event: event,
-        schema: 'public',
-        table: tableName
-      }, (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => {
-        console.log(`Real-time update from ${tableName}:`, payload);
-        callback();
-      })
+      .on(
+        'postgres_changes' as const,
+        {
+          event: event,
+          schema: 'public',
+          table: tableName
+        },
+        (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => {
+          console.log(`Real-time update from ${tableName}:`, payload);
+          callback();
+        }
+      )
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
           console.log(`Subscribed to ${tableName} changes`);
