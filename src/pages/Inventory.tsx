@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
 import { LowStockAlert } from "@/components/inventory/LowStockAlert";
 import { ExpirationTracker } from "@/components/inventory/ExpirationTracker";
@@ -19,6 +18,56 @@ import { PortionAdjustmentSuggestion } from "@/components/waste/PortionAdjustmen
 import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
 import { HighWasteAlert } from "@/components/waste/HighWasteAlert";
 import { SupplierQualityAlert } from "@/components/waste/SupplierQualityAlert";
+
+// Mock data for inventory items
+const mockInventoryItems = [
+  {
+    id: 1,
+    name: "Tomatoes",
+    category: "Produce",
+    quantity: 50,
+    unit: "kg",
+    expiryDate: "2024-03-25",
+    supplier: "Fresh Produce Co",
+    reorderPoint: 20
+  },
+  {
+    id: 2,
+    name: "Chicken Breast",
+    category: "Meat",
+    quantity: 30,
+    unit: "kg",
+    expiryDate: "2024-03-20",
+    supplier: "Quality Meats Inc",
+    reorderPoint: 15
+  }
+];
+
+// Mock data for waste forecast
+const mockWasteHistoricalData = [
+  { date: "2024-02-01", wasteAmount: 12 },
+  { date: "2024-02-08", wasteAmount: 15 },
+  { date: "2024-02-15", wasteAmount: 10 },
+  { date: "2024-02-22", wasteAmount: 8 }
+];
+
+// Mock data for portion adjustments
+const mockPortionData = [
+  {
+    itemName: "Chicken Breast",
+    currentPortion: 200,
+    suggestedPortion: 180,
+    wastePercentage: 15,
+    unit: "g"
+  },
+  {
+    itemName: "Rice",
+    currentPortion: 150,
+    suggestedPortion: 130,
+    wastePercentage: 12,
+    unit: "g"
+  }
+];
 
 // Mock data for alerts
 const highWasteItems = [
@@ -64,18 +113,18 @@ export default function Inventory() {
       <div className="grid gap-6">
         <HighWasteAlert items={highWasteItems} />
         <SupplierQualityAlert issues={supplierIssues} />
-        <OutOfStockNotification items={[]} />
-        <LowStockAlert items={[]} />
-        <ExpirationTracker />
+        <OutOfStockNotification items={mockInventoryItems} />
+        <LowStockAlert items={mockInventoryItems} />
+        <ExpirationTracker items={mockInventoryItems} />
         <SupplierManagement />
-        <AutomaticReorderSystem />
+        <AutomaticReorderSystem items={mockInventoryItems} />
         <OrderTracker />
         <IngredientUsageAnalysis />
         <WastageReport />
         <CostAnalysis />
-        <VirtualizedInventoryTable />
-        <WasteForecast />
-        <PortionAdjustmentSuggestion />
+        <VirtualizedInventoryTable items={mockInventoryItems} />
+        <WasteForecast historicalData={mockWasteHistoricalData} />
+        <PortionAdjustmentSuggestion data={mockPortionData} />
         <InventoryWasteLink data={[]} />
       </div>
 
