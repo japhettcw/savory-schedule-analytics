@@ -2,14 +2,36 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
+import { useToast } from "@/hooks/use-toast";
 
 type MenuItem = {
   id: number;
   name: string;
   price: number;
   category: string;
+  description?: string;
   image: string;
+  available?: boolean;
 };
 
 const initialMenuItems: MenuItem[] = [
@@ -18,26 +40,90 @@ const initialMenuItems: MenuItem[] = [
     name: "Classic Burger",
     price: 12.99,
     category: "Main Course",
+    description: "Juicy beef patty with fresh vegetables",
     image: "/placeholder.svg",
+    available: true,
   },
   {
     id: 2,
     name: "Caesar Salad",
     price: 9.99,
     category: "Starters",
+    description: "Crisp romaine lettuce with Caesar dressing",
     image: "/placeholder.svg",
+    available: true,
   },
   {
     id: 3,
     name: "Margherita Pizza",
     price: 14.99,
     category: "Main Course",
+    description: "Classic Italian pizza with tomato and mozzarella",
     image: "/placeholder.svg",
+    available: true,
   },
 ];
 
+const categories = [
+  "All",
+  "Starters",
+  "Main Course",
+  "Desserts",
+  "Beverages",
+  "Sides",
+];
+
 export default function Menu() {
-  const [menuItems] = useState<MenuItem[]>(initialMenuItems);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
+  const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const { toast } = useToast();
+
+  const handleAddEditItem = (item: MenuItem) => {
+    if (selectedItem) {
+      setMenuItems(
+        menuItems.map((menuItem) =>
+          menuItem.id === item.id ? item : menuItem
+        )
+      );
+    } else {
+      setMenuItems([...menuItems, item]);
+    }
+  };
+
+  const handleDeleteItem = () => {
+    if (selectedItem) {
+      setMenuItems(menuItems.filter((item) => item.id !== selectedItem.id));
+      toast({
+        title: "Menu item deleted",
+        description: `${selectedItem.name} has been deleted successfully.`,
+      });
+      setIsDeleteDialogOpen(false);
+      setSelectedItem(undefined);
+    }
+  };
+
+  const handleEditClick = (item: MenuItem) => {
+    setSelectedItem(item);
+    setIsAddEditDialogOpen(true);
+  };
+
+  const handleDeleteClick = (item: MenuItem) => {
+    setSelectedItem(item);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const filteredItems = menuItems.filter((item) => {
+    const matchesSearch = item.name
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="space-y-8">
@@ -48,15 +134,50 @@ export default function Menu() {
             Manage your restaurant's menu items
           </p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button
+          className="flex items-center gap-2"
+          onClick={() => {
+            setSelectedItem(undefined);
+            setIsAddEditDialogOpen(true);
+          }}
+        >
           <Plus className="h-4 w-4" />
           Add Item
         </Button>
       </div>
 
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex-1">
+          <Input
+            placeholder="Search menu items..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+        <Select
+          value={selectedCategory}
+          onValueChange={setSelectedCategory}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent>
+            {categories.map((category) => (
+              <SelectItem key={category} value={category}>
+                {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {menuItems.map((item) => (
-          <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+        {filteredItems.map((item) => (
+          <Card
+            key={item.id}
+            className="overflow-hidden hover:shadow-lg transition-shadow"
+          >
             <img
               src={item.image}
               alt={item.name}
@@ -69,14 +190,29 @@ export default function Menu() {
                   <p className="text-sm text-muted-foreground">
                     {item.category}
                   </p>
+                  {item.description && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {item.description}
+                    </p>
+                  )}
                 </div>
-                <span className="text-lg font-bold">${item.price}</span>
+                <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
               </div>
               <div className="flex gap-2 mt-4">
-                <Button variant="outline" size="sm">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleEditClick(item)}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Button>
-                <Button variant="destructive" size="sm">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDeleteClick(item)}
+                >
+                  <Trash className="h-4 w-4 mr-1" />
                   Delete
                 </Button>
               </div>
@@ -84,6 +220,34 @@ export default function Menu() {
           </Card>
         ))}
       </div>
+
+      <AddEditMenuDialog
+        open={isAddEditDialogOpen}
+        onOpenChange={setIsAddEditDialogOpen}
+        item={selectedItem}
+        onSave={handleAddEditItem}
+      />
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Menu Item</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedItem?.name}"? This action
+              cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteItem}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
