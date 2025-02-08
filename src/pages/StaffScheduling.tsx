@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
@@ -21,6 +22,8 @@ import { TimeOffApprovalDashboard } from "@/components/staff/TimeOffApprovalDash
 import { EmployeeAvailabilityForm } from "@/components/staff/EmployeeAvailabilityForm";
 import { ShiftSwapRequestForm } from "@/components/staff/ShiftSwapRequestForm";
 import { OpenShiftsBoard } from "@/components/staff/OpenShiftsBoard";
+import { SchedulingAlerts } from "@/components/staff/SchedulingAlerts";
+import { detectAllConflicts } from "@/services/ConflictDetectionService";
 
 const locales = {
   "en-US": enUS,
@@ -57,7 +60,13 @@ export default function StaffScheduling() {
   const [shifts, setShifts] = useState(mockShifts);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedShift, setSelectedShift] = useState<typeof mockShifts[0] | null>(null);
+  const [conflicts, setConflicts] = useState(detectAllConflicts(mockShifts));
   const { toast } = useToast();
+
+  useEffect(() => {
+    const newConflicts = detectAllConflicts(shifts);
+    setConflicts(newConflicts);
+  }, [shifts]);
 
   const handleAddShift = (shiftData: {
     employeeName: string;
@@ -69,7 +78,7 @@ export default function StaffScheduling() {
     const newShift = {
       id: Math.max(0, ...shifts.map((s) => s.id)) + 1,
       ...shiftData,
-      notes: shiftData.notes || "", // Provide default empty string for notes
+      notes: shiftData.notes || "",
     };
     setShifts([...shifts, newShift]);
     toast({
@@ -91,7 +100,7 @@ export default function StaffScheduling() {
       shift.id === selectedShift.id ? { 
         ...shift, 
         ...shiftData,
-        notes: shiftData.notes || "", // Provide default empty string for notes
+        notes: shiftData.notes || "",
       } : shift
     );
     setShifts(updatedShifts);
@@ -134,6 +143,8 @@ export default function StaffScheduling() {
           Add Shift
         </Button>
       </div>
+
+      <SchedulingAlerts alerts={conflicts} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-6">
