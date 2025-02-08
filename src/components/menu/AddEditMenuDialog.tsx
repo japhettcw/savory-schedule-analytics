@@ -28,7 +28,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Image, X } from "lucide-react";
+import { Image } from "lucide-react";
 import { AllergenSelector } from "./AllergenSelector";
 import { IngredientList, type Ingredient } from "./IngredientList";
 
@@ -36,7 +36,7 @@ const ingredientSchema = z.object({
   name: z.string().min(1, "Ingredient name is required"),
   quantity: z.string().min(1, "Quantity is required"),
   unit: z.string().min(1, "Unit is required"),
-});
+}).strict();
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -45,7 +45,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   allergens: z.array(z.string()),
   ingredients: z.array(ingredientSchema),
-});
+}).strict();
 
 type FormValues = z.infer<typeof formSchema>;
 
