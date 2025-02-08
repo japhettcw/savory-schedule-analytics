@@ -16,7 +16,7 @@ export function LowStockAlert({ items }: LowStockAlertProps) {
   if (lowStockItems.length === 0) return null;
 
   return (
-    <Alert variant="warning" className="mb-4">
+    <Alert variant="destructive" className="mb-4">
       <AlertTriangle className="h-4 w-4" />
       <AlertTitle>Low Stock Alert</AlertTitle>
       <AlertDescription>
