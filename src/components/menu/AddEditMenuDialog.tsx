@@ -30,8 +30,9 @@ import { useToast } from "@/hooks/use-toast";
 import { AllergenSelector } from "./AllergenSelector";
 import { IngredientList } from "./IngredientList";
 import { ImageUploader } from "./ImageUploader";
+import { VariationsList } from "./VariationsList";
 import { calculateSuggestedPrice } from "@/utils/priceCalculator";
-import type { MenuItem, Ingredient } from "@/types/menu";
+import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
 
 const ingredientSchema = z.object({
   name: z.string().min(1, "Ingredient name is required"),
