@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -44,23 +45,27 @@ export default function Inventory() {
   const fetchUserRole = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      if (!user) {
+        setUserRole(null);
+        return;
+      }
 
       const { data: roles, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (rolesError) throw rolesError;
       setUserRole(roles?.role || null);
     } catch (error) {
       console.error('Error fetching user role:', error);
       toast({
-        title: "Error",
-        description: "Failed to fetch user role",
+        title: "Warning",
+        description: "Unable to fetch user role. Some features may be limited.",
         variant: "destructive",
       });
+      setUserRole(null);
     }
   }, [toast]);
 
