@@ -1,20 +1,13 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { AddWasteLogDialog } from "@/components/waste/AddWasteLogDialog";
 import { WasteLogList, type WasteLog } from "@/components/waste/WasteLogList";
 import { useToast } from "@/components/ui/use-toast";
+import { WasteTrendChart } from "@/components/waste/WasteTrendChart";
+import { MostWastedItemsReport } from "@/components/waste/MostWastedItemsReport";
+import { WasteCostCalculator } from "@/components/waste/WasteCostCalculator";
 
 // Temporary mock data until we integrate with Supabase
 const initialWasteData: WasteLog[] = [
@@ -91,6 +84,35 @@ export default function Waste() {
     0
   );
 
+  // Calculate waste by reason for the WasteCostCalculator
+  const wasteByReason = Object.entries(
+    wasteLogs.reduce((acc, log) => {
+      acc[log.reason] = (acc[log.reason] || 0) + log.costImpact;
+      return acc;
+    }, {} as Record<string, number>)
+  ).map(([reason, cost]) => ({ reason, cost }));
+
+  // Prepare data for MostWastedItemsReport
+  const wastedItems = Object.entries(
+    wasteLogs.reduce((acc, log) => {
+      if (!acc[log.itemName]) {
+        acc[log.itemName] = {
+          itemName: log.itemName,
+          quantity: 0,
+          unit: log.unit,
+          costImpact: 0,
+          percentage: 0,
+        };
+      }
+      acc[log.itemName].quantity += log.quantity;
+      acc[log.itemName].costImpact += log.costImpact;
+      return acc;
+    }, {} as Record<string, any>)
+  ).map(([_, item]) => ({
+    ...item,
+    percentage: (item.costImpact / totalWasteCost) * 100,
+  }));
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -130,20 +152,15 @@ export default function Waste() {
         </Card>
       </div>
 
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Weekly Waste Trend</h2>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={analyticsData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="waste" fill="#ef4444" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        <WasteTrendChart data={analyticsData} />
+        <WasteCostCalculator 
+          wasteByReason={wasteByReason}
+          totalCost={totalWasteCost}
+        />
+      </div>
+
+      <MostWastedItemsReport items={wastedItems} />
 
       <Card>
         <div className="p-6">
