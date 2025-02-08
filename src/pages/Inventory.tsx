@@ -1,0 +1,116 @@
+
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
+import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
+
+// Temporary mock data until we integrate with Supabase
+const inventoryData = [
+  {
+    id: 1,
+    name: "Tomatoes",
+    stockLevel: 50,
+    expiryDate: "2024-04-15",
+    supplier: "Fresh Produce Co",
+    reorderPoint: 20,
+  },
+  {
+    id: 2,
+    name: "Chicken Breast",
+    stockLevel: 15,
+    expiryDate: "2024-04-10",
+    supplier: "Quality Meats Inc",
+    reorderPoint: 25,
+  },
+];
+
+export default function Inventory() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight">Inventory</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage your restaurant's inventory items
+          </p>
+        </div>
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <Plus className="mr-2" />
+          Add Item
+        </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="p-6">
+          <h3 className="font-semibold mb-2">Total Items</h3>
+          <p className="text-3xl font-bold">{inventoryData.length}</p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="font-semibold mb-2 text-yellow-600">Low Stock Items</h3>
+          <p className="text-3xl font-bold">
+            {
+              inventoryData.filter(
+                (item) => item.stockLevel < item.reorderPoint
+              ).length
+            }
+          </p>
+        </Card>
+        <Card className="p-6">
+          <h3 className="font-semibold mb-2 text-red-600">Expiring Soon</h3>
+          <p className="text-3xl font-bold">2</p>
+        </Card>
+      </div>
+
+      <Card>
+        <div className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Current Inventory</h2>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Stock Level</TableHead>
+                  <TableHead>Expiry Date</TableHead>
+                  <TableHead>Supplier</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {inventoryData.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="font-medium">{item.name}</TableCell>
+                    <TableCell>{item.stockLevel}</TableCell>
+                    <TableCell>{item.expiryDate}</TableCell>
+                    <TableCell>{item.supplier}</TableCell>
+                    <TableCell>
+                      {item.stockLevel < item.reorderPoint ? (
+                        <span className="text-yellow-600 font-medium">
+                          Low Stock
+                        </span>
+                      ) : (
+                        <span className="text-green-600 font-medium">OK</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </Card>
+
+      <AddInventoryDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+    </div>
+  );
+}
