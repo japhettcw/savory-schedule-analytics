@@ -32,19 +32,19 @@ import { Image, X } from "lucide-react";
 import { AllergenSelector } from "./AllergenSelector";
 import { IngredientList, type Ingredient } from "./IngredientList";
 
+const ingredientSchema = z.object({
+  name: z.string().min(1, "Ingredient name is required"),
+  quantity: z.string().min(1, "Quantity is required"),
+  unit: z.string().min(1, "Unit is required"),
+});
+
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
   category: z.string().min(1, "Category is required"),
   description: z.string().optional(),
   allergens: z.array(z.string()),
-  ingredients: z.array(
-    z.object({
-      name: z.string().min(1, "Ingredient name is required"),
-      quantity: z.string().min(1, "Quantity is required"),
-      unit: z.string().min(1, "Unit is required"),
-    }).required()
-  ),
+  ingredients: z.array(ingredientSchema),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -270,7 +270,7 @@ export function AddEditMenuDialog({
                   <FormLabel>Ingredients</FormLabel>
                   <FormControl>
                     <IngredientList
-                      ingredients={field.value}
+                      ingredients={field.value as Ingredient[]}
                       onChange={field.onChange}
                     />
                   </FormControl>
@@ -297,4 +297,3 @@ export function AddEditMenuDialog({
     </Dialog>
   );
 }
-
