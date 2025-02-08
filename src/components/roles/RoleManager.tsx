@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
 import { Database } from "@/integrations/supabase/types";
+import { useRealtimeSync } from "@/hooks/use-realtime-sync";
 
 type Role = Database["public"]["Enums"]["app_role"];
 
@@ -30,44 +31,49 @@ type UserWithRoles = {
 };
 
 const RoleManager = () => {
-  const [users, setUsers] = useState<UserWithRoles[]>([]);
+  const [currentUser, setCurrentUser] = useState<UserWithRoles | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
+  const fetchCurrentUserAndRoles = async () => {
     try {
-      const { data: userData, error: userError } = await supabase.auth.admin.listUsers();
-      if (userError) throw userError;
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) throw sessionError;
+      if (!session) return;
 
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
-        .select('user_id, role');
+        .select('role')
+        .eq('user_id', session.user.id);
+
       if (rolesError) throw rolesError;
 
-      const usersWithRoles = userData.users.map(user => ({
-        id: user.id,
-        email: user.email || '',
-        roles: rolesData
-          .filter(role => role.user_id === user.id)
-          .map(role => role.role as Role)
-      }));
-
-      setUsers(usersWithRoles);
+      setCurrentUser({
+        id: session.user.id,
+        email: session.user.email || '',
+        roles: rolesData.map(role => role.role as Role)
+      });
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Error fetching user and roles:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch users and roles",
+        description: "Failed to fetch user and roles",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCurrentUserAndRoles();
+  }, []);
+
+  useRealtimeSync({
+    tableName: 'user_roles',
+    onDataChange: fetchCurrentUserAndRoles,
+  });
 
   const handleRoleChange = async (userId: string, newRole: Role) => {
     try {
@@ -92,7 +98,7 @@ const RoleManager = () => {
         description: "Role updated successfully",
       });
 
-      await fetchUsers();
+      await fetchCurrentUserAndRoles();
     } catch (error) {
       console.error('Error updating role:', error);
       toast({
@@ -105,6 +111,10 @@ const RoleManager = () => {
 
   if (loading) {
     return <div>Loading...</div>;
+  }
+
+  if (!currentUser) {
+    return <div>No user found</div>;
   }
 
   return (
@@ -120,27 +130,25 @@ const RoleManager = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <TableRow key={user.id}>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.roles.join(', ') || 'No role'}</TableCell>
-                <TableCell>
-                  <Select
-                    onValueChange={(value) => handleRoleChange(user.id, value as Role)}
-                    defaultValue={user.roles[0]}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="owner">Owner</SelectItem>
-                      <SelectItem value="manager">Manager</SelectItem>
-                      <SelectItem value="staff">Staff</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-              </TableRow>
-            ))}
+            <TableRow key={currentUser.id}>
+              <TableCell>{currentUser.email}</TableCell>
+              <TableCell>{currentUser.roles.join(', ') || 'No role'}</TableCell>
+              <TableCell>
+                <Select
+                  onValueChange={(value) => handleRoleChange(currentUser.id, value as Role)}
+                  defaultValue={currentUser.roles[0]}
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="owner">Owner</SelectItem>
+                    <SelectItem value="manager">Manager</SelectItem>
+                    <SelectItem value="staff">Staff</SelectItem>
+                  </SelectContent>
+                </Select>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </div>
@@ -149,4 +157,3 @@ const RoleManager = () => {
 };
 
 export default RoleManager;
-
