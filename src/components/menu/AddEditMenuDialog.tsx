@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,9 +27,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { Image } from "lucide-react";
 import { AllergenSelector } from "./AllergenSelector";
 import { IngredientList, type Ingredient } from "./IngredientList";
+import { ImageUploader } from "./ImageUploader";
 
 const ingredientSchema = z.object({
   name: z.string().min(1, "Ingredient name is required"),
@@ -103,19 +102,16 @@ export function AddEditMenuDialog({
     },
   });
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleImageUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const onSubmit = (values: FormValues) => {
-    const newItem: MenuItem = {
+    const newItem = {
       id: item?.id || Date.now(),
       name: values.name,
       price: parseFloat(values.price),
@@ -148,26 +144,11 @@ export function AddEditMenuDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="flex items-center justify-center mb-6">
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Menu item preview"
-                  className="w-32 h-32 object-cover rounded-lg"
-                />
-                <label
-                  htmlFor="image-upload"
-                  className="absolute bottom-2 right-2 p-2 bg-white rounded-full shadow-lg cursor-pointer hover:bg-gray-100"
-                >
-                  <Image className="h-4 w-4" />
-                </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-              </div>
+              <ImageUploader
+                imageUrl={imagePreview}
+                onImageUpload={handleImageUpload}
+                className="hover:shadow-lg transition-shadow"
+              />
             </div>
 
             <FormField
