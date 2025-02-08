@@ -9,17 +9,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Database } from "@/integrations/supabase/types";
 
-interface InventoryItem {
-  id: number;
+type InventoryItem = {
+  id: string;
   name: string;
   category: string;
   quantity: number;
   unit: string;
-  expiryDate: string;
-  supplier: string;
-  reorderPoint: number;
-}
+  expiry_date: string | null;
+  supplier: string | null;
+  reorder_point: number;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+};
 
 interface VirtualizedInventoryTableProps {
   items: InventoryItem[];
@@ -33,12 +37,12 @@ const Row = React.memo(({ index, style, data }: any) => {
       <TableCell className="capitalize">{item.category}</TableCell>
       <TableCell>{item.quantity}</TableCell>
       <TableCell>{item.unit}</TableCell>
-      <TableCell>{item.expiryDate}</TableCell>
+      <TableCell>{item.expiry_date}</TableCell>
       <TableCell>{item.supplier}</TableCell>
       <TableCell>
         {item.quantity === 0 ? (
           <span className="text-red-600 font-medium">Out of Stock</span>
-        ) : item.quantity <= item.reorderPoint ? (
+        ) : item.quantity <= item.reorder_point ? (
           <span className="text-yellow-600 font-medium">Low Stock</span>
         ) : (
           <span className="text-green-600 font-medium">OK</span>
@@ -51,9 +55,9 @@ const Row = React.memo(({ index, style, data }: any) => {
 Row.displayName = 'InventoryTableRow';
 
 export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInventoryTableProps) => {
-  const rowHeight = 52; // Adjust based on your actual row height
-  const headerHeight = 40; // Adjust based on your actual header height
-  const visibleHeight = Math.min(items.length * rowHeight + headerHeight, 400); // Max height of 400px
+  const rowHeight = 52;
+  const headerHeight = 40;
+  const visibleHeight = Math.min(items.length * rowHeight + headerHeight, 400);
 
   return (
     <div className="rounded-md border">
