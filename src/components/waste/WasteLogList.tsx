@@ -38,7 +38,7 @@ interface WasteLogListProps {
 
 export function WasteLogList({ logs, onEdit, onDelete }: WasteLogListProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [reasonFilter, setReasonFilter] = useState("");
+  const [reasonFilter, setReasonFilter] = useState("all");
   const [sortField, setSortField] = useState<keyof WasteLog>("date");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
@@ -47,9 +47,7 @@ export function WasteLogList({ logs, onEdit, onDelete }: WasteLogListProps) {
       const matchesSearch = log.itemName
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
-      const matchesReason = reasonFilter
-        ? log.reason === reasonFilter
-        : true;
+      const matchesReason = reasonFilter === "all" || log.reason === reasonFilter;
       return matchesSearch && matchesReason;
     })
     .sort((a, b) => {
@@ -86,7 +84,7 @@ export function WasteLogList({ logs, onEdit, onDelete }: WasteLogListProps) {
             <SelectValue placeholder="Filter by reason" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All reasons</SelectItem>
+            <SelectItem value="all">All reasons</SelectItem>
             <SelectItem value="spoiled">Spoiled</SelectItem>
             <SelectItem value="over-prepared">Over-Prepared</SelectItem>
             <SelectItem value="expired">Expired</SelectItem>
