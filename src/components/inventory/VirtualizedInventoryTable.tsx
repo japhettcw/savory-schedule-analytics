@@ -9,24 +9,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Database } from "@/integrations/supabase/types";
 
-type InventoryItem = {
-  id: string;
-  name: string;
-  category: string;
-  quantity: number;
-  unit: string;
-  expiry_date: string | null;
-  supplier: string | null;
-  reorder_point: number;
-  user_id: string;
-  created_at: string;
-  updated_at: string;
-};
+type InventoryItem = Database['public']['Tables']['inventory_items']['Row'];
 
 interface VirtualizedInventoryTableProps {
   items: InventoryItem[];
+  isLoading?: boolean;
+  error?: Error | null;
+  userRole?: string;
 }
 
 const Row = React.memo(({ index, style, data }: any) => {
@@ -54,10 +48,40 @@ const Row = React.memo(({ index, style, data }: any) => {
 
 Row.displayName = 'InventoryTableRow';
 
-export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInventoryTableProps) => {
+export const VirtualizedInventoryTable = React.memo(({ 
+  items, 
+  isLoading, 
+  error,
+  userRole 
+}: VirtualizedInventoryTableProps) => {
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          Failed to load inventory items: {error.message}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   const rowHeight = 52;
   const headerHeight = 40;
-  const visibleHeight = Math.min(items.length * rowHeight + headerHeight, 400);
+  const visibleHeight = Math.min((items?.length || 0) * rowHeight + headerHeight, 400);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    );
+  }
+
+  // Only staff and above can view all details
+  const canViewFullDetails = userRole === 'staff' || userRole === 'manager' || userRole === 'owner';
 
   return (
     <div className="rounded-md border">
@@ -66,18 +90,22 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Category</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Unit</TableHead>
-            <TableHead>Expiry Date</TableHead>
-            <TableHead>Supplier</TableHead>
-            <TableHead>Status</TableHead>
+            {canViewFullDetails && (
+              <>
+                <TableHead>Quantity</TableHead>
+                <TableHead>Unit</TableHead>
+                <TableHead>Expiry Date</TableHead>
+                <TableHead>Supplier</TableHead>
+                <TableHead>Status</TableHead>
+              </>
+            )}
           </TableRow>
         </TableHeader>
       </Table>
       <div style={{ height: visibleHeight - headerHeight }}>
         <FixedSizeList
           height={visibleHeight - headerHeight}
-          itemCount={items.length}
+          itemCount={items?.length || 0}
           itemSize={rowHeight}
           width="100%"
           itemData={items}
