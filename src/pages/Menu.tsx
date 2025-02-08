@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
@@ -20,9 +20,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
-import { MenuItemCard } from "@/components/menu/MenuItemCard";
+import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
 import { useToast } from "@/hooks/use-toast";
 import type { MenuItem } from "@/types/menu";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 const initialMenuItems: MenuItem[] = [
   {
@@ -87,20 +88,29 @@ export default function Menu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { toast } = useToast();
+  
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const isTablet = useMediaQuery("(min-width: 768px)");
+  
+  const columnCount = useMemo(() => {
+    if (isDesktop) return 3;
+    if (isTablet) return 2;
+    return 1;
+  }, [isDesktop, isTablet]);
 
-  const handleAddEditItem = (item: MenuItem) => {
+  const handleAddEditItem = useCallback((item: MenuItem) => {
     if (selectedItem) {
-      setMenuItems(menuItems.map((menuItem) =>
+      setMenuItems(prev => prev.map(menuItem =>
         menuItem.id === item.id ? item : menuItem
       ));
     } else {
-      setMenuItems([...menuItems, item]);
+      setMenuItems(prev => [...prev, item]);
     }
-  };
+  }, [selectedItem]);
 
-  const handleDeleteItem = () => {
+  const handleDeleteItem = useCallback(() => {
     if (selectedItem) {
-      setMenuItems(menuItems.filter((item) => item.id !== selectedItem.id));
+      setMenuItems(prev => prev.filter(item => item.id !== selectedItem.id));
       toast({
         title: "Menu item deleted",
         description: `${selectedItem.name} has been deleted successfully.`,
@@ -108,23 +118,23 @@ export default function Menu() {
       setIsDeleteDialogOpen(false);
       setSelectedItem(undefined);
     }
-  };
+  }, [selectedItem, toast]);
 
-  const handleEditClick = (item: MenuItem) => {
+  const handleEditClick = useCallback((item: MenuItem) => {
     setSelectedItem(item);
     setIsAddEditDialogOpen(true);
-  };
+  }, []);
 
-  const handleDeleteClick = (item: MenuItem) => {
+  const handleDeleteClick = useCallback((item: MenuItem) => {
     setSelectedItem(item);
     setIsDeleteDialogOpen(true);
-  };
+  }, []);
 
-  const filteredItems = menuItems.filter((item) => {
+  const filteredItems = useMemo(() => menuItems.filter((item) => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
-  });
+  }), [menuItems, searchTerm, selectedCategory]);
 
   return (
     <div className="space-y-8">
@@ -170,15 +180,13 @@ export default function Menu() {
         </Select>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredItems.map((item) => (
-          <MenuItemCard
-            key={item.id}
-            item={item}
-            onEdit={handleEditClick}
-            onDelete={handleDeleteClick}
-          />
-        ))}
+      <div className="min-h-[500px]">
+        <VirtualizedMenuList
+          items={filteredItems}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+          columnCount={columnCount}
+        />
       </div>
 
       <AddEditMenuDialog
