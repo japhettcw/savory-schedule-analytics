@@ -45,10 +45,10 @@ const mockInventoryItems = [
 
 // Mock data for waste forecast
 const mockWasteHistoricalData = [
-  { date: "2024-02-01", wasteAmount: 12 },
-  { date: "2024-02-08", wasteAmount: 15 },
-  { date: "2024-02-15", wasteAmount: 10 },
-  { date: "2024-02-22", wasteAmount: 8 }
+  { date: "2024-02-01", amount: 12 },
+  { date: "2024-02-08", amount: 15 },
+  { date: "2024-02-15", amount: 10 },
+  { date: "2024-02-22", amount: 8 }
 ];
 
 // Mock data for portion adjustments
