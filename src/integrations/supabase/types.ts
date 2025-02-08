@@ -95,37 +95,52 @@ export type Database = {
       }
       menu_items: {
         Row: {
+          allergens: string[] | null
           available: boolean | null
           category: string
           created_at: string
           description: string | null
           id: string
+          image: string | null
+          ingredients: Json | null
           name: string
           price: number
+          stock_level: number | null
           updated_at: string
           user_id: string
+          variations: Json | null
         }
         Insert: {
+          allergens?: string[] | null
           available?: boolean | null
           category: string
           created_at?: string
           description?: string | null
           id?: string
+          image?: string | null
+          ingredients?: Json | null
           name: string
           price: number
+          stock_level?: number | null
           updated_at?: string
           user_id: string
+          variations?: Json | null
         }
         Update: {
+          allergens?: string[] | null
           available?: boolean | null
           category?: string
           created_at?: string
           description?: string | null
           id?: string
+          image?: string | null
+          ingredients?: Json | null
           name?: string
           price?: number
+          stock_level?: number | null
           updated_at?: string
           user_id?: string
+          variations?: Json | null
         }
         Relationships: []
       }

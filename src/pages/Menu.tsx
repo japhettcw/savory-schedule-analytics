@@ -72,7 +72,15 @@ export default function Menu() {
         return [];
       }
       
-      return data as MenuItem[];
+      return data.map(item => ({
+        ...item,
+        id: item.id,
+        allergens: item.allergens || [],
+        ingredients: item.ingredients || [],
+        image: item.image || "/placeholder.svg",
+        variations: item.variations || [],
+        stockLevel: item.stock_level || 0,
+      })) as MenuItem[];
     },
   });
 
@@ -89,6 +97,10 @@ export default function Menu() {
           description: item.description,
           image: item.image,
           available: item.available,
+          allergens: item.allergens,
+          ingredients: item.ingredients,
+          variations: item.variations,
+          stock_level: item.stockLevel,
         })
         .select()
         .single();
@@ -116,7 +128,7 @@ export default function Menu() {
 
   // Delete mutation
   const { mutate: handleDeleteItem } = useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('menu_items')
         .delete()

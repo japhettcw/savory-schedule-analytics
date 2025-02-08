@@ -6,13 +6,13 @@ export type Ingredient = {
 };
 
 export type MenuItemVariation = {
-  id: number;
+  id: string;
   name: string;
   price: number;
 };
 
 export type MenuItem = {
-  id: number;
+  id: string;
   name: string;
   price: number;
   category: string;
