@@ -55,25 +55,36 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
     onSubmit(values);
     toast({
       title: "Success",
-      description: initialData 
-        ? "Inventory item updated successfully" 
-        : "Inventory item added successfully",
+      description: "Form submitted successfully",
+      duration: 3000,
+      role: "status",
+      "aria-live": "polite",
     });
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form 
+        onSubmit={form.handleSubmit(handleSubmit)} 
+        className="space-y-4"
+        noValidate
+      >
         <FormField
           control={form.control}
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Item Name</FormLabel>
+              <FormLabel htmlFor="name">Item Name</FormLabel>
               <FormControl>
-                <Input placeholder="Enter item name" {...field} />
+                <Input
+                  id="name"
+                  placeholder="Enter item name"
+                  aria-required="true"
+                  aria-invalid={!!form.formState.errors.name}
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage role="alert" />
             </FormItem>
           )}
         />
@@ -83,10 +94,17 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
           name="category"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Category</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormLabel htmlFor="category">Category</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+              >
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger
+                    id="category"
+                    aria-required="true"
+                    aria-invalid={!!form.formState.errors.category}
+                  >
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                 </FormControl>
@@ -98,7 +116,7 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
                   <SelectItem value="beverages">Beverages</SelectItem>
                 </SelectContent>
               </Select>
-              <FormMessage />
+              <FormMessage role="alert" />
             </FormItem>
           )}
         />
@@ -109,15 +127,20 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
             name="quantity"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Quantity</FormLabel>
+                <FormLabel htmlFor="quantity">Quantity</FormLabel>
                 <FormControl>
                   <Input
+                    id="quantity"
                     type="number"
+                    min="0"
+                    step="1"
+                    aria-required="true"
+                    aria-invalid={!!form.formState.errors.quantity}
                     {...field}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
-                <FormMessage />
+                <FormMessage role="alert" />
               </FormItem>
             )}
           />
@@ -127,10 +150,17 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
             name="unit"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Unit</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel htmlFor="unit">Unit</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger
+                      id="unit"
+                      aria-required="true"
+                      aria-invalid={!!form.formState.errors.unit}
+                    >
                       <SelectValue placeholder="Select unit" />
                     </SelectTrigger>
                   </FormControl>
@@ -141,7 +171,7 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
                     <SelectItem value="pcs">Pieces (pcs)</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormMessage />
+                <FormMessage role="alert" />
               </FormItem>
             )}
           />
@@ -152,11 +182,17 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
           name="supplier"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Supplier</FormLabel>
+              <FormLabel htmlFor="supplier">Supplier</FormLabel>
               <FormControl>
-                <Input placeholder="Enter supplier name" {...field} />
+                <Input
+                  id="supplier"
+                  placeholder="Enter supplier name"
+                  aria-required="true"
+                  aria-invalid={!!form.formState.errors.supplier}
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage role="alert" />
             </FormItem>
           )}
         />
@@ -166,15 +202,20 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
           name="reorderPoint"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Reorder Point</FormLabel>
+              <FormLabel htmlFor="reorderPoint">Reorder Point</FormLabel>
               <FormControl>
                 <Input
+                  id="reorderPoint"
                   type="number"
+                  min="0"
+                  step="1"
+                  aria-required="true"
+                  aria-invalid={!!form.formState.errors.reorderPoint}
                   {...field}
                   onChange={(e) => field.onChange(Number(e.target.value))}
                 />
               </FormControl>
-              <FormMessage />
+              <FormMessage role="alert" />
             </FormItem>
           )}
         />
@@ -184,17 +225,26 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
           name="expiryDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Expiry Date</FormLabel>
+              <FormLabel htmlFor="expiryDate">Expiry Date (Optional)</FormLabel>
               <FormControl>
-                <Input type="date" {...field} />
+                <Input
+                  id="expiryDate"
+                  type="date"
+                  aria-invalid={!!form.formState.errors.expiryDate}
+                  {...field}
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage role="alert" />
             </FormItem>
           )}
         />
 
-        <div className="flex justify-end gap-2">
-          <Button type="submit">
+        <div className="flex justify-end">
+          <Button 
+            type="submit"
+            className="hover-scale active-press"
+            aria-label="Submit inventory item form"
+          >
             {initialData ? "Update Item" : "Add Item"}
           </Button>
         </div>

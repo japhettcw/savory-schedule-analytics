@@ -32,7 +32,17 @@ interface VirtualizedInventoryTableProps {
 const Row = React.memo(({ index, style, data }: any) => {
   const item = data[index];
   return (
-    <TableRow style={style}>
+    <TableRow 
+      style={style}
+      role="row"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          // Handle row selection
+          console.log('Selected item:', item);
+        }
+      }}
+    >
       <TableCell className="font-medium">{item.name}</TableCell>
       <TableCell className="capitalize">{item.category}</TableCell>
       <TableCell>{item.quantity}</TableCell>
@@ -41,11 +51,29 @@ const Row = React.memo(({ index, style, data }: any) => {
       <TableCell>{item.supplier}</TableCell>
       <TableCell>
         {item.quantity === 0 ? (
-          <span className="text-red-600 font-medium">Out of Stock</span>
+          <span 
+            className="text-destructive font-medium"
+            role="status"
+            aria-label={`${item.name} is out of stock`}
+          >
+            Out of Stock
+          </span>
         ) : item.quantity <= item.reorder_point ? (
-          <span className="text-yellow-600 font-medium">Low Stock</span>
+          <span 
+            className="text-yellow-600 dark:text-yellow-500 font-medium"
+            role="status"
+            aria-label={`${item.name} is running low on stock`}
+          >
+            Low Stock
+          </span>
         ) : (
-          <span className="text-green-600 font-medium">OK</span>
+          <span 
+            className="text-green-600 dark:text-green-500 font-medium"
+            role="status"
+            aria-label={`${item.name} stock level is good`}
+          >
+            OK
+          </span>
         )}
       </TableCell>
     </TableRow>
@@ -60,21 +88,30 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
   const visibleHeight = Math.min(items.length * rowHeight + headerHeight, 400);
 
   return (
-    <div className="rounded-md border">
+    <div 
+      className="rounded-md border"
+      role="region"
+      aria-label="Inventory items"
+    >
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Category</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Unit</TableHead>
-            <TableHead>Expiry Date</TableHead>
-            <TableHead>Supplier</TableHead>
-            <TableHead>Status</TableHead>
+            <TableHead scope="col">Name</TableHead>
+            <TableHead scope="col">Category</TableHead>
+            <TableHead scope="col">Quantity</TableHead>
+            <TableHead scope="col">Unit</TableHead>
+            <TableHead scope="col">Expiry Date</TableHead>
+            <TableHead scope="col">Supplier</TableHead>
+            <TableHead scope="col">Status</TableHead>
           </TableRow>
         </TableHeader>
       </Table>
-      <div style={{ height: visibleHeight - headerHeight }}>
+      <div 
+        style={{ height: visibleHeight - headerHeight }}
+        tabIndex={0}
+        role="grid"
+        aria-rowcount={items.length}
+      >
         <FixedSizeList
           height={visibleHeight - headerHeight}
           itemCount={items.length}
