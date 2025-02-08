@@ -34,14 +34,17 @@ export const WasteTrendChart = memo(function WasteTrendChart({ data }: WasteTren
             <Tooltip 
               content={({ active, payload, label }) => {
                 if (active && payload && payload.length) {
+                  const wasteValue = typeof payload[0].value === 'number' ? payload[0].value.toFixed(2) : payload[0].value;
+                  const costValue = typeof payload[1].value === 'number' ? payload[1].value.toFixed(2) : payload[1].value;
+                  
                   return (
                     <div className="bg-white p-3 border rounded-lg shadow">
                       <p className="font-semibold">{label}</p>
                       <p className="text-red-500">
-                        Waste: {payload[0].value.toFixed(2)} kg
+                        Waste: {wasteValue} kg
                       </p>
                       <p className="text-blue-500">
-                        Cost: ${payload[1].value.toFixed(2)}
+                        Cost: ${costValue}
                       </p>
                     </div>
                   );
