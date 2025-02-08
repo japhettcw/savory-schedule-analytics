@@ -27,9 +27,16 @@ interface ComboboxProps {
 
 export function Combobox({ items = [], value = "", onChange, placeholder }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
-  // Ensure items is always an array
-  const safeItems = Array.isArray(items) ? items : [];
+  // Ensure items is always an array and filter based on search query
+  const safeItems = React.useMemo(() => {
+    const itemsArray = Array.isArray(items) ? items : [];
+    if (!searchQuery) return itemsArray;
+    return itemsArray.filter((item) =>
+      item.label.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [items, searchQuery]);
 
   const selectedItem = safeItems.find((item) => item.value === value);
 
@@ -47,8 +54,12 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command shouldFilter={false}>
-          <CommandInput placeholder={placeholder || "Search items..."} />
+        <Command>
+          <CommandInput 
+            placeholder={placeholder || "Search items..."} 
+            value={searchQuery}
+            onValueChange={setSearchQuery}
+          />
           <CommandEmpty>No item found.</CommandEmpty>
           <CommandGroup>
             {safeItems.map((item) => (
