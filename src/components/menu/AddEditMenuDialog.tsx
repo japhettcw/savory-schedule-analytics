@@ -40,6 +40,12 @@ const ingredientSchema = z.object({
   unit: z.string().min(1, "Unit is required"),
 });
 
+const variationSchema = z.object({
+  id: z.number(),
+  name: z.string().min(1, "Variation name is required"),
+  price: z.number().min(0, "Price must be a positive number"),
+});
+
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
@@ -48,11 +54,7 @@ const formSchema = z.object({
   allergens: z.array(z.string()),
   ingredients: z.array(ingredientSchema),
   stockLevel: z.string().regex(/^\d+$/, "Stock level must be a positive number"),
-  variations: z.array(z.object({
-    id: z.number(),
-    name: z.string(),
-    price: z.number(),
-  })),
+  variations: z.array(variationSchema),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -124,7 +126,7 @@ export function AddEditMenuDialog({
       allergens: values.allergens,
       ingredients: values.ingredients as Ingredient[],
       stockLevel: parseInt(values.stockLevel),
-      variations: values.variations,
+      variations: values.variations as MenuItemVariation[],
     };
 
     onSave(newItem);
@@ -300,7 +302,7 @@ export function AddEditMenuDialog({
                   <FormLabel>Variations</FormLabel>
                   <FormControl>
                     <VariationsList
-                      variations={field.value}
+                      variations={field.value as MenuItemVariation[]}
                       onChange={field.onChange}
                     />
                   </FormControl>
