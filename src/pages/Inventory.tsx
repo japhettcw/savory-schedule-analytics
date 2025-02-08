@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
 import { LowStockAlert } from "@/components/inventory/LowStockAlert";
 import { ExpirationTracker } from "@/components/inventory/ExpirationTracker";
@@ -20,14 +20,37 @@ import { HighWasteAlert } from "@/components/waste/HighWasteAlert";
 import { SupplierQualityAlert } from "@/components/waste/SupplierQualityAlert";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useRealtimeSync } from "@/hooks/use-realtime-sync";
 
 export default function Inventory() {
   const [isAddInventoryOpen, setIsAddInventoryOpen] = useState(false);
   const [inventoryItems, setInventoryItems] = useState([]);
   const { toast } = useToast();
 
-  const fetchInventoryItems = useCallback(async () => {
+  useEffect(() => {
+    fetchInventoryItems();
+
+    // Set up realtime subscription
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'inventory_items'
+        },
+        () => {
+          fetchInventoryItems();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchInventoryItems = async () => {
     try {
       const { data, error } = await supabase
         .from('inventory_items')
@@ -47,17 +70,7 @@ export default function Inventory() {
         variant: "destructive",
       });
     }
-  }, [toast]);
-
-  // Set up real-time sync
-  useRealtimeSync('inventory_items', '*', fetchInventoryItems);
-  useRealtimeSync('menu_item_ingredients', '*', fetchInventoryItems);
-  useRealtimeSync('waste_logs', '*', fetchInventoryItems);
-
-  // Initial fetch
-  useEffect(() => {
-    fetchInventoryItems();
-  }, [fetchInventoryItems]);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -80,10 +93,7 @@ export default function Inventory() {
         <IngredientUsageAnalysis />
         <WastageReport />
         <CostAnalysis />
-        <VirtualizedInventoryTable 
-          items={inventoryItems} 
-          onUpdate={fetchInventoryItems}
-        />
+        <VirtualizedInventoryTable items={inventoryItems} />
         <WasteForecast historicalData={[]} />
         <PortionAdjustmentSuggestion data={[]} />
         <InventoryWasteLink data={[]} />
