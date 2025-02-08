@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -26,7 +25,7 @@ const inventoryItems = [
   { label: "Chicken Breast", value: "chicken-breast" },
   { label: "Rice", value: "rice" },
   { label: "Pasta", value: "pasta" },
-] satisfies Array<{ label: string; value: string }>;
+] as const;
 
 const wasteReasons = [
   { label: "Spoiled", value: "spoiled" },
@@ -34,7 +33,7 @@ const wasteReasons = [
   { label: "Expired", value: "expired" },
   { label: "Customer Return", value: "customer-return" },
   { label: "Other", value: "other" },
-] satisfies Array<{ label: string; value: string }>;
+] as const;
 
 const formSchema = z.object({
   itemName: z.string().min(1, "Item name is required"),
@@ -54,6 +53,9 @@ interface WasteLogFormProps {
 }
 
 export function WasteLogForm({ onSubmit, initialData }: WasteLogFormProps) {
+  console.log('WasteLogForm initialData:', initialData); // Debug log
+  console.log('Available inventory items:', inventoryItems); // Debug log
+
   const form = useForm<WasteLogFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {

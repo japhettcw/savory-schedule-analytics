@@ -25,12 +25,18 @@ interface ComboboxProps {
   placeholder?: string;
 }
 
-export function Combobox({ items = [], value = "", onChange, placeholder }: ComboboxProps) {
+export function Combobox({ 
+  items = [], 
+  value = "", 
+  onChange, 
+  placeholder 
+}: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  // Ensure items is always an array and filter based on search query
+  // Ensure items is always a valid array
   const safeItems = React.useMemo(() => {
+    console.log('Combobox items:', items); // Debug log
     const itemsArray = Array.isArray(items) ? items : [];
     if (!searchQuery) return itemsArray;
     return itemsArray.filter((item) =>
@@ -38,10 +44,17 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
     );
   }, [items, searchQuery]);
 
-  // Safety check for value
+  // Handle undefined or null value
   const selectedItem = React.useMemo(() => {
+    console.log('Selected value:', value); // Debug log
     return safeItems.find((item) => item.value === value) || null;
   }, [safeItems, value]);
+
+  // Don't render until we have valid items
+  if (!Array.isArray(items)) {
+    console.log('Invalid items prop:', items); // Debug log
+    return null;
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -57,7 +70,7 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0" align="start">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput 
             placeholder={placeholder || "Search items..."} 
             value={searchQuery}
@@ -70,6 +83,7 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
                 key={item.value}
                 value={item.value}
                 onSelect={(currentValue) => {
+                  console.log('Item selected:', currentValue); // Debug log
                   onChange(currentValue === value ? "" : currentValue);
                   setOpen(false);
                 }}
