@@ -4,7 +4,7 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { Plus } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AddShiftDialog } from "@/components/staff/AddShiftDialog";
+import { useToast } from "@/components/ui/use-toast";
 
 const locales = {
   "en-US": enUS,
@@ -52,6 +53,54 @@ const mockShifts = [
 export default function StaffScheduling() {
   const [shifts, setShifts] = useState(mockShifts);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedShift, setSelectedShift] = useState<typeof mockShifts[0] | null>(null);
+  const { toast } = useToast();
+
+  const handleAddShift = (shiftData: {
+    employeeName: string;
+    position: string;
+    start: Date;
+    end: Date;
+    notes?: string;
+  }) => {
+    const newShift = {
+      id: Math.max(0, ...shifts.map((s) => s.id)) + 1,
+      ...shiftData,
+    };
+    setShifts([...shifts, newShift]);
+    toast({
+      title: "Shift added",
+      description: "The shift has been successfully added to the schedule.",
+    });
+  };
+
+  const handleEditShift = (shiftData: {
+    employeeName: string;
+    position: string;
+    start: Date;
+    end: Date;
+    notes?: string;
+  }) => {
+    if (!selectedShift) return;
+    
+    const updatedShifts = shifts.map((shift) =>
+      shift.id === selectedShift.id ? { ...shift, ...shiftData } : shift
+    );
+    setShifts(updatedShifts);
+    setSelectedShift(null);
+    toast({
+      title: "Shift updated",
+      description: "The shift has been successfully updated.",
+    });
+  };
+
+  const handleDeleteShift = (id: number) => {
+    setShifts(shifts.filter((shift) => shift.id !== id));
+    toast({
+      title: "Shift deleted",
+      description: "The shift has been successfully removed from the schedule.",
+    });
+  };
 
   const calendarEvents = shifts.map((shift) => ({
     title: `${shift.employeeName} (${shift.position})`,
@@ -69,7 +118,10 @@ export default function StaffScheduling() {
             Manage employee shifts and schedules
           </p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>
+        <Button onClick={() => {
+          setSelectedShift(null);
+          setIsDialogOpen(true);
+        }}>
           <Plus className="mr-2" />
           Add Shift
         </Button>
@@ -85,6 +137,10 @@ export default function StaffScheduling() {
             defaultView="week"
             views={["month", "week", "day"]}
             tooltipAccessor={(event) => event.resource.notes}
+            onSelectEvent={(event) => {
+              setSelectedShift(event.resource);
+              setIsDialogOpen(true);
+            }}
             className="rounded-md"
           />
         </div>
@@ -103,6 +159,7 @@ export default function StaffScheduling() {
                   <TableHead>Start Time</TableHead>
                   <TableHead>End Time</TableHead>
                   <TableHead>Notes</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -114,6 +171,27 @@ export default function StaffScheduling() {
                     <TableCell>{format(shift.start, "p")}</TableCell>
                     <TableCell>{format(shift.end, "p")}</TableCell>
                     <TableCell>{shift.notes}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedShift(shift);
+                            setIsDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteShift(shift.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -122,7 +200,15 @@ export default function StaffScheduling() {
         </div>
       </Card>
 
-      <AddShiftDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+      <AddShiftDialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) setSelectedShift(null);
+        }}
+        onSubmit={selectedShift ? handleEditShift : handleAddShift}
+        initialData={selectedShift || undefined}
+      />
     </div>
   );
 }
