@@ -29,7 +29,7 @@ type UserWithRoles = {
   roles: Role[];
 };
 
-export function RoleManager() {
+const RoleManager = () => {
   const [users, setUsers] = useState<UserWithRoles[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
@@ -71,7 +71,6 @@ export function RoleManager() {
 
   const handleRoleChange = async (userId: string, newRole: Role) => {
     try {
-      // Remove existing roles
       const { error: deleteError } = await supabase
         .from('user_roles')
         .delete()
@@ -79,7 +78,6 @@ export function RoleManager() {
 
       if (deleteError) throw deleteError;
 
-      // Add new role
       const { error: insertError } = await supabase
         .from('user_roles')
         .insert({
@@ -148,4 +146,7 @@ export function RoleManager() {
       </div>
     </Card>
   );
-}
+};
+
+export default RoleManager;
+

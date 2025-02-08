@@ -12,7 +12,7 @@ interface MenuItemCardProps {
   onDelete: (item: MenuItem) => void;
 }
 
-export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
+const MenuItemCard = ({ item, onEdit, onDelete }: MenuItemCardProps) => {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <img
@@ -83,4 +83,7 @@ export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
       </div>
     </Card>
   );
-}
+};
+
+export default MenuItemCard;
+
