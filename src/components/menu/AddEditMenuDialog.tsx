@@ -43,7 +43,7 @@ const formSchema = z.object({
       name: z.string().min(1, "Ingredient name is required"),
       quantity: z.string().min(1, "Quantity is required"),
       unit: z.string().min(1, "Unit is required"),
-    })
+    }).required()
   ),
 });
 
@@ -270,7 +270,7 @@ export function AddEditMenuDialog({
                   <FormLabel>Ingredients</FormLabel>
                   <FormControl>
                     <IngredientList
-                      ingredients={field.value as Ingredient[]}
+                      ingredients={field.value}
                       onChange={field.onChange}
                     />
                   </FormControl>
@@ -297,3 +297,4 @@ export function AddEditMenuDialog({
     </Dialog>
   );
 }
+
