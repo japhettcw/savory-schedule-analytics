@@ -47,6 +47,8 @@ const formSchema = z.object({
   ),
 });
 
+type FormValues = z.infer<typeof formSchema>;
+
 type MenuItem = {
   id: number;
   name: string;
@@ -85,7 +87,7 @@ export function AddEditMenuDialog({
     item?.image || "/placeholder.svg"
   );
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: item?.name || "",
@@ -108,7 +110,7 @@ export function AddEditMenuDialog({
     }
   };
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: FormValues) => {
     const newItem: MenuItem = {
       id: item?.id || Date.now(),
       name: values.name,
@@ -268,7 +270,7 @@ export function AddEditMenuDialog({
                   <FormLabel>Ingredients</FormLabel>
                   <FormControl>
                     <IngredientList
-                      ingredients={field.value}
+                      ingredients={field.value as Ingredient[]}
                       onChange={field.onChange}
                     />
                   </FormControl>
