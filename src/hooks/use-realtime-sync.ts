@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { Database } from '@/integrations/supabase/types';
 
 interface UseRealtimeSyncProps {
   tableName: string;
@@ -15,14 +16,14 @@ export function useRealtimeSync({ tableName, onDataChange }: UseRealtimeSyncProp
     const setupRealtimeSync = async () => {
       channel = supabase
         .channel('schema-db-changes')
-        .on(
+        .on<keyof Database['public']['Tables']>(
           'postgres_changes',
           {
             event: '*',
             schema: 'public',
             table: tableName
           },
-          (payload: RealtimePostgresChangesPayload<any>) => {
+          (payload) => {
             console.log('Change received!', payload);
             onDataChange();
           }
