@@ -17,9 +17,9 @@ interface AddWasteLogDialogProps {
   initialData?: WasteLog | null;
 }
 
-interface InventoryItem {
-  id: string;
-  name: string;
+interface ComboboxItem {
+  label: string;
+  value: string;
 }
 
 export function AddWasteLogDialog({
@@ -28,7 +28,7 @@ export function AddWasteLogDialog({
   onSubmit,
   initialData,
 }: AddWasteLogDialogProps) {
-  const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<ComboboxItem[]>([]);
 
   useEffect(() => {
     const fetchInventoryItems = async () => {
@@ -41,10 +41,12 @@ export function AddWasteLogDialog({
         return;
       }
 
-      setInventoryItems(data?.map(item => ({
-        label: item.name,
-        value: item.id
-      })) || []);
+      setInventoryItems(
+        data?.map(item => ({
+          label: item.name,
+          value: item.id
+        })) || []
+      );
     };
 
     fetchInventoryItems();
