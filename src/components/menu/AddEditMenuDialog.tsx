@@ -95,7 +95,11 @@ export function AddEditMenuDialog({
       category: item?.category || "",
       description: item?.description || "",
       allergens: item?.allergens || [],
-      ingredients: item?.ingredients || ([] as Ingredient[]),
+      ingredients: (item?.ingredients || []).map(ing => ({
+        name: ing.name,
+        quantity: ing.quantity,
+        unit: ing.unit
+      })),
     },
   });
 
@@ -120,7 +124,7 @@ export function AddEditMenuDialog({
       image: imagePreview,
       available: true,
       allergens: values.allergens,
-      ingredients: values.ingredients,
+      ingredients: values.ingredients as Ingredient[],
     };
 
     onSave(newItem);
