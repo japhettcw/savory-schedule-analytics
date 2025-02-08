@@ -25,11 +25,13 @@ interface ComboboxProps {
   placeholder?: string;
 }
 
-export function Combobox({ items = [], value, onChange, placeholder }: ComboboxProps) {
+export function Combobox({ items = [], value = "", onChange, placeholder }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
-  // Ensure items is always an array and never undefined
+  // Ensure items is always an array
   const safeItems = Array.isArray(items) ? items : [];
+
+  const selectedItem = safeItems.find((item) => item.value === value);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -40,9 +42,7 @@ export function Combobox({ items = [], value, onChange, placeholder }: ComboboxP
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? safeItems.find((item) => item.value === value)?.label
-            : placeholder || "Select item..."}
+          {selectedItem ? selectedItem.label : placeholder || "Select item..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -50,28 +50,26 @@ export function Combobox({ items = [], value, onChange, placeholder }: ComboboxP
         <Command>
           <CommandInput placeholder={placeholder || "Search items..."} />
           <CommandEmpty>No item found.</CommandEmpty>
-          {safeItems.length > 0 ? (
-            <CommandGroup>
-              {safeItems.map((item) => (
-                <CommandItem
-                  key={item.value}
-                  value={item.value}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === item.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {item.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ) : null}
+          <CommandGroup>
+            {safeItems.map((item) => (
+              <CommandItem
+                key={item.value}
+                value={item.value}
+                onSelect={(currentValue) => {
+                  onChange(currentValue === value ? "" : currentValue);
+                  setOpen(false);
+                }}
+              >
+                <Check
+                  className={cn(
+                    "mr-2 h-4 w-4",
+                    value === item.value ? "opacity-100" : "opacity-0"
+                  )}
+                />
+                {item.label}
+              </CommandItem>
+            ))}
+          </CommandGroup>
         </Command>
       </PopoverContent>
     </Popover>

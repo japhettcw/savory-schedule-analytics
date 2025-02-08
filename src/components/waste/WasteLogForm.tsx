@@ -34,7 +34,7 @@ const wasteReasons = [
   { label: "Expired", value: "expired" },
   { label: "Customer Return", value: "customer-return" },
   { label: "Other", value: "other" },
-] as const;
+] satisfies Array<{ label: string; value: string }>;
 
 const formSchema = z.object({
   itemName: z.string().min(1, "Item name is required"),
