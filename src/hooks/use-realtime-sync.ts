@@ -18,7 +18,7 @@ export function useRealtimeSync(
     const channel: RealtimeChannel = supabase
       .channel('schema-db-changes')
       .on(
-        'postgres_changes' as const,
+        'postgres_changes',
         {
           event: event,
           schema: 'public',
