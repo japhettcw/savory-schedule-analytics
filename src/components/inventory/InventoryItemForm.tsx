@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -34,9 +35,10 @@ const formSchema = z.object({
 type InventoryItemFormProps = {
   onSubmit: (data: z.infer<typeof formSchema>) => void;
   initialData?: z.infer<typeof formSchema>;
+  isSubmitting?: boolean;
 };
 
-export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormProps) {
+export function InventoryItemForm({ onSubmit, initialData, isSubmitting = false }: InventoryItemFormProps) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,13 +55,6 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit(values);
-    toast({
-      title: "Success",
-      description: "Form submitted successfully",
-      duration: 3000,
-      role: "status",
-      "aria-live": "polite",
-    });
   };
 
   return (
@@ -244,8 +239,16 @@ export function InventoryItemForm({ onSubmit, initialData }: InventoryItemFormPr
             type="submit"
             className="hover-scale active-press"
             aria-label="Submit inventory item form"
+            disabled={isSubmitting}
           >
-            {initialData ? "Update Item" : "Add Item"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              initialData ? "Update Item" : "Add Item"
+            )}
           </Button>
         </div>
       </form>

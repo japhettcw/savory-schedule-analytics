@@ -7,6 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { InventoryItemForm } from "./InventoryItemForm";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 
 type AddInventoryDialogProps = {
   open: boolean;
@@ -15,18 +17,53 @@ type AddInventoryDialogProps = {
 
 export function AddInventoryDialog({ open, onOpenChange }: AddInventoryDialogProps) {
   const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (values: any) => {
-    // Handle form submission
-    console.log(values);
-    toast({
-      title: "Success",
-      description: "Inventory item has been added successfully",
-      duration: 3000,
-      role: "status",
-      "aria-live": "polite",
-    });
-    onOpenChange(false);
+  const handleSubmit = async (values: any) => {
+    setIsSubmitting(true);
+    try {
+      // Log the values being sent
+      console.log('Attempting to save inventory item:', values);
+
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .insert([{
+          name: values.name,
+          category: values.category,
+          quantity: values.quantity,
+          unit: values.unit,
+          supplier: values.supplier,
+          reorder_point: values.reorderPoint,
+          expiry_date: values.expiryDate || null,
+          user_id: (await supabase.auth.getUser()).data.user?.id
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error saving inventory item:', error);
+        throw error;
+      }
+
+      console.log('Successfully saved inventory item:', data);
+
+      toast({
+        title: "Success",
+        description: "Inventory item has been added successfully",
+        duration: 3000,
+      });
+      
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add inventory item. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -38,7 +75,7 @@ export function AddInventoryDialog({ open, onOpenChange }: AddInventoryDialogPro
         <DialogHeader>
           <DialogTitle id="add-inventory-title">Add Inventory Item</DialogTitle>
         </DialogHeader>
-        <InventoryItemForm onSubmit={handleSubmit} />
+        <InventoryItemForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       </DialogContent>
     </Dialog>
   );
