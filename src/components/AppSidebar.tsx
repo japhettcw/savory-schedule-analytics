@@ -8,6 +8,7 @@ import {
   Users,
   Settings,
   ChevronRight,
+  Menu as MenuIcon,
 } from "lucide-react";
 import {
   Sidebar,
@@ -21,6 +22,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { FeatureTooltip } from "@/components/ui/feature-tooltip";
 
 const menuItems = [
   { 
@@ -67,37 +70,57 @@ const accountItems = [
 export function AppSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   return (
-    <Sidebar>
+    <Sidebar className="z-50 border-r">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Restaurant Manager</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            <span className="flex items-center gap-2">
+              <MenuIcon className="h-5 w-5" />
+              Restaurant Manager
+            </span>
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => navigate(item.path)}
-                    className={cn(
-                      "group flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-accent rounded-md",
-                      location.pathname === item.path && "bg-accent"
-                    )}
+                  <FeatureTooltip 
+                    content={item.description}
+                    className="w-full"
+                    showIcon={false}
                   >
-                    <div className="flex items-center gap-3">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-colors",
-                        location.pathname === item.path ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                      )} />
-                      <div>
-                        <span className="font-medium">{item.title}</span>
-                        <p className="text-xs text-muted-foreground hidden group-hover:block">
-                          {item.description}
-                        </p>
+                    <SidebarMenuButton
+                      onClick={() => navigate(item.path)}
+                      className={cn(
+                        "group relative flex w-full items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md",
+                        location.pathname === item.path && "bg-accent"
+                      )}
+                      role="link"
+                      aria-current={location.pathname === item.path ? "page" : undefined}
+                    >
+                      <div className="flex items-center gap-3">
+                        <item.icon className={cn(
+                          "h-5 w-5 transition-colors",
+                          location.pathname === item.path ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                        )} />
+                        <div className="flex flex-col">
+                          <span className="font-medium">{item.title}</span>
+                          {!isMobile && (
+                            <p className="text-xs text-muted-foreground hidden group-hover:block transition-all">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <ChevronRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </SidebarMenuButton>
+                      <ChevronRight className={cn(
+                        "h-4 w-4 opacity-0 -translate-x-2 transition-all",
+                        "group-hover:opacity-100 group-hover:translate-x-0",
+                        location.pathname === item.path && "opacity-100 translate-x-0"
+                      )} />
+                    </SidebarMenuButton>
+                  </FeatureTooltip>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -110,27 +133,41 @@ export function AppSidebar() {
             <SidebarMenu>
               {accountItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    onClick={() => navigate(item.path)}
-                    className={cn(
-                      "group flex items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-accent rounded-md",
-                      location.pathname === item.path && "bg-accent"
-                    )}
+                  <FeatureTooltip 
+                    content={item.description}
+                    className="w-full"
+                    showIcon={false}
                   >
-                    <div className="flex items-center gap-3">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-colors",
-                        location.pathname === item.path ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                      )} />
-                      <div>
-                        <span className="font-medium">{item.title}</span>
-                        <p className="text-xs text-muted-foreground hidden group-hover:block">
-                          {item.description}
-                        </p>
+                    <SidebarMenuButton
+                      onClick={() => navigate(item.path)}
+                      className={cn(
+                        "group relative flex w-full items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md",
+                        location.pathname === item.path && "bg-accent"
+                      )}
+                      role="link"
+                      aria-current={location.pathname === item.path ? "page" : undefined}
+                    >
+                      <div className="flex items-center gap-3">
+                        <item.icon className={cn(
+                          "h-5 w-5 transition-colors",
+                          location.pathname === item.path ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                        )} />
+                        <div className="flex flex-col">
+                          <span className="font-medium">{item.title}</span>
+                          {!isMobile && (
+                            <p className="text-xs text-muted-foreground hidden group-hover:block transition-all">
+                              {item.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                    <ChevronRight className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </SidebarMenuButton>
+                      <ChevronRight className={cn(
+                        "h-4 w-4 opacity-0 -translate-x-2 transition-all",
+                        "group-hover:opacity-100 group-hover:translate-x-0",
+                        location.pathname === item.path && "opacity-100 translate-x-0"
+                      )} />
+                    </SidebarMenuButton>
+                  </FeatureTooltip>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
