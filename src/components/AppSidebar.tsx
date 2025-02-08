@@ -94,28 +94,33 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={() => navigate(item.path)}
                       className={cn(
-                        "group relative flex w-full items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md",
+                        "group relative flex w-full items-center justify-between px-4 py-3 text-sm transition-all duration-200 ease-in-out",
+                        "min-h-[3rem] hover:min-h-[4rem]",
+                        "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md",
                         location.pathname === item.path && "bg-accent"
                       )}
                       role="link"
                       aria-current={location.pathname === item.path ? "page" : undefined}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
                         <item.icon className={cn(
-                          "h-5 w-5 transition-colors",
+                          "h-5 w-5 flex-shrink-0 transition-colors",
                           location.pathname === item.path ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                         )} />
-                        <div className="flex flex-col">
-                          <span className="font-medium">{item.title}</span>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="font-medium truncate">{item.title}</span>
                           {!isMobile && (
-                            <p className="text-xs text-muted-foreground hidden group-hover:block transition-all">
+                            <p className={cn(
+                              "text-xs text-muted-foreground line-clamp-2 transition-all",
+                              "opacity-0 h-0 group-hover:h-auto group-hover:opacity-100 group-hover:mt-1"
+                            )}>
                               {item.description}
                             </p>
                           )}
                         </div>
                       </div>
                       <ChevronRight className={cn(
-                        "h-4 w-4 opacity-0 -translate-x-2 transition-all",
+                        "h-4 w-4 flex-shrink-0 opacity-0 -translate-x-2 transition-all ml-2",
                         "group-hover:opacity-100 group-hover:translate-x-0",
                         location.pathname === item.path && "opacity-100 translate-x-0"
                       )} />
@@ -141,28 +146,33 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       onClick={() => navigate(item.path)}
                       className={cn(
-                        "group relative flex w-full items-center justify-between px-3 py-2 text-sm transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md",
+                        "group relative flex w-full items-center justify-between px-4 py-3 text-sm transition-all duration-200 ease-in-out",
+                        "min-h-[3rem] hover:min-h-[4rem]",
+                        "hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md",
                         location.pathname === item.path && "bg-accent"
                       )}
                       role="link"
                       aria-current={location.pathname === item.path ? "page" : undefined}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
                         <item.icon className={cn(
-                          "h-5 w-5 transition-colors",
+                          "h-5 w-5 flex-shrink-0 transition-colors",
                           location.pathname === item.path ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                         )} />
-                        <div className="flex flex-col">
-                          <span className="font-medium">{item.title}</span>
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span className="font-medium truncate">{item.title}</span>
                           {!isMobile && (
-                            <p className="text-xs text-muted-foreground hidden group-hover:block transition-all">
+                            <p className={cn(
+                              "text-xs text-muted-foreground line-clamp-2 transition-all",
+                              "opacity-0 h-0 group-hover:h-auto group-hover:opacity-100 group-hover:mt-1"
+                            )}>
                               {item.description}
                             </p>
                           )}
                         </div>
                       </div>
                       <ChevronRight className={cn(
-                        "h-4 w-4 opacity-0 -translate-x-2 transition-all",
+                        "h-4 w-4 flex-shrink-0 opacity-0 -translate-x-2 transition-all ml-2",
                         "group-hover:opacity-100 group-hover:translate-x-0",
                         location.pathname === item.path && "opacity-100 translate-x-0"
                       )} />
