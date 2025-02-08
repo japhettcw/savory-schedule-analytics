@@ -19,11 +19,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
+import { Database } from "@/integrations/supabase/types";
+
+type Role = Database["public"]["Enums"]["app_role"];
 
 type UserWithRoles = {
   id: string;
   email: string;
-  roles: string[];
+  roles: Role[];
 };
 
 export function RoleManager() {
@@ -50,7 +53,7 @@ export function RoleManager() {
         email: user.email || '',
         roles: rolesData
           .filter(role => role.user_id === user.id)
-          .map(role => role.role)
+          .map(role => role.role as Role)
       }));
 
       setUsers(usersWithRoles);
@@ -66,7 +69,7 @@ export function RoleManager() {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = async (userId: string, newRole: Role) => {
     try {
       // Remove existing roles
       const { error: deleteError } = await supabase
@@ -79,9 +82,10 @@ export function RoleManager() {
       // Add new role
       const { error: insertError } = await supabase
         .from('user_roles')
-        .insert([
-          { user_id: userId, role: newRole }
-        ]);
+        .insert({
+          user_id: userId,
+          role: newRole
+        });
 
       if (insertError) throw insertError;
 
@@ -124,7 +128,7 @@ export function RoleManager() {
                 <TableCell>{user.roles.join(', ') || 'No role'}</TableCell>
                 <TableCell>
                   <Select
-                    onValueChange={(value) => handleRoleChange(user.id, value)}
+                    onValueChange={(value) => handleRoleChange(user.id, value as Role)}
                     defaultValue={user.roles[0]}
                   >
                     <SelectTrigger className="w-[180px]">
