@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -55,14 +56,14 @@ interface WasteLogFormProps {
 export function WasteLogForm({ onSubmit, initialData }: WasteLogFormProps) {
   const form = useForm<WasteLogFormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: initialData || {
-      itemName: "",
-      quantity: 0,
-      unit: "kg",
-      reason: "",
-      date: new Date().toISOString().split("T")[0],
-      costImpact: 0,
-      notes: "",
+    defaultValues: {
+      itemName: initialData?.itemName ?? "",
+      quantity: initialData?.quantity ?? 0,
+      unit: initialData?.unit ?? "kg",
+      reason: initialData?.reason ?? "",
+      date: initialData?.date ?? new Date().toISOString().split("T")[0],
+      costImpact: initialData?.costImpact ?? 0,
+      notes: initialData?.notes ?? "",
     },
   });
 
