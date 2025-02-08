@@ -66,6 +66,7 @@ export default function StaffScheduling() {
     const newShift = {
       id: Math.max(0, ...shifts.map((s) => s.id)) + 1,
       ...shiftData,
+      notes: shiftData.notes || "", // Provide default empty string for notes
     };
     setShifts([...shifts, newShift]);
     toast({
@@ -84,7 +85,11 @@ export default function StaffScheduling() {
     if (!selectedShift) return;
     
     const updatedShifts = shifts.map((shift) =>
-      shift.id === selectedShift.id ? { ...shift, ...shiftData } : shift
+      shift.id === selectedShift.id ? { 
+        ...shift, 
+        ...shiftData,
+        notes: shiftData.notes || "", // Provide default empty string for notes
+      } : shift
     );
     setShifts(updatedShifts);
     setSelectedShift(null);
