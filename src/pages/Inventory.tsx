@@ -17,6 +17,9 @@ import { OutOfStockNotification } from "@/components/inventory/OutOfStockNotific
 import { SupplierManagement } from "@/components/inventory/SupplierManagement";
 import { AutomaticReorderSystem } from "@/components/inventory/AutomaticReorderSystem";
 import { OrderTracker } from "@/components/inventory/OrderTracker";
+import { IngredientUsageAnalysis } from "@/components/inventory/IngredientUsageAnalysis";
+import { WastageReport } from "@/components/inventory/WastageReport";
+import { CostAnalysis } from "@/components/inventory/CostAnalysis";
 
 // Temporary mock data until we integrate with a backend
 const inventoryData = [
@@ -152,6 +155,13 @@ export default function Inventory() {
           </div>
         </div>
       </Card>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <IngredientUsageAnalysis />
+        <WastageReport />
+      </div>
+      
+      <CostAnalysis />
 
       <SupplierManagement />
       <OrderTracker />
