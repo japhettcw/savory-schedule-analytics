@@ -1,4 +1,5 @@
-import { useState, useCallback, useMemo } from "react";
+
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
@@ -24,52 +25,8 @@ import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
 import { useToast } from "@/hooks/use-toast";
 import type { MenuItem } from "@/types/menu";
 import { useMediaQuery } from "@/hooks/use-media-query";
-
-const initialMenuItems: MenuItem[] = [
-  {
-    id: 1,
-    name: "Classic Burger",
-    price: 12.99,
-    category: "Main Course",
-    description: "Juicy beef patty with fresh vegetables",
-    image: "/placeholder.svg",
-    available: true,
-    stockLevel: 15,
-    allergens: ["Milk", "Wheat"],
-    ingredients: [
-      { name: "Beef Patty", quantity: "200", unit: "g" },
-      { name: "Burger Bun", quantity: "1", unit: "piece" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Caesar Salad",
-    price: 9.99,
-    category: "Starters",
-    description: "Crisp romaine lettuce with Caesar dressing",
-    image: "/placeholder.svg",
-    available: true,
-    allergens: ["Eggs", "Fish"],
-    ingredients: [
-      { name: "Romaine Lettuce", quantity: "150", unit: "g" },
-      { name: "Caesar Dressing", quantity: "50", unit: "ml" },
-    ],
-  },
-  {
-    id: 3,
-    name: "Margherita Pizza",
-    price: 14.99,
-    category: "Main Course",
-    description: "Classic Italian pizza with tomato and mozzarella",
-    image: "/placeholder.svg",
-    available: true,
-    allergens: ["Milk", "Wheat"],
-    ingredients: [
-      { name: "Pizza Dough", quantity: "250", unit: "g" },
-      { name: "Mozzarella", quantity: "100", unit: "g" },
-    ],
-  },
-];
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const categories = [
   "All",
@@ -81,13 +38,13 @@ const categories = [
 ];
 
 export default function Menu() {
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(initialMenuItems);
   const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const isTablet = useMediaQuery("(min-width: 768px)");
@@ -98,27 +55,94 @@ export default function Menu() {
     return 1;
   }, [isDesktop, isTablet]);
 
-  const handleAddEditItem = useCallback((item: MenuItem) => {
-    if (selectedItem) {
-      setMenuItems(prev => prev.map(menuItem =>
-        menuItem.id === item.id ? item : menuItem
-      ));
-    } else {
-      setMenuItems(prev => [...prev, item]);
-    }
-  }, [selectedItem]);
+  // Fetch menu items
+  const { data: menuItems = [] } = useQuery({
+    queryKey: ['menuItems'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('menu_items')
+        .select('*');
+      
+      if (error) {
+        toast({
+          title: "Error fetching menu items",
+          description: error.message,
+          variant: "destructive",
+        });
+        return [];
+      }
+      
+      return data as MenuItem[];
+    },
+  });
 
-  const handleDeleteItem = useCallback(() => {
-    if (selectedItem) {
-      setMenuItems(prev => prev.filter(item => item.id !== selectedItem.id));
+  // Add/Edit mutation
+  const { mutate: handleAddEditItem } = useMutation({
+    mutationFn: async (item: MenuItem) => {
+      const { data, error } = await supabase
+        .from('menu_items')
+        .upsert({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          category: item.category,
+          description: item.description,
+          image: item.image,
+          available: item.available,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
       toast({
-        title: "Menu item deleted",
-        description: `${selectedItem.name} has been deleted successfully.`,
+        title: selectedItem ? "Menu item updated" : "Menu item added",
+        description: `${variables.name} has been ${selectedItem ? "updated" : "added"} successfully.`,
       });
+      setIsAddEditDialogOpen(false);
+      setSelectedItem(undefined);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error saving menu item",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete mutation
+  const { mutate: handleDeleteItem } = useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase
+        .from('menu_items')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      if (selectedItem) {
+        toast({
+          title: "Menu item deleted",
+          description: `${selectedItem.name} has been deleted successfully.`,
+        });
+      }
       setIsDeleteDialogOpen(false);
       setSelectedItem(undefined);
-    }
-  }, [selectedItem, toast]);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error deleting menu item",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleEditClick = useCallback((item: MenuItem) => {
     setSelectedItem(item);
@@ -208,7 +232,7 @@ export default function Menu() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={handleDeleteItem}
+              onClick={() => selectedItem && handleDeleteItem(selectedItem.id)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Delete
