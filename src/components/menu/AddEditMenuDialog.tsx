@@ -95,7 +95,7 @@ export function AddEditMenuDialog({
       category: item?.category || "",
       description: item?.description || "",
       allergens: item?.allergens || [],
-      ingredients: item?.ingredients || [],
+      ingredients: item?.ingredients || ([] as Ingredient[]),
     },
   });
 
