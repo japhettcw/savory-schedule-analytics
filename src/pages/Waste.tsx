@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { WasteTrendChart } from "@/components/waste/WasteTrendChart";
 import { MostWastedItemsReport } from "@/components/waste/MostWastedItemsReport";
 import { WasteCostCalculator } from "@/components/waste/WasteCostCalculator";
+import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
 
 // Temporary mock data until we integrate with Supabase
 const initialWasteData: WasteLog[] = [
@@ -113,6 +114,13 @@ export default function Waste() {
     percentage: (item.costImpact / totalWasteCost) * 100,
   }));
 
+  // Prepare data for InventoryWasteLink
+  const inventoryWasteData = wasteLogs.map(log => ({
+    inventoryLevel: Math.random() * 100, // This would come from your inventory system in production
+    wasteAmount: log.quantity,
+    itemName: log.itemName
+  }));
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -160,7 +168,10 @@ export default function Waste() {
         />
       </div>
 
-      <MostWastedItemsReport items={wastedItems} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <MostWastedItemsReport items={wastedItems} />
+        <InventoryWasteLink data={inventoryWasteData} />
+      </div>
 
       <Card>
         <div className="p-6">
