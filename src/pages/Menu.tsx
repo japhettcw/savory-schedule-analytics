@@ -23,7 +23,7 @@ import {
 import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
 import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
 import { useToast } from "@/hooks/use-toast";
-import type { MenuItem } from "@/types/menu";
+import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";

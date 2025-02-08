@@ -120,7 +120,7 @@ export function AddEditMenuDialog({
 
   const onSubmit = (values: FormValues) => {
     const newItem: MenuItem = {
-      id: item?.id || Date.now(),
+      id: item?.id || crypto.randomUUID(),
       name: values.name,
       price: parseFloat(values.price),
       category: values.category,
