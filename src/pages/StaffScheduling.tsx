@@ -4,7 +4,7 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -24,6 +24,12 @@ import { ShiftSwapRequestForm } from "@/components/staff/ShiftSwapRequestForm";
 import { OpenShiftsBoard } from "@/components/staff/OpenShiftsBoard";
 import { SchedulingAlerts } from "@/components/staff/SchedulingAlerts";
 import { detectAllConflicts } from "@/services/ConflictDetectionService";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const locales = {
   "en-US": enUS,
@@ -62,6 +68,8 @@ export default function StaffScheduling() {
   const [selectedShift, setSelectedShift] = useState<typeof mockShifts[0] | null>(null);
   const [conflicts, setConflicts] = useState(detectAllConflicts(mockShifts));
   const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const [isFormsCollapsed, setIsFormsCollapsed] = useState(true);
 
   useEffect(() => {
     const newConflicts = detectAllConflicts(shifts);
@@ -127,18 +135,21 @@ export default function StaffScheduling() {
   }));
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold tracking-tight">Staff Scheduling</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Staff Scheduling</h1>
           <p className="text-muted-foreground mt-2">
             Manage employee shifts and schedules
           </p>
         </div>
-        <Button onClick={() => {
-          setSelectedShift(null);
-          setIsDialogOpen(true);
-        }}>
+        <Button 
+          onClick={() => {
+            setSelectedShift(null);
+            setIsDialogOpen(true);
+          }}
+          className="w-full sm:w-auto"
+        >
           <Plus className="mr-2" />
           Add Shift
         </Button>
@@ -146,66 +157,104 @@ export default function StaffScheduling() {
 
       <SchedulingAlerts alerts={conflicts} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="p-6">
-          <div className="h-[600px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="p-4 sm:p-6 overflow-hidden">
+          <div className="h-[500px] sm:h-[600px]">
             <Calendar
               localizer={localizer}
               events={calendarEvents}
               startAccessor="start"
               endAccessor="end"
-              defaultView="week"
+              defaultView={isMobile ? "day" : "week"}
               views={["month", "week", "day"]}
               tooltipAccessor={(event) => event.resource.notes}
               onSelectEvent={(event) => {
                 setSelectedShift(event.resource);
                 setIsDialogOpen(true);
               }}
-              className="rounded-md"
+              className="rounded-md touch-pan-y"
             />
           </div>
         </Card>
 
-        <div className="space-y-8">
-          <EmployeeAvailabilityForm />
-          <TimeOffRequestForm />
-          <ShiftSwapRequestForm />
-        </div>
+        {isMobile ? (
+          <Collapsible
+            open={!isFormsCollapsed}
+            onOpenChange={setIsFormsCollapsed}
+            className="space-y-4"
+          >
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-between"
+              >
+                <span>Forms & Requests</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    !isFormsCollapsed ? "transform rotate-180" : ""
+                  }`}
+                />
+              </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="space-y-4">
+              <EmployeeAvailabilityForm />
+              <TimeOffRequestForm />
+              <ShiftSwapRequestForm />
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <div className="space-y-6">
+            <EmployeeAvailabilityForm />
+            <TimeOffRequestForm />
+            <ShiftSwapRequestForm />
+          </div>
+        )}
       </div>
 
       <OpenShiftsBoard />
       <TimeOffApprovalDashboard />
 
-      <Card>
-        <div className="p-6">
+      <Card className="overflow-hidden">
+        <div className="p-4 sm:p-6">
           <h2 className="text-xl font-semibold mb-4">Upcoming Shifts</h2>
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Employee</TableHead>
-                  <TableHead>Position</TableHead>
+                  <TableHead className="hidden sm:table-cell">Position</TableHead>
                   <TableHead>Date</TableHead>
-                  <TableHead>Start Time</TableHead>
-                  <TableHead>End Time</TableHead>
-                  <TableHead>Notes</TableHead>
+                  <TableHead className="hidden sm:table-cell">Start Time</TableHead>
+                  <TableHead className="hidden sm:table-cell">End Time</TableHead>
+                  <TableHead className="hidden lg:table-cell">Notes</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {shifts.map((shift) => (
                   <TableRow key={shift.id}>
-                    <TableCell>{shift.employeeName}</TableCell>
-                    <TableCell>{shift.position}</TableCell>
-                    <TableCell>{format(shift.start, "PP")}</TableCell>
-                    <TableCell>{format(shift.start, "p")}</TableCell>
-                    <TableCell>{format(shift.end, "p")}</TableCell>
-                    <TableCell>{shift.notes}</TableCell>
+                    <TableCell className="font-medium">
+                      {shift.employeeName}
+                      <div className="sm:hidden text-sm text-muted-foreground">
+                        {shift.position}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">{shift.position}</TableCell>
+                    <TableCell>
+                      {format(shift.start, "PP")}
+                      <div className="sm:hidden text-sm text-muted-foreground">
+                        {format(shift.start, "p")} - {format(shift.end, "p")}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">{format(shift.start, "p")}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{format(shift.end, "p")}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{shift.notes}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="outline"
                           size="icon"
+                          className="h-8 w-8"
                           onClick={() => {
                             setSelectedShift(shift);
                             setIsDialogOpen(true);
@@ -216,6 +265,7 @@ export default function StaffScheduling() {
                         <Button
                           variant="outline"
                           size="icon"
+                          className="h-8 w-8"
                           onClick={() => handleDeleteShift(shift.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -224,6 +274,13 @@ export default function StaffScheduling() {
                     </TableCell>
                   </TableRow>
                 ))}
+                {shifts.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-4">
+                      No shifts scheduled
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </div>
