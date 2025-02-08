@@ -1,5 +1,8 @@
-
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import {
   AreaChart,
   Area,
@@ -8,14 +11,14 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
   PieChart,
   Pie,
   Cell,
   Legend,
 } from "recharts";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
+import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
+import { DashboardAlerts } from "@/components/dashboard/DashboardAlerts";
 
 const revenueData = [
   { name: 'Mon', revenue: 4000, expenses: 2400 },
@@ -67,7 +70,56 @@ const stats = [
   },
 ];
 
+const fetchDashboardData = async (dateRange: DateRange | undefined, view: string) => {
+  // Simulate API call
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return {
+    revenueData,
+    topSellingItems,
+    stats,
+    alerts: [
+      {
+        id: '1',
+        title: 'Low Stock Alert',
+        description: 'Tomatoes inventory is running low (2 kg remaining)',
+        type: 'warning' as const,
+      },
+      {
+        id: '2',
+        title: 'High Waste Detected',
+        description: 'Waste percentage exceeded 10% threshold this week',
+        type: 'error' as const,
+      },
+    ],
+  };
+};
+
 export default function Dashboard() {
+  const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [view, setView] = useState<string>("weekly");
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['dashboard', dateRange, view],
+    queryFn: () => fetchDashboardData(dateRange, view),
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to fetch dashboard data",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleRangeChange = (range: DateRange | undefined) => {
+    setDateRange(range);
+  };
+
+  const handleViewChange = (newView: string) => {
+    setView(newView);
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -77,6 +129,13 @@ export default function Dashboard() {
         </p>
       </div>
 
+      <DateRangePicker
+        onRangeChange={handleRangeChange}
+        onViewChange={handleViewChange}
+      />
+
+      {data?.alerts && <DashboardAlerts alerts={data.alerts} />}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Card key={stat.title} className="p-6 hover:shadow-lg transition-shadow">
@@ -85,7 +144,9 @@ export default function Dashboard() {
                 {stat.title}
               </p>
               <div className="flex items-baseline justify-between">
-                <h3 className="text-2xl font-semibold">{stat.value}</h3>
+                <h3 className="text-2xl font-semibold">
+                  {isLoading ? "Loading..." : stat.value}
+                </h3>
                 <div
                   className={`flex items-center gap-1 text-sm ${
                     stat.changeType === "positive" ? "text-green-500" : "text-red-500"
@@ -111,64 +172,76 @@ export default function Dashboard() {
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Revenue vs Expenses</h3>
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData}>
-                <defs>
-                  <linearGradient id="revenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#059669" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#059669" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="expenses" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#059669"
-                  fillOpacity={1}
-                  fill="url(#revenue)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="expenses"
-                  stroke="#ef4444"
-                  fillOpacity={1}
-                  fill="url(#expenses)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <p>Loading chart data...</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={revenueData}>
+                  <defs>
+                    <linearGradient id="revenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#059669" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#059669" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="expenses" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#059669"
+                    fillOpacity={1}
+                    fill="url(#revenue)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="expenses"
+                    stroke="#ef4444"
+                    fillOpacity={1}
+                    fill="url(#expenses)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Card>
 
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">Top Selling Items</h3>
           <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={topSellingItems}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {topSellingItems.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <p>Loading chart data...</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={topSellingItems}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {topSellingItems.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </Card>
       </div>
