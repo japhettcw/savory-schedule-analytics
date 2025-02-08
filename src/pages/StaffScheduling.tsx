@@ -16,7 +16,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AddShiftDialog } from "@/components/staff/AddShiftDialog";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { TimeOffRequestForm } from "@/components/staff/TimeOffRequestForm";
+import { TimeOffApprovalDashboard } from "@/components/staff/TimeOffApprovalDashboard";
+import { EmployeeAvailabilityForm } from "@/components/staff/EmployeeAvailabilityForm";
 
 const locales = {
   "en-US": enUS,
@@ -132,24 +135,33 @@ export default function StaffScheduling() {
         </Button>
       </div>
 
-      <Card className="p-6">
-        <div className="h-[600px]">
-          <Calendar
-            localizer={localizer}
-            events={calendarEvents}
-            startAccessor="start"
-            endAccessor="end"
-            defaultView="week"
-            views={["month", "week", "day"]}
-            tooltipAccessor={(event) => event.resource.notes}
-            onSelectEvent={(event) => {
-              setSelectedShift(event.resource);
-              setIsDialogOpen(true);
-            }}
-            className="rounded-md"
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="p-6">
+          <div className="h-[600px]">
+            <Calendar
+              localizer={localizer}
+              events={calendarEvents}
+              startAccessor="start"
+              endAccessor="end"
+              defaultView="week"
+              views={["month", "week", "day"]}
+              tooltipAccessor={(event) => event.resource.notes}
+              onSelectEvent={(event) => {
+                setSelectedShift(event.resource);
+                setIsDialogOpen(true);
+              }}
+              className="rounded-md"
+            />
+          </div>
+        </Card>
+
+        <div className="space-y-8">
+          <EmployeeAvailabilityForm />
+          <TimeOffRequestForm />
         </div>
-      </Card>
+      </div>
+
+      <TimeOffApprovalDashboard />
 
       <Card>
         <div className="p-6">
