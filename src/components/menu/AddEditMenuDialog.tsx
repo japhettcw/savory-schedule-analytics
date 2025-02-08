@@ -54,7 +54,11 @@ const formSchema = z.object({
   allergens: z.array(z.string()),
   ingredients: z.array(ingredientSchema),
   stockLevel: z.string().regex(/^\d+$/, "Stock level must be a positive number"),
-  variations: z.array(variationSchema),
+  variations: z.array(z.object({
+    id: z.string(),
+    name: z.string().min(1, "Variation name is required"),
+    price: z.number().min(0, "Price must be a positive number"),
+  })),
 });
 
 type FormValues = z.infer<typeof formSchema>;

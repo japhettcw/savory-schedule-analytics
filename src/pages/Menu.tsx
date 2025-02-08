@@ -76,9 +76,9 @@ export default function Menu() {
         ...item,
         id: item.id,
         allergens: item.allergens || [],
-        ingredients: item.ingredients || [],
+        ingredients: (item.ingredients as Ingredient[]) || [],
         image: item.image || "/placeholder.svg",
-        variations: item.variations || [],
+        variations: (item.variations as MenuItemVariation[]) || [],
         stockLevel: item.stock_level || 0,
       })) as MenuItem[];
     },
@@ -87,6 +87,11 @@ export default function Menu() {
   // Add/Edit mutation
   const { mutate: handleAddEditItem } = useMutation({
     mutationFn: async (item: MenuItem) => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user?.id) {
+        throw new Error("No user session found");
+      }
+
       const { data, error } = await supabase
         .from('menu_items')
         .upsert({
@@ -101,6 +106,7 @@ export default function Menu() {
           ingredients: item.ingredients,
           variations: item.variations,
           stock_level: item.stockLevel,
+          user_id: session.session.user.id,
         })
         .select()
         .single();

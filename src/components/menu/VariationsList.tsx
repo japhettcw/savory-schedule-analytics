@@ -15,12 +15,12 @@ export function VariationsList({ variations, onChange }: VariationsListProps) {
 
   const handleAdd = () => {
     if (newVariation.name && newVariation.price > 0) {
-      onChange([...variations, { ...newVariation, id: Date.now() }]);
+      onChange([...variations, { ...newVariation, id: crypto.randomUUID() }]);
       setNewVariation({ name: "", price: 0 });
     }
   };
 
-  const handleRemove = (id: number) => {
+  const handleRemove = (id: string) => {
     onChange(variations.filter(v => v.id !== id));
   };
 
