@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DateRange } from "react-day-picker";
@@ -103,12 +104,14 @@ export default function Dashboard() {
     queryKey: ['dashboard', dateRange, view],
     queryFn: () => fetchDashboardData(dateRange, view),
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to fetch dashboard data",
-        variant: "destructive",
-      });
+    meta: {
+      onError: () => {
+        toast({
+          title: "Error",
+          description: "Failed to fetch dashboard data",
+          variant: "destructive",
+        });
+      },
     },
   });
 
