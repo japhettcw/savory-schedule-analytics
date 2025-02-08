@@ -21,13 +21,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Combobox } from "@/components/ui/combobox";
 
-// Mock inventory items for autocomplete
 const inventoryItems = [
   { label: "Tomato Soup", value: "tomato-soup" },
   { label: "Chicken Breast", value: "chicken-breast" },
   { label: "Rice", value: "rice" },
   { label: "Pasta", value: "pasta" },
-];
+] as const;
 
 const wasteReasons = [
   { label: "Spoiled", value: "spoiled" },
@@ -35,7 +34,7 @@ const wasteReasons = [
   { label: "Expired", value: "expired" },
   { label: "Customer Return", value: "customer-return" },
   { label: "Other", value: "other" },
-];
+] as const;
 
 const formSchema = z.object({
   itemName: z.string().min(1, "Item name is required"),
@@ -60,7 +59,7 @@ export function WasteLogForm({ onSubmit, initialData }: WasteLogFormProps) {
     defaultValues: initialData || {
       itemName: "",
       quantity: 0,
-      unit: "",
+      unit: "kg",
       reason: "",
       date: new Date().toISOString().split("T")[0],
       costImpact: 0,
@@ -79,7 +78,7 @@ export function WasteLogForm({ onSubmit, initialData }: WasteLogFormProps) {
               <FormLabel>Item Name</FormLabel>
               <FormControl>
                 <Combobox
-                  items={inventoryItems || []}
+                  items={inventoryItems}
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="Select or type item name"
