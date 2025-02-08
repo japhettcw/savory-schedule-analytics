@@ -40,9 +40,9 @@ const formSchema = z.object({
   allergens: z.array(z.string()),
   ingredients: z.array(
     z.object({
-      name: z.string(),
-      quantity: z.string(),
-      unit: z.string(),
+      name: z.string().min(1, "Ingredient name is required"),
+      quantity: z.string().min(1, "Quantity is required"),
+      unit: z.string().min(1, "Unit is required"),
     })
   ),
 });
