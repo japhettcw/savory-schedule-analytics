@@ -60,7 +60,7 @@ export function WasteLogForm({ onSubmit, initialData }: WasteLogFormProps) {
     defaultValues: initialData || {
       itemName: "",
       quantity: 0,
-      unit: "kg",
+      unit: "",
       reason: "",
       date: new Date().toISOString().split("T")[0],
       costImpact: 0,
@@ -79,7 +79,7 @@ export function WasteLogForm({ onSubmit, initialData }: WasteLogFormProps) {
               <FormLabel>Item Name</FormLabel>
               <FormControl>
                 <Combobox
-                  items={inventoryItems}
+                  items={inventoryItems || []}
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="Select or type item name"
