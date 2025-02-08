@@ -1,14 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
 import { LowStockAlert } from "@/components/inventory/LowStockAlert";
@@ -20,6 +12,7 @@ import { OrderTracker } from "@/components/inventory/OrderTracker";
 import { IngredientUsageAnalysis } from "@/components/inventory/IngredientUsageAnalysis";
 import { WastageReport } from "@/components/inventory/WastageReport";
 import { CostAnalysis } from "@/components/inventory/CostAnalysis";
+import { VirtualizedInventoryTable } from "@/components/inventory/VirtualizedInventoryTable";
 
 // Temporary mock data until we integrate with a backend
 const inventoryData = [
@@ -113,46 +106,7 @@ export default function Inventory() {
       <Card>
         <div className="p-6">
           <h2 className="text-xl font-semibold mb-4">Current Inventory</h2>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Unit</TableHead>
-                  <TableHead>Expiry Date</TableHead>
-                  <TableHead>Supplier</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {inventoryData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell className="capitalize">{item.category}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>{item.unit}</TableCell>
-                    <TableCell>{item.expiryDate}</TableCell>
-                    <TableCell>{item.supplier}</TableCell>
-                    <TableCell>
-                      {item.quantity === 0 ? (
-                        <span className="text-red-600 font-medium">
-                          Out of Stock
-                        </span>
-                      ) : item.quantity <= item.reorderPoint ? (
-                        <span className="text-yellow-600 font-medium">
-                          Low Stock
-                        </span>
-                      ) : (
-                        <span className="text-green-600 font-medium">OK</span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <VirtualizedInventoryTable items={inventoryData} />
         </div>
       </Card>
 
