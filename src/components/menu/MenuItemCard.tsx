@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, Trash } from "lucide-react";
 import type { MenuItem } from "@/types/menu";
 import { StockChecker } from "./StockChecker";
+import { FeatureTooltip } from "@/components/ui/feature-tooltip";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { useState } from "react";
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -13,6 +16,8 @@ interface MenuItemCardProps {
 }
 
 const MenuItemCard = ({ item, onEdit, onDelete }: MenuItemCardProps) => {
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <img
@@ -31,20 +36,29 @@ const MenuItemCard = ({ item, onEdit, onDelete }: MenuItemCardProps) => {
               </p>
             )}
             <div className="mt-2">
-              <StockChecker stockLevel={item.stockLevel} />
+              <FeatureTooltip content="Current stock level status">
+                <StockChecker stockLevel={item.stockLevel} />
+              </FeatureTooltip>
             </div>
             {item.allergens.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
-                {item.allergens.map((allergen) => (
-                  <Badge key={allergen} variant="outline">
-                    {allergen}
-                  </Badge>
-                ))}
+                <FeatureTooltip 
+                  content="Food allergens that customers should be aware of"
+                  showIcon={false}
+                >
+                  {item.allergens.map((allergen) => (
+                    <Badge key={allergen} variant="outline">
+                      {allergen}
+                    </Badge>
+                  ))}
+                </FeatureTooltip>
               </div>
             )}
             {item.ingredients.length > 0 && (
               <div className="mt-2 text-sm text-muted-foreground">
-                <p className="font-medium">Ingredients:</p>
+                <FeatureTooltip content="Recipe ingredients and quantities">
+                  <p className="font-medium">Ingredients:</p>
+                </FeatureTooltip>
                 <ul className="list-disc list-inside">
                   {item.ingredients.map((ingredient, index) => (
                     <li key={index}>
@@ -56,7 +70,9 @@ const MenuItemCard = ({ item, onEdit, onDelete }: MenuItemCardProps) => {
             )}
             {item.variations && item.variations.length > 0 && (
               <div className="mt-2">
-                <p className="text-sm font-medium">Variations:</p>
+                <FeatureTooltip content="Available size and price variations">
+                  <p className="text-sm font-medium">Variations:</p>
+                </FeatureTooltip>
                 <div className="space-y-1 mt-1">
                   {item.variations.map((variation) => (
                     <div key={variation.id} className="text-sm flex justify-between">
@@ -71,19 +87,39 @@ const MenuItemCard = ({ item, onEdit, onDelete }: MenuItemCardProps) => {
           <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
         </div>
         <div className="flex gap-2 mt-4">
-          <Button variant="outline" size="sm" onClick={() => onEdit(item)}>
-            <Edit className="h-4 w-4 mr-1" />
-            Edit
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => onDelete(item)}>
-            <Trash className="h-4 w-4 mr-1" />
-            Delete
-          </Button>
+          <FeatureTooltip content="Edit menu item details" showIcon={false}>
+            <Button variant="outline" size="sm" onClick={() => onEdit(item)}>
+              <Edit className="h-4 w-4 mr-1" />
+              Edit
+            </Button>
+          </FeatureTooltip>
+          <FeatureTooltip content="Remove item from menu" showIcon={false}>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={() => setShowDeleteConfirmation(true)}
+            >
+              <Trash className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </FeatureTooltip>
         </div>
       </div>
+
+      <ConfirmationDialog
+        open={showDeleteConfirmation}
+        onOpenChange={setShowDeleteConfirmation}
+        title="Delete Menu Item"
+        description={`Are you sure you want to delete "${item.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        onConfirm={() => {
+          onDelete(item);
+          setShowDeleteConfirmation(false);
+        }}
+      />
     </Card>
   );
 };
 
 export default MenuItemCard;
-
