@@ -13,6 +13,8 @@ import {
 import { Card } from "@/components/ui/card";
 import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
 import { LowStockAlert } from "@/components/inventory/LowStockAlert";
+import { ExpirationTracker } from "@/components/inventory/ExpirationTracker";
+import { OutOfStockNotification } from "@/components/inventory/OutOfStockNotification";
 
 // Temporary mock data until we integrate with a backend
 const inventoryData = [
@@ -35,6 +37,16 @@ const inventoryData = [
     expiryDate: "2024-04-10",
     supplier: "Quality Meats Inc",
     reorderPoint: 25,
+  },
+  {
+    id: 3,
+    name: "Rice",
+    category: "dry-goods",
+    quantity: 0,
+    unit: "kg",
+    expiryDate: "2024-12-31",
+    supplier: "Global Foods Ltd",
+    reorderPoint: 50,
   },
 ];
 
@@ -68,6 +80,8 @@ export default function Inventory() {
       </div>
 
       <LowStockAlert items={inventoryData} />
+      <ExpirationTracker items={inventoryData} />
+      <OutOfStockNotification items={inventoryData} />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-6">
@@ -116,7 +130,11 @@ export default function Inventory() {
                     <TableCell>{item.expiryDate}</TableCell>
                     <TableCell>{item.supplier}</TableCell>
                     <TableCell>
-                      {item.quantity <= item.reorderPoint ? (
+                      {item.quantity === 0 ? (
+                        <span className="text-red-600 font-medium">
+                          Out of Stock
+                        </span>
+                      ) : item.quantity <= item.reorderPoint ? (
                         <span className="text-yellow-600 font-medium">
                           Low Stock
                         </span>
