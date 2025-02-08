@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
@@ -20,6 +19,8 @@ import { useToast } from "@/hooks/use-toast";
 import { TimeOffRequestForm } from "@/components/staff/TimeOffRequestForm";
 import { TimeOffApprovalDashboard } from "@/components/staff/TimeOffApprovalDashboard";
 import { EmployeeAvailabilityForm } from "@/components/staff/EmployeeAvailabilityForm";
+import { ShiftSwapRequestForm } from "@/components/staff/ShiftSwapRequestForm";
+import { OpenShiftsBoard } from "@/components/staff/OpenShiftsBoard";
 
 const locales = {
   "en-US": enUS,
@@ -33,7 +34,6 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// Mock data for initial development
 const mockShifts = [
   {
     id: 1,
@@ -158,9 +158,11 @@ export default function StaffScheduling() {
         <div className="space-y-8">
           <EmployeeAvailabilityForm />
           <TimeOffRequestForm />
+          <ShiftSwapRequestForm />
         </div>
       </div>
 
+      <OpenShiftsBoard />
       <TimeOffApprovalDashboard />
 
       <Card>
