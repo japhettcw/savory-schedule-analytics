@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import {
@@ -23,7 +23,7 @@ import {
 import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
 import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
 import { useToast } from "@/hooks/use-toast";
-import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
+import type { MenuItem } from "@/types/menu";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -55,15 +55,19 @@ export default function Menu() {
     return 1;
   }, [isDesktop, isTablet]);
 
-  // Fetch menu items
-  const { data: menuItems = [] } = useQuery({
+  // Fetch menu items with detailed logging
+  const { data: menuItems = [], isLoading, error } = useQuery({
     queryKey: ['menuItems'],
     queryFn: async () => {
+      console.log('Fetching menu items...');
       const { data, error } = await supabase
         .from('menu_items')
         .select('*');
       
+      console.log('Supabase response:', { data, error });
+      
       if (error) {
+        console.error('Error fetching menu items:', error);
         toast({
           title: "Error fetching menu items",
           description: error.message,
@@ -72,21 +76,25 @@ export default function Menu() {
         return [];
       }
       
-      return data.map(item => ({
+      const transformedData = data.map(item => ({
         ...item,
         id: item.id,
         allergens: item.allergens || [],
-        ingredients: (item.ingredients as Ingredient[]) || [],
+        ingredients: item.ingredients || [],
         image: item.image || "/placeholder.svg",
-        variations: (item.variations as MenuItemVariation[]) || [],
+        variations: item.variations || [],
         stockLevel: item.stock_level || 0,
       })) as MenuItem[];
+      
+      console.log('Transformed menu items:', transformedData);
+      return transformedData;
     },
   });
 
   // Add/Edit mutation
   const { mutate: handleAddEditItem } = useMutation({
     mutationFn: async (item: MenuItem) => {
+      console.log('Adding/Editing menu item:', item);
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user?.id) {
         throw new Error("No user session found");
@@ -111,6 +119,7 @@ export default function Menu() {
         .select()
         .single();
 
+      console.log('Upsert response:', { data, error });
       if (error) throw error;
       return data;
     },
@@ -124,6 +133,7 @@ export default function Menu() {
       setSelectedItem(undefined);
     },
     onError: (error: Error) => {
+      console.error('Mutation error:', error);
       toast({
         title: "Error saving menu item",
         description: error.message,
@@ -135,6 +145,7 @@ export default function Menu() {
   // Delete mutation
   const { mutate: handleDeleteItem } = useMutation({
     mutationFn: async (id: string) => {
+      console.log('Deleting menu item:', id);
       const { error } = await supabase
         .from('menu_items')
         .delete()
@@ -154,6 +165,7 @@ export default function Menu() {
       setSelectedItem(undefined);
     },
     onError: (error: Error) => {
+      console.error('Delete error:', error);
       toast({
         title: "Error deleting menu item",
         description: error.message,
@@ -163,20 +175,40 @@ export default function Menu() {
   });
 
   const handleEditClick = useCallback((item: MenuItem) => {
+    console.log('Edit clicked for item:', item);
     setSelectedItem(item);
     setIsAddEditDialogOpen(true);
   }, []);
 
   const handleDeleteClick = useCallback((item: MenuItem) => {
+    console.log('Delete clicked for item:', item);
     setSelectedItem(item);
     setIsDeleteDialogOpen(true);
   }, []);
 
-  const filteredItems = useMemo(() => menuItems.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  }), [menuItems, searchTerm, selectedCategory]);
+  const filteredItems = useMemo(() => {
+    console.log('Filtering items:', { menuItems, searchTerm, selectedCategory });
+    return menuItems.filter((item) => {
+      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [menuItems, searchTerm, selectedCategory]);
+
+  console.log('Rendering Menu component with:', {
+    filteredItems,
+    columnCount,
+    isLoading,
+    error
+  });
+
+  if (isLoading) {
+    return <div>Loading menu items...</div>;
+  }
+
+  if (error) {
+    return <div>Error loading menu items: {error.toString()}</div>;
+  }
 
   return (
     <div className="space-y-8">
@@ -223,12 +255,18 @@ export default function Menu() {
       </div>
 
       <div className="min-h-[500px]">
-        <VirtualizedMenuList
-          items={filteredItems}
-          onEdit={handleEditClick}
-          onDelete={handleDeleteClick}
-          columnCount={columnCount}
-        />
+        {filteredItems.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">
+            No menu items found
+          </div>
+        ) : (
+          <VirtualizedMenuList
+            items={filteredItems}
+            onEdit={handleEditClick}
+            onDelete={handleDeleteClick}
+            columnCount={columnCount}
+          />
+        )}
       </div>
 
       <AddEditMenuDialog

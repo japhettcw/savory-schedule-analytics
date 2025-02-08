@@ -19,13 +19,18 @@ const VirtualizedMenuList = React.memo(({
   onDelete, 
   columnCount 
 }: VirtualizedMenuListProps) => {
+  console.log('VirtualizedMenuList render:', { items, columnCount });
+  
   const rowCount = Math.ceil(items.length / columnCount);
-  const cellWidth = window.innerWidth / columnCount - 24;
+  const windowWidth = typeof window !== 'undefined' ? window.innerWidth : 1024;
+  const cellWidth = (windowWidth - 48) / columnCount; // Account for padding
   const cellHeight = 500;
 
   const Cell = ({ columnIndex, rowIndex, style }: any) => {
     const itemIndex = rowIndex * columnCount + columnIndex;
     const item = items[itemIndex];
+    
+    console.log('Rendering cell:', { columnIndex, rowIndex, itemIndex, item });
 
     if (!item) return null;
 
@@ -47,6 +52,18 @@ const VirtualizedMenuList = React.memo(({
     );
   };
 
+  if (items.length === 0) {
+    return null;
+  }
+
+  console.log('Grid dimensions:', {
+    columnCount,
+    rowCount,
+    cellWidth,
+    cellHeight,
+    totalItems: items.length
+  });
+
   return (
     <FixedSizeGrid
       columnCount={columnCount}
@@ -54,7 +71,7 @@ const VirtualizedMenuList = React.memo(({
       height={Math.min(window.innerHeight * 0.8, rowCount * cellHeight)}
       rowCount={rowCount}
       rowHeight={cellHeight}
-      width={window.innerWidth - 48}
+      width={windowWidth - 48}
       overscanRowCount={2}
       overscanColumnCount={1}
     >
