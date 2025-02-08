@@ -47,6 +47,11 @@ const formSchema = z.object({
   allergens: z.array(z.string()),
   ingredients: z.array(ingredientSchema),
   stockLevel: z.string().regex(/^\d+$/, "Stock level must be a positive number"),
+  variations: z.array(z.object({
+    id: z.number(),
+    name: z.string(),
+    price: z.number(),
+  })),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -91,6 +96,7 @@ export function AddEditMenuDialog({
         unit: ing.unit
       })),
       stockLevel: item?.stockLevel?.toString() || "0",
+      variations: item?.variations || [],
     },
   });
 
@@ -117,6 +123,7 @@ export function AddEditMenuDialog({
       allergens: values.allergens,
       ingredients: values.ingredients as Ingredient[],
       stockLevel: parseInt(values.stockLevel),
+      variations: values.variations,
     };
 
     onSave(newItem);
@@ -276,6 +283,23 @@ export function AddEditMenuDialog({
                   <FormControl>
                     <IngredientList
                       ingredients={field.value as Ingredient[]}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="variations"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Variations</FormLabel>
+                  <FormControl>
+                    <VariationsList
+                      variations={field.value}
                       onChange={field.onChange}
                     />
                   </FormControl>

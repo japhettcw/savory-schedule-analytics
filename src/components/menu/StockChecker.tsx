@@ -20,12 +20,12 @@ export function StockChecker({
     if (stockLevel <= threshold) {
       return {
         label: "Low Stock",
-        variant: "warning" as const,
+        variant: "secondary" as const,
       };
     }
     return {
       label: "In Stock",
-      variant: "success" as const,
+      variant: "default" as const,
     };
   };
 

@@ -54,6 +54,19 @@ export function MenuItemCard({ item, onEdit, onDelete }: MenuItemCardProps) {
                 </ul>
               </div>
             )}
+            {item.variations && item.variations.length > 0 && (
+              <div className="mt-2">
+                <p className="text-sm font-medium">Variations:</p>
+                <div className="space-y-1 mt-1">
+                  {item.variations.map((variation) => (
+                    <div key={variation.id} className="text-sm flex justify-between">
+                      <span>{variation.name}</span>
+                      <span className="font-medium">${variation.price.toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
         </div>
