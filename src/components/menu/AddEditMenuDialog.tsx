@@ -29,12 +29,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Image, X } from "lucide-react";
+import { AllergenSelector } from "./AllergenSelector";
+import { IngredientList, type Ingredient } from "./IngredientList";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
   category: z.string().min(1, "Category is required"),
   description: z.string().optional(),
+  allergens: z.array(z.string()),
+  ingredients: z.array(
+    z.object({
+      name: z.string(),
+      quantity: z.string(),
+      unit: z.string(),
+    })
+  ),
 });
 
 type MenuItem = {
@@ -45,6 +55,8 @@ type MenuItem = {
   description?: string;
   image: string;
   available?: boolean;
+  allergens: string[];
+  ingredients: Ingredient[];
 };
 
 type AddEditMenuDialogProps = {
@@ -80,6 +92,8 @@ export function AddEditMenuDialog({
       price: item?.price?.toString() || "",
       category: item?.category || "",
       description: item?.description || "",
+      allergens: item?.allergens || [],
+      ingredients: item?.ingredients || [],
     },
   });
 
@@ -103,6 +117,8 @@ export function AddEditMenuDialog({
       description: values.description,
       image: imagePreview,
       available: true,
+      allergens: values.allergens,
+      ingredients: values.ingredients,
     };
 
     onSave(newItem);
@@ -116,7 +132,7 @@ export function AddEditMenuDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>
             {item ? "Edit Menu Item" : "Add New Menu Item"}
@@ -220,6 +236,40 @@ export function AddEditMenuDialog({
                     <Input
                       placeholder="Enter item description"
                       {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="allergens"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Allergens</FormLabel>
+                  <FormControl>
+                    <AllergenSelector
+                      selectedAllergens={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="ingredients"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ingredients</FormLabel>
+                  <FormControl>
+                    <IngredientList
+                      ingredients={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />

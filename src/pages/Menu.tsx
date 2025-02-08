@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/select";
 import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import type { Ingredient } from "@/components/menu/IngredientList";
 
 type MenuItem = {
   id: number;
@@ -32,6 +34,8 @@ type MenuItem = {
   description?: string;
   image: string;
   available?: boolean;
+  allergens: string[];
+  ingredients: Ingredient[];
 };
 
 const initialMenuItems: MenuItem[] = [
@@ -43,6 +47,11 @@ const initialMenuItems: MenuItem[] = [
     description: "Juicy beef patty with fresh vegetables",
     image: "/placeholder.svg",
     available: true,
+    allergens: ["Milk", "Wheat"],
+    ingredients: [
+      { name: "Beef Patty", quantity: "200", unit: "g" },
+      { name: "Burger Bun", quantity: "1", unit: "piece" },
+    ],
   },
   {
     id: 2,
@@ -52,6 +61,11 @@ const initialMenuItems: MenuItem[] = [
     description: "Crisp romaine lettuce with Caesar dressing",
     image: "/placeholder.svg",
     available: true,
+    allergens: ["Eggs", "Fish"],
+    ingredients: [
+      { name: "Romaine Lettuce", quantity: "150", unit: "g" },
+      { name: "Caesar Dressing", quantity: "50", unit: "ml" },
+    ],
   },
   {
     id: 3,
@@ -61,6 +75,11 @@ const initialMenuItems: MenuItem[] = [
     description: "Classic Italian pizza with tomato and mozzarella",
     image: "/placeholder.svg",
     available: true,
+    allergens: ["Milk", "Wheat"],
+    ingredients: [
+      { name: "Pizza Dough", quantity: "250", unit: "g" },
+      { name: "Mozzarella", quantity: "100", unit: "g" },
+    ],
   },
 ];
 
@@ -194,6 +213,27 @@ export default function Menu() {
                     <p className="text-sm text-muted-foreground mt-1">
                       {item.description}
                     </p>
+                  )}
+                  {item.allergens.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {item.allergens.map((allergen) => (
+                        <Badge key={allergen} variant="outline">
+                          {allergen}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  {item.ingredients.length > 0 && (
+                    <div className="mt-2 text-sm text-muted-foreground">
+                      <p className="font-medium">Ingredients:</p>
+                      <ul className="list-disc list-inside">
+                        {item.ingredients.map((ingredient, index) => (
+                          <li key={index}>
+                            {ingredient.quantity} {ingredient.unit} {ingredient.name}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                 </div>
                 <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
