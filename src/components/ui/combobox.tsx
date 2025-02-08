@@ -47,7 +47,7 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
-        <Command>
+        <Command shouldFilter={false}>
           <CommandInput placeholder={placeholder || "Search items..."} />
           <CommandEmpty>No item found.</CommandEmpty>
           <CommandGroup>
@@ -55,8 +55,8 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
               <CommandItem
                 key={item.value}
                 value={item.value}
-                onSelect={(currentValue) => {
-                  onChange(currentValue === value ? "" : currentValue);
+                onSelect={() => {
+                  onChange(item.value === value ? "" : item.value);
                   setOpen(false);
                 }}
               >
