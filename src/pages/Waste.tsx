@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { AddWasteLogDialog } from "@/components/waste/AddWasteLogDialog";
 import { WasteLogList, type WasteLog } from "@/components/waste/WasteLogList";
 import { useToast } from "@/components/ui/use-toast";
@@ -10,6 +10,7 @@ import { MostWastedItemsReport } from "@/components/waste/MostWastedItemsReport"
 import { WasteCostCalculator } from "@/components/waste/WasteCostCalculator";
 import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
 
+// Temporary mock data until we integrate with Supabase
 const initialWasteData: WasteLog[] = [
   {
     id: 1,
@@ -79,69 +80,46 @@ export default function Waste() {
     });
   };
 
-  const totalWasteCost = useMemo(() => 
-    wasteLogs.reduce((sum, item) => sum + item.costImpact, 0),
-    [wasteLogs]
+  const totalWasteCost = wasteLogs.reduce(
+    (sum, item) => sum + item.costImpact,
+    0
   );
 
-  const wasteByReason = useMemo(() => 
-    Object.entries(
-      wasteLogs.reduce((acc, log) => {
-        acc[log.reason] = (acc[log.reason] || 0) + log.costImpact;
-        return acc;
-      }, {} as Record<string, number>)
-    ).map(([reason, cost]) => ({ reason, cost })),
-    [wasteLogs]
-  );
+  // Calculate waste by reason for the WasteCostCalculator
+  const wasteByReason = Object.entries(
+    wasteLogs.reduce((acc, log) => {
+      acc[log.reason] = (acc[log.reason] || 0) + log.costImpact;
+      return acc;
+    }, {} as Record<string, number>)
+  ).map(([reason, cost]) => ({ reason, cost }));
 
-  const wastedItems = useMemo(() => 
-    Object.entries(
-      wasteLogs.reduce((acc, log) => {
-        if (!acc[log.itemName]) {
-          acc[log.itemName] = {
-            itemName: log.itemName,
-            quantity: 0,
-            unit: log.unit,
-            costImpact: 0,
-            percentage: 0,
-          };
-        }
-        acc[log.itemName].quantity += log.quantity;
-        acc[log.itemName].costImpact += log.costImpact;
-        return acc;
-      }, {} as Record<string, any>)
-    ).map(([_, item]) => ({
-      ...item,
-      percentage: (item.costImpact / totalWasteCost) * 100,
-    })),
-    [wasteLogs, totalWasteCost]
-  );
+  // Prepare data for MostWastedItemsReport
+  const wastedItems = Object.entries(
+    wasteLogs.reduce((acc, log) => {
+      if (!acc[log.itemName]) {
+        acc[log.itemName] = {
+          itemName: log.itemName,
+          quantity: 0,
+          unit: log.unit,
+          costImpact: 0,
+          percentage: 0,
+        };
+      }
+      acc[log.itemName].quantity += log.quantity;
+      acc[log.itemName].costImpact += log.costImpact;
+      return acc;
+    }, {} as Record<string, any>)
+  ).map(([_, item]) => ({
+    ...item,
+    percentage: (item.costImpact / totalWasteCost) * 100,
+  }));
 
-  const inventoryWasteData = useMemo(() => 
-    wasteLogs.map(log => ({
-      inventoryLevel: Math.random() * 100,
-      wasteAmount: log.quantity,
-      itemName: log.itemName
-    })),
-    [wasteLogs]
-  );
-
-  const analyticsData = useMemo(() => {
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date.toISOString().split('T')[0];
-    }).reverse();
-
-    return last7Days.map(date => {
-      const dayLogs = wasteLogs.filter(log => log.date === date);
-      return {
-        name: new Date(date).toLocaleDateString('en-US', { weekday: 'short' }),
-        waste: dayLogs.reduce((sum, log) => sum + log.quantity, 0),
-        cost: dayLogs.reduce((sum, log) => sum + log.costImpact, 0)
-      };
-    });
-  }, [wasteLogs]);
+  // Prepare data for InventoryWasteLink
+  const inventoryWasteData = wasteLogs.map(log => ({
+    inventoryLevel: Math.random() * 100, // This would come from your inventory system in production
+    wasteAmount: log.quantity,
+    itemName: log.itemName
+  }));
 
   return (
     <div className="space-y-8">
@@ -170,7 +148,14 @@ export default function Waste() {
         <Card className="p-6">
           <h3 className="font-semibold mb-2">Most Common Reason</h3>
           <p className="text-3xl font-bold capitalize">
-            {wasteByReason[0]?.reason || "N/A"}
+            {
+              Object.entries(
+                wasteLogs.reduce((acc, log) => {
+                  acc[log.reason] = (acc[log.reason] || 0) + 1;
+                  return acc;
+                }, {} as Record<string, number>)
+              ).sort(([, a], [, b]) => b - a)[0]?.[0] || "N/A"
+            }
           </p>
         </Card>
       </div>
