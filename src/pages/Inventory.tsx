@@ -12,13 +12,16 @@ import {
 } from "@/components/ui/table";
 import { Card } from "@/components/ui/card";
 import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
+import { LowStockAlert } from "@/components/inventory/LowStockAlert";
 
-// Temporary mock data until we integrate with Supabase
+// Temporary mock data until we integrate with a backend
 const inventoryData = [
   {
     id: 1,
     name: "Tomatoes",
-    stockLevel: 50,
+    category: "produce",
+    quantity: 50,
+    unit: "kg",
     expiryDate: "2024-04-15",
     supplier: "Fresh Produce Co",
     reorderPoint: 20,
@@ -26,7 +29,9 @@ const inventoryData = [
   {
     id: 2,
     name: "Chicken Breast",
-    stockLevel: 15,
+    category: "meat",
+    quantity: 15,
+    unit: "kg",
     expiryDate: "2024-04-10",
     supplier: "Quality Meats Inc",
     reorderPoint: 25,
@@ -35,6 +40,17 @@ const inventoryData = [
 
 export default function Inventory() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const getExpiringItems = () => {
+    const today = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(today.getDate() + 7);
+
+    return inventoryData.filter((item) => {
+      const expiryDate = new Date(item.expiryDate);
+      return expiryDate <= sevenDaysFromNow;
+    });
+  };
 
   return (
     <div className="space-y-8">
@@ -51,6 +67,8 @@ export default function Inventory() {
         </Button>
       </div>
 
+      <LowStockAlert items={inventoryData} />
+
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-6">
           <h3 className="font-semibold mb-2">Total Items</h3>
@@ -61,14 +79,14 @@ export default function Inventory() {
           <p className="text-3xl font-bold">
             {
               inventoryData.filter(
-                (item) => item.stockLevel < item.reorderPoint
+                (item) => item.quantity <= item.reorderPoint
               ).length
             }
           </p>
         </Card>
         <Card className="p-6">
           <h3 className="font-semibold mb-2 text-red-600">Expiring Soon</h3>
-          <p className="text-3xl font-bold">2</p>
+          <p className="text-3xl font-bold">{getExpiringItems().length}</p>
         </Card>
       </div>
 
@@ -80,7 +98,9 @@ export default function Inventory() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Stock Level</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Unit</TableHead>
                   <TableHead>Expiry Date</TableHead>
                   <TableHead>Supplier</TableHead>
                   <TableHead>Status</TableHead>
@@ -90,11 +110,13 @@ export default function Inventory() {
                 {inventoryData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>{item.stockLevel}</TableCell>
+                    <TableCell className="capitalize">{item.category}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>{item.unit}</TableCell>
                     <TableCell>{item.expiryDate}</TableCell>
                     <TableCell>{item.supplier}</TableCell>
                     <TableCell>
-                      {item.stockLevel < item.reorderPoint ? (
+                      {item.quantity <= item.reorderPoint ? (
                         <span className="text-yellow-600 font-medium">
                           Low Stock
                         </span>
