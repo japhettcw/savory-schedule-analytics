@@ -1,5 +1,6 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,35 +11,103 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { UserRound, Settings, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+
+type Profile = {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+  role: string;
+};
 
 export function UserProfile() {
-  const [user] = useState({
-    name: "John Doe",
-    role: "Owner",
-    avatar: "/placeholder.svg",
-  });
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching profile:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setProfile(data);
+    };
+
+    fetchProfile();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_OUT") {
+        navigate("/auth");
+      } else if (session) {
+        fetchProfile();
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, toast]);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to sign out",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (!profile) {
+    return null;
+  }
+
+  const displayName = profile.first_name && profile.last_name
+    ? `${profile.first_name} ${profile.last_name}`
+    : "User";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+            <AvatarImage src={profile.avatar_url || ""} alt={displayName} />
+            <AvatarFallback>{displayName.charAt(0)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
+            <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user.role}
+              {profile.role}
             </p>
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onSelect={() => navigate("/profile")}>
           <UserRound className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
@@ -47,7 +116,7 @@ export function UserProfile() {
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-600">
+        <DropdownMenuItem className="text-red-600" onSelect={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
