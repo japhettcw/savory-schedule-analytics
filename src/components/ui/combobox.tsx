@@ -38,7 +38,10 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
     );
   }, [items, searchQuery]);
 
-  const selectedItem = safeItems.find((item) => item.value === value);
+  // Safety check for value
+  const selectedItem = React.useMemo(() => {
+    return safeItems.find((item) => item.value === value) || null;
+  }, [safeItems, value]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -53,7 +56,7 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-full p-0">
+      <PopoverContent className="w-full p-0" align="start">
         <Command>
           <CommandInput 
             placeholder={placeholder || "Search items..."} 
@@ -66,8 +69,8 @@ export function Combobox({ items = [], value = "", onChange, placeholder }: Comb
               <CommandItem
                 key={item.value}
                 value={item.value}
-                onSelect={() => {
-                  onChange(item.value === value ? "" : item.value);
+                onSelect={(currentValue) => {
+                  onChange(currentValue === value ? "" : currentValue);
                   setOpen(false);
                 }}
               >
