@@ -20,20 +20,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Combobox } from "@/components/ui/combobox";
 
-const inventoryItems = [
-  { label: "Tomato Soup", value: "tomato-soup" },
-  { label: "Chicken Breast", value: "chicken-breast" },
-  { label: "Rice", value: "rice" },
-  { label: "Pasta", value: "pasta" },
-] as { label: string; value: string }[];
-
 const wasteReasons = [
   { label: "Spoiled", value: "spoiled" },
   { label: "Over-Prepared", value: "over-prepared" },
   { label: "Expired", value: "expired" },
   { label: "Customer Return", value: "customer-return" },
   { label: "Other", value: "other" },
-] as { label: string; value: string }[];
+] as const;
 
 const formSchema = z.object({
   itemName: z.string().min(1, "Item name is required"),
@@ -50,11 +43,12 @@ export type WasteLogFormData = z.infer<typeof formSchema>;
 interface WasteLogFormProps {
   onSubmit: (data: WasteLogFormData) => void;
   initialData?: WasteLogFormData;
+  inventoryItems: { label: string; value: string }[];
 }
 
-export function WasteLogForm({ onSubmit, initialData }: WasteLogFormProps) {
-  console.log('WasteLogForm initialData:', initialData); // Debug log
-  console.log('Available inventory items:', inventoryItems); // Debug log
+export function WasteLogForm({ onSubmit, initialData, inventoryItems }: WasteLogFormProps) {
+  console.log('WasteLogForm initialData:', initialData);
+  console.log('Available inventory items:', inventoryItems);
 
   const form = useForm<WasteLogFormData>({
     resolver: zodResolver(formSchema),
