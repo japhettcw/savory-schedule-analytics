@@ -19,11 +19,11 @@ type Profile = {
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
-  role: string;
 };
 
 export function UserProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [roles, setRoles] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -36,14 +36,14 @@ export function UserProfile() {
         return;
       }
 
-      const { data, error } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", session.user.id)
         .maybeSingle();
 
-      if (error) {
-        console.error("Error fetching profile:", error);
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
         toast({
           title: "Error",
           description: "Failed to load profile",
@@ -52,7 +52,18 @@ export function UserProfile() {
         return;
       }
 
-      setProfile(data);
+      const { data: rolesData, error: rolesError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id);
+
+      if (rolesError) {
+        console.error("Error fetching roles:", rolesError);
+        return;
+      }
+
+      setProfile(profileData);
+      setRoles(rolesData.map(r => r.role));
     };
 
     fetchProfile();
@@ -102,7 +113,7 @@ export function UserProfile() {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {profile.role}
+              {roles.join(', ') || 'No role assigned'}
             </p>
           </div>
         </div>

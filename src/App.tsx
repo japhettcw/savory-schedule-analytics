@@ -15,16 +15,27 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import { useEffect, useState } from "react";
 import { supabase } from "./integrations/supabase/client";
+import { RoleManager } from "./components/roles/RoleManager";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode, requiredRole?: string }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [hasRequiredRole, setHasRequiredRole] = useState<boolean>(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
+
+      if (session && requiredRole) {
+        const { data: roles } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', session.user.id);
+
+        setHasRequiredRole(roles?.some(r => r.role === requiredRole) ?? false);
+      }
     };
 
     checkAuth();
@@ -34,7 +45,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [requiredRole]);
 
   if (isAuthenticated === null) {
     return null; // or a loading spinner
@@ -42,6 +53,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" />;
+  }
+
+  if (requiredRole && !hasRequiredRole) {
+    return <Navigate to="/" />;
   }
 
   return <>{children}</>;
@@ -111,6 +126,16 @@ const App = () => (
               <ProtectedRoute>
                 <Layout>
                   <Profile />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/roles"
+            element={
+              <ProtectedRoute requiredRole="owner">
+                <Layout>
+                  <RoleManager />
                 </Layout>
               </ProtectedRoute>
             }
