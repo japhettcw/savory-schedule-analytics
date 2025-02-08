@@ -4,17 +4,17 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS } from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddShiftDialog } from "@/components/staff/AddShiftDialog";
 import { useToast } from "@/hooks/use-toast";
 import { TimeOffRequestForm } from "@/components/staff/TimeOffRequestForm";
@@ -23,6 +23,7 @@ import { EmployeeAvailabilityForm } from "@/components/staff/EmployeeAvailabilit
 import { ShiftSwapRequestForm } from "@/components/staff/ShiftSwapRequestForm";
 import { OpenShiftsBoard } from "@/components/staff/OpenShiftsBoard";
 import { SchedulingAlerts } from "@/components/staff/SchedulingAlerts";
+import { VirtualizedShiftList } from "@/components/staff/VirtualizedShiftList";
 import { detectAllConflicts } from "@/services/ConflictDetectionService";
 
 const locales = {
@@ -146,89 +147,75 @@ export default function StaffScheduling() {
 
       <SchedulingAlerts alerts={conflicts} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="p-6">
-          <div className="h-[600px]">
-            <Calendar
-              localizer={localizer}
-              events={calendarEvents}
-              startAccessor="start"
-              endAccessor="end"
-              defaultView="week"
-              views={["month", "week", "day"]}
-              tooltipAccessor={(event) => event.resource.notes}
-              onSelectEvent={(event) => {
-                setSelectedShift(event.resource);
-                setIsDialogOpen(true);
-              }}
-              className="rounded-md"
-            />
+      <Tabs defaultValue="calendar" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+          <TabsTrigger value="calendar">Calendar View</TabsTrigger>
+          <TabsTrigger value="requests">Requests & Availability</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="calendar" className="space-y-8">
+          <Card className="p-6">
+            <div className="h-[600px]">
+              <Calendar
+                localizer={localizer}
+                events={calendarEvents}
+                startAccessor="start"
+                endAccessor="end"
+                defaultView="week"
+                views={["month", "week", "day"]}
+                tooltipAccessor={(event) => event.resource.notes}
+                onSelectEvent={(event) => {
+                  setSelectedShift(event.resource);
+                  setIsDialogOpen(true);
+                }}
+                className="rounded-md"
+              />
+            </div>
+          </Card>
+
+          <Card>
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Upcoming Shifts</h2>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Employee</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Start Time</TableHead>
+                      <TableHead>End Time</TableHead>
+                      <TableHead>Notes</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <VirtualizedShiftList
+                      shifts={shifts}
+                      onEdit={(shift) => {
+                        setSelectedShift(shift);
+                        setIsDialogOpen(true);
+                      }}
+                      onDelete={handleDeleteShift}
+                    />
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </Card>
+
+          <OpenShiftsBoard />
+        </TabsContent>
+
+        <TabsContent value="requests" className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <EmployeeAvailabilityForm />
+            <TimeOffRequestForm />
+            <ShiftSwapRequestForm />
           </div>
-        </Card>
-
-        <div className="space-y-8">
-          <EmployeeAvailabilityForm />
-          <TimeOffRequestForm />
-          <ShiftSwapRequestForm />
-        </div>
-      </div>
-
-      <OpenShiftsBoard />
-      <TimeOffApprovalDashboard />
-
-      <Card>
-        <div className="p-6">
-          <h2 className="text-xl font-semibold mb-4">Upcoming Shifts</h2>
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Employee</TableHead>
-                  <TableHead>Position</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Start Time</TableHead>
-                  <TableHead>End Time</TableHead>
-                  <TableHead>Notes</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {shifts.map((shift) => (
-                  <TableRow key={shift.id}>
-                    <TableCell>{shift.employeeName}</TableCell>
-                    <TableCell>{shift.position}</TableCell>
-                    <TableCell>{format(shift.start, "PP")}</TableCell>
-                    <TableCell>{format(shift.start, "p")}</TableCell>
-                    <TableCell>{format(shift.end, "p")}</TableCell>
-                    <TableCell>{shift.notes}</TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedShift(shift);
-                            setIsDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleDeleteShift(shift.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </Card>
+          <TimeOffApprovalDashboard />
+        </TabsContent>
+      </Tabs>
 
       <AddShiftDialog
         open={isDialogOpen}
