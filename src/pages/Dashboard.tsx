@@ -17,9 +17,19 @@ import {
   Cell,
   Legend,
 } from "recharts";
-import { ArrowDownIcon, ArrowUpIcon, LockIcon } from "lucide-react";
+import { 
+  ArrowDownIcon, 
+  ArrowUpIcon, 
+  LockIcon,
+  CalendarIcon,
+  FileTextIcon,
+  ChartBarIcon,
+  PlusIcon,
+} from "lucide-react";
 import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { DashboardAlerts } from "@/components/dashboard/DashboardAlerts";
+import { UserProfile } from "@/components/dashboard/UserProfile";
+import { QuickActions } from "@/components/dashboard/QuickActions";
 
 const revenueData = [
   { name: 'Mon', revenue: 4000, expenses: 2400 },
@@ -165,12 +175,17 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-bold tracking-tight" tabIndex={0}>Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Welcome back to your restaurant overview
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight" tabIndex={0}>Dashboard</h1>
+          <p className="text-muted-foreground mt-2">
+            Welcome back to your restaurant overview
+          </p>
+        </div>
+        <UserProfile />
       </div>
+
+      <QuickActions userRole={userRole} />
 
       <DateRangePicker
         onRangeChange={handleRangeChange}
