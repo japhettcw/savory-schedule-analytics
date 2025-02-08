@@ -28,7 +28,7 @@ interface ComboboxProps {
 export function Combobox({ items = [], value, onChange, placeholder }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
 
-  // Ensure items is always an array
+  // Ensure items is always an array and never undefined
   const safeItems = Array.isArray(items) ? items : [];
 
   return (
@@ -50,26 +50,28 @@ export function Combobox({ items = [], value, onChange, placeholder }: ComboboxP
         <Command>
           <CommandInput placeholder={placeholder || "Search items..."} />
           <CommandEmpty>No item found.</CommandEmpty>
-          <CommandGroup>
-            {safeItems.map((item) => (
-              <CommandItem
-                key={item.value}
-                value={item.value}
-                onSelect={(currentValue) => {
-                  onChange(currentValue === value ? "" : currentValue);
-                  setOpen(false);
-                }}
-              >
-                <Check
-                  className={cn(
-                    "mr-2 h-4 w-4",
-                    value === item.value ? "opacity-100" : "opacity-0"
-                  )}
-                />
-                {item.label}
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {safeItems.length > 0 ? (
+            <CommandGroup>
+              {safeItems.map((item) => (
+                <CommandItem
+                  key={item.value}
+                  value={item.value}
+                  onSelect={(currentValue) => {
+                    onChange(currentValue === value ? "" : currentValue);
+                    setOpen(false);
+                  }}
+                >
+                  <Check
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      value === item.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                  {item.label}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          ) : null}
         </Command>
       </PopoverContent>
     </Popover>
