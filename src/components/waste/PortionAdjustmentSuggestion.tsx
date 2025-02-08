@@ -65,7 +65,8 @@ export function PortionAdjustmentSuggestion({ data }: PortionAdjustmentSuggestio
                     </Badge>
                   </TableCell>
                 </TableRow>
-              ))}
+              );
+            })}
           </TableBody>
         </Table>
       </div>
