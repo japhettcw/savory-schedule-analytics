@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -26,7 +25,7 @@ const inventoryItems = [
   { label: "Chicken Breast", value: "chicken-breast" },
   { label: "Rice", value: "rice" },
   { label: "Pasta", value: "pasta" },
-] as const;
+] satisfies Array<{ label: string; value: string }>;
 
 const wasteReasons = [
   { label: "Spoiled", value: "spoiled" },
