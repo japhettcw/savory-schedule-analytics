@@ -5,7 +5,7 @@ import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supab
 import { Database } from '@/integrations/supabase/types';
 
 interface UseRealtimeSyncProps {
-  tableName: string;
+  tableName: keyof Database['public']['Tables'];
   onDataChange: () => void;
 }
 
@@ -16,14 +16,14 @@ export function useRealtimeSync({ tableName, onDataChange }: UseRealtimeSyncProp
     const setupRealtimeSync = async () => {
       channel = supabase
         .channel('schema-db-changes')
-        .on<keyof Database['public']['Tables']>(
+        .on(
           'postgres_changes',
           {
             event: '*',
             schema: 'public',
             table: tableName
           },
-          (payload) => {
+          (payload: RealtimePostgresChangesPayload<Database['public']['Tables'][typeof tableName]['Row']>) => {
             console.log('Change received!', payload);
             onDataChange();
           }
