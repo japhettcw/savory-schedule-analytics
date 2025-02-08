@@ -41,12 +41,13 @@ export function AddWasteLogDialog({
         return;
       }
 
-      setInventoryItems(
-        data?.map(item => ({
-          label: item.name,
-          value: item.id
-        })) || []
-      );
+      const formattedItems = data?.map(item => ({
+        label: item.name,
+        value: item.id
+      })) || [];
+
+      console.log('Formatted inventory items:', formattedItems);
+      setInventoryItems(formattedItems);
     };
 
     fetchInventoryItems();
