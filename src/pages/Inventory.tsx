@@ -17,3 +17,72 @@ import { VirtualizedInventoryTable } from "@/components/inventory/VirtualizedInv
 import { WasteForecast } from "@/components/waste/WasteForecast";
 import { PortionAdjustmentSuggestion } from "@/components/waste/PortionAdjustmentSuggestion";
 import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
+import { HighWasteAlert } from "@/components/waste/HighWasteAlert";
+import { SupplierQualityAlert } from "@/components/waste/SupplierQualityAlert";
+
+// Mock data for alerts
+const highWasteItems = [
+  {
+    name: "Fresh Tomatoes",
+    wastePercentage: 25,
+    timeFrame: "7 days"
+  },
+  {
+    name: "Lettuce",
+    wastePercentage: 30,
+    timeFrame: "7 days"
+  }
+];
+
+const supplierIssues = [
+  {
+    supplierName: "Fresh Produce Co",
+    itemName: "Tomatoes",
+    issueType: "Quality below standard",
+    date: "2024-03-15"
+  },
+  {
+    supplierName: "Quality Meats Inc",
+    itemName: "Ground Beef",
+    issueType: "Temperature control issue",
+    date: "2024-03-14"
+  }
+];
+
+export default function Inventory() {
+  const [isAddInventoryOpen, setIsAddInventoryOpen] = useState(false);
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Inventory Management</h1>
+        <Button onClick={() => setIsAddInventoryOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Add Item
+        </Button>
+      </div>
+
+      <div className="grid gap-6">
+        <HighWasteAlert items={highWasteItems} />
+        <SupplierQualityAlert issues={supplierIssues} />
+        <OutOfStockNotification items={[]} />
+        <LowStockAlert items={[]} />
+        <ExpirationTracker />
+        <SupplierManagement />
+        <AutomaticReorderSystem />
+        <OrderTracker />
+        <IngredientUsageAnalysis />
+        <WastageReport />
+        <CostAnalysis />
+        <VirtualizedInventoryTable />
+        <WasteForecast />
+        <PortionAdjustmentSuggestion />
+        <InventoryWasteLink data={[]} />
+      </div>
+
+      <AddInventoryDialog
+        open={isAddInventoryOpen}
+        onOpenChange={setIsAddInventoryOpen}
+      />
+    </div>
+  );
+}
