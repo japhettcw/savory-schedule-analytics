@@ -1,8 +1,6 @@
-
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash, X } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,21 +20,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
+import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { useToast } from "@/hooks/use-toast";
-import { Badge } from "@/components/ui/badge";
-import type { Ingredient } from "@/components/menu/IngredientList";
-
-type MenuItem = {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  description?: string;
-  image: string;
-  available?: boolean;
-  allergens: string[];
-  ingredients: Ingredient[];
-};
+import type { MenuItem } from "@/types/menu";
 
 const initialMenuItems: MenuItem[] = [
   {
@@ -47,6 +33,7 @@ const initialMenuItems: MenuItem[] = [
     description: "Juicy beef patty with fresh vegetables",
     image: "/placeholder.svg",
     available: true,
+    stockLevel: 15,
     allergens: ["Milk", "Wheat"],
     ingredients: [
       { name: "Beef Patty", quantity: "200", unit: "g" },
@@ -103,11 +90,9 @@ export default function Menu() {
 
   const handleAddEditItem = (item: MenuItem) => {
     if (selectedItem) {
-      setMenuItems(
-        menuItems.map((menuItem) =>
-          menuItem.id === item.id ? item : menuItem
-        )
-      );
+      setMenuItems(menuItems.map((menuItem) =>
+        menuItem.id === item.id ? item : menuItem
+      ));
     } else {
       setMenuItems([...menuItems, item]);
     }
@@ -136,11 +121,8 @@ export default function Menu() {
   };
 
   const filteredItems = menuItems.filter((item) => {
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "All" || item.category === selectedCategory;
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -174,10 +156,7 @@ export default function Menu() {
             className="max-w-sm"
           />
         </div>
-        <Select
-          value={selectedCategory}
-          onValueChange={setSelectedCategory}
-        >
+        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
@@ -193,71 +172,12 @@ export default function Menu() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredItems.map((item) => (
-          <Card
+          <MenuItemCard
             key={item.id}
-            className="overflow-hidden hover:shadow-lg transition-shadow"
-          >
-            <img
-              src={item.image}
-              alt={item.name}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="text-lg font-semibold">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {item.category}
-                  </p>
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {item.description}
-                    </p>
-                  )}
-                  {item.allergens.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {item.allergens.map((allergen) => (
-                        <Badge key={allergen} variant="outline">
-                          {allergen}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  {item.ingredients.length > 0 && (
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      <p className="font-medium">Ingredients:</p>
-                      <ul className="list-disc list-inside">
-                        {item.ingredients.map((ingredient, index) => (
-                          <li key={index}>
-                            {ingredient.quantity} {ingredient.unit} {ingredient.name}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-                <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
-              </div>
-              <div className="flex gap-2 mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleEditClick(item)}
-                >
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDeleteClick(item)}
-                >
-                  <Trash className="h-4 w-4 mr-1" />
-                  Delete
-                </Button>
-              </div>
-            </div>
-          </Card>
+            item={item}
+            onEdit={handleEditClick}
+            onDelete={handleDeleteClick}
+          />
         ))}
       </div>
 

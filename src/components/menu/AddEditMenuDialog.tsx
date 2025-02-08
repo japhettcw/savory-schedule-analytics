@@ -28,14 +28,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { AllergenSelector } from "./AllergenSelector";
-import { IngredientList, type Ingredient } from "./IngredientList";
+import { IngredientList } from "./IngredientList";
 import { ImageUploader } from "./ImageUploader";
+import { calculateSuggestedPrice } from "@/utils/priceCalculator";
+import type { MenuItem, Ingredient } from "@/types/menu";
 
 const ingredientSchema = z.object({
   name: z.string().min(1, "Ingredient name is required"),
   quantity: z.string().min(1, "Quantity is required"),
   unit: z.string().min(1, "Unit is required"),
-}).strict();
+});
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -44,28 +46,10 @@ const formSchema = z.object({
   description: z.string().optional(),
   allergens: z.array(z.string()),
   ingredients: z.array(ingredientSchema),
-}).strict();
+  stockLevel: z.string().regex(/^\d+$/, "Stock level must be a positive number"),
+});
 
 type FormValues = z.infer<typeof formSchema>;
-
-type MenuItem = {
-  id: number;
-  name: string;
-  price: number;
-  category: string;
-  description?: string;
-  image: string;
-  available?: boolean;
-  allergens: string[];
-  ingredients: Ingredient[];
-};
-
-type AddEditMenuDialogProps = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  item?: MenuItem;
-  onSave: (data: MenuItem) => void;
-};
 
 const categories = [
   "Starters",
@@ -74,6 +58,13 @@ const categories = [
   "Beverages",
   "Sides",
 ];
+
+type AddEditMenuDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  item?: MenuItem;
+  onSave: (data: MenuItem) => void;
+};
 
 export function AddEditMenuDialog({ 
   open, 
@@ -99,6 +90,7 @@ export function AddEditMenuDialog({
         quantity: ing.quantity,
         unit: ing.unit
       })),
+      stockLevel: item?.stockLevel?.toString() || "0",
     },
   });
 
@@ -110,8 +102,11 @@ export function AddEditMenuDialog({
     reader.readAsDataURL(file);
   };
 
+  const watchIngredients = form.watch("ingredients") as Ingredient[];
+  const suggestedPrice = calculateSuggestedPrice(watchIngredients);
+
   const onSubmit = (values: FormValues) => {
-    const newItem = {
+    const newItem: MenuItem = {
       id: item?.id || Date.now(),
       name: values.name,
       price: parseFloat(values.price),
@@ -121,6 +116,7 @@ export function AddEditMenuDialog({
       available: true,
       allergens: values.allergens,
       ingredients: values.ingredients as Ingredient[],
+      stockLevel: parseInt(values.stockLevel),
     };
 
     onSave(newItem);
@@ -165,25 +161,49 @@ export function AddEditMenuDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex gap-4">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="0.00"
+                        {...field}
+                      />
+                    </FormControl>
+                    <p className="text-sm text-muted-foreground">
+                      Suggested price: ${suggestedPrice.toFixed(2)}
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="stockLevel"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Stock Level</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
