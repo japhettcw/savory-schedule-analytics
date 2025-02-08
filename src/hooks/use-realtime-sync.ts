@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 type TableName = 'inventory_items' | 'menu_items' | 'menu_item_ingredients' | 'waste_logs';
 type Event = 'INSERT' | 'UPDATE' | 'DELETE' | '*';
@@ -16,14 +17,16 @@ export function useRealtimeSync(
   useEffect(() => {
     const channel = supabase
       .channel('schema-db-changes')
-      .on(
+      .on<{
+        [key: string]: any;
+      }>(
         'postgres_changes',
         {
           event: event,
           schema: 'public',
           table: tableName
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<{ [key: string]: any }>) => {
           console.log(`Real-time update from ${tableName}:`, payload);
           callback();
         }
@@ -43,5 +46,5 @@ export function useRealtimeSync(
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [tableName, event, callback]);
+  }, [tableName, event, callback, toast]);
 }
