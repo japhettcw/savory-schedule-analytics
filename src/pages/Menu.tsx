@@ -23,7 +23,7 @@ import {
 import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
 import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
 import { useToast } from "@/hooks/use-toast";
-import type { MenuItem } from "@/types/menu";
+import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -80,9 +80,17 @@ export default function Menu() {
         ...item,
         id: item.id,
         allergens: item.allergens || [],
-        ingredients: item.ingredients || [],
+        ingredients: (item.ingredients as any[] || []).map((ing: any) => ({
+          name: ing.name || '',
+          quantity: ing.quantity || '',
+          unit: ing.unit || '',
+        })) as Ingredient[],
         image: item.image || "/placeholder.svg",
-        variations: item.variations || [],
+        variations: (item.variations as any[] || []).map((var_: any) => ({
+          id: var_.id || crypto.randomUUID(),
+          name: var_.name || '',
+          price: Number(var_.price) || 0,
+        })) as MenuItemVariation[],
         stockLevel: item.stock_level || 0,
       })) as MenuItem[];
       
