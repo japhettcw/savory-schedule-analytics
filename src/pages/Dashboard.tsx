@@ -30,6 +30,7 @@ import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
 import { DashboardAlerts } from "@/components/dashboard/DashboardAlerts";
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { QuickActions } from "@/components/dashboard/QuickActions";
+import { NotificationsCenter } from "@/components/dashboard/NotificationsCenter";
 
 const revenueData = [
   { name: 'Mon', revenue: 4000, expenses: 2400 },
@@ -182,7 +183,10 @@ export default function Dashboard() {
             Welcome back to your restaurant overview
           </p>
         </div>
-        <UserProfile />
+        <div className="flex items-center gap-4">
+          <NotificationsCenter />
+          <UserProfile />
+        </div>
       </div>
 
       <QuickActions userRole={userRole} />
