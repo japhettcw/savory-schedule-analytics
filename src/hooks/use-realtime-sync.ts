@@ -15,10 +15,10 @@ export function useRealtimeSync(
   const { toast } = useToast();
 
   useEffect(() => {
-    const channel = supabase
+    const channel: RealtimeChannel = supabase
       .channel('schema-db-changes')
       .on(
-        'postgres_changes' as const,
+        'postgres_changes',
         {
           event: event,
           schema: 'public',
