@@ -64,7 +64,55 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Fade in animation for page transitions */
+/* Base transitions */
+.transition-base {
+  @apply transition-all duration-200 ease-in-out;
+}
+
+/* Interactive element hover effects */
+.hover-scale {
+  @apply transition-transform duration-200 hover:scale-[1.02] active:scale-[0.98];
+}
+
+.hover-lift {
+  @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg;
+}
+
+.hover-glow {
+  @apply transition-all duration-200 hover:shadow-md hover:shadow-primary/20;
+}
+
+/* Loading animations */
+.loader {
+  @apply animate-spin;
+}
+
+.pulse {
+  @apply animate-pulse;
+}
+
+.shimmer {
+  @apply relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent;
+}
+
+/* State transitions */
+.fade-enter {
+  @apply opacity-0;
+}
+
+.fade-enter-active {
+  @apply opacity-100 transition-opacity duration-300;
+}
+
+.fade-exit {
+  @apply opacity-100;
+}
+
+.fade-exit-active {
+  @apply opacity-0 transition-opacity duration-300;
+}
+
+/* Page transitions */
 .page-transition-enter {
   opacity: 0;
   transform: translate3d(0, 20px, 0);
@@ -73,7 +121,7 @@ html {
 .page-transition-enter-active {
   opacity: 1;
   transform: translate3d(0, 0, 0);
-  transition: opacity 400ms ease-in-out, transform 400ms ease-in-out;
+  transition: opacity 400ms ease-out, transform 400ms ease-out;
 }
 
 .page-transition-exit {
@@ -82,5 +130,53 @@ html {
 
 .page-transition-exit-active {
   opacity: 0;
-  transition: opacity 400ms ease-in-out;
+  transition: opacity 400ms ease-out;
+}
+
+/* Success animation */
+.success-animation {
+  @apply animate-[success_0.5s_ease-in-out];
+}
+
+@keyframes success {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Error shake animation */
+.error-shake {
+  @apply animate-[shake_0.4s_ease-in-out];
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Button press effect */
+.active-press {
+  @apply active:scale-95 transition-transform duration-200;
+}
+
+/* Link hover effect */
+.link-hover {
+  @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-bottom-right after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 hover:after:origin-bottom-left hover:after:scale-x-100;
 }
