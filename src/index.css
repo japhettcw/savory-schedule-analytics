@@ -41,6 +41,15 @@
   }
 }
 
+/* Menu page specific styles */
+.menu-page {
+  @apply relative overflow-x-hidden;
+}
+
+.menu-items-container {
+  @apply w-full overflow-x-auto;
+}
+
 /* Force opaque navigation */
 nav {
   @apply !bg-white border-b;
