@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -40,6 +40,25 @@ export default function Dashboard() {
   const [view, setView] = useState<string>("weekly");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const { isLoading, userRole } = useRoleGuard();
+  const [isPending, startTransition] = useTransition();
+
+  const handleDateRangeChange = (range: DateRange | undefined) => {
+    startTransition(() => {
+      setDateRange(range);
+    });
+  };
+
+  const handleViewChange = (newView: string) => {
+    startTransition(() => {
+      setView(newView);
+    });
+  };
+
+  const handleLayoutChange = (newLayout: "grid" | "list") => {
+    startTransition(() => {
+      setLayout(newLayout);
+    });
+  };
 
   if (isLoading) {
     return (
@@ -89,11 +108,11 @@ export default function Dashboard() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setLayout("grid")}>
+              <DropdownMenuItem onClick={() => handleLayoutChange("grid")}>
                 <LayoutGrid className="mr-2 h-4 w-4" />
                 Grid Layout
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLayout("list")}>
+              <DropdownMenuItem onClick={() => handleLayoutChange("list")}>
                 <LayoutList className="mr-2 h-4 w-4" />
                 List Layout
               </DropdownMenuItem>
@@ -110,8 +129,8 @@ export default function Dashboard() {
         </div>
         <div className="w-full sm:w-auto">
           <DateRangePicker
-            onRangeChange={setDateRange}
-            onViewChange={setView}
+            onRangeChange={handleDateRangeChange}
+            onViewChange={handleViewChange}
           />
         </div>
       </div>
