@@ -34,6 +34,14 @@
   * {
     @apply border-border antialiased;
   }
+  
+  html,
+  body {
+    @apply bg-white;
+    background-color: white !important;
+    opacity: 1 !important;
+  }
+  
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -45,18 +53,28 @@
 [role="dialog"],
 [role="listbox"],
 [role="tooltip"],
+[role="combobox"],
 .select-content,
 .dropdown-content,
-.popover-content {
+.popover-content,
+.dialog-content,
+.command-dialog,
+.modal-content {
   @apply !bg-white border shadow-lg;
+  background-color: white !important;
+  opacity: 1 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
 
 /* Ensure consistent hover styles */
 [role="menuitem"],
-[role="option"] {
+[role="option"],
+.dropdown-item,
+.menu-item {
   @apply hover:!bg-gray-100;
+  background-color: white !important;
+  opacity: 1 !important;
 }
 
 /* Custom scrollbar */
@@ -199,4 +217,3 @@ html {
 .link-hover {
   @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-bottom-right after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 hover:after:origin-bottom-left hover:after:scale-x-100;
 }
-
