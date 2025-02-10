@@ -35,8 +35,11 @@
     @apply border-border antialiased;
   }
   
+  :root,
   html,
-  body {
+  body,
+  #root,
+  [data-overlay-container="true"] {
     @apply bg-white;
     background-color: white !important;
     opacity: 1 !important;
@@ -59,7 +62,10 @@
 .popover-content,
 .dialog-content,
 .command-dialog,
-.modal-content {
+.modal-content,
+.popover,
+[data-radix-popper-content-wrapper],
+[data-overlay-container="true"] {
   @apply !bg-white border shadow-lg;
   background-color: white !important;
   opacity: 1 !important;
@@ -71,7 +77,8 @@
 [role="menuitem"],
 [role="option"],
 .dropdown-item,
-.menu-item {
+.menu-item,
+.select-item {
   @apply hover:!bg-gray-100;
   background-color: white !important;
   opacity: 1 !important;
