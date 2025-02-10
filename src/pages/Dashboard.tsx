@@ -30,7 +30,7 @@ const roleAccess = {
   owner: ["financial", "inventory", "waste", "staff"],
   manager: ["inventory", "waste", "staff"],
   staff: ["waste", "staff"],
-};
+} as const;
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -38,18 +38,41 @@ export default function Dashboard() {
   const [view, setView] = useState<string>("weekly");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [userId, setUserId] = useState<string | null>(null);
-  const userRole = "owner"; // This should come from your auth context
+  const [userRole, setUserRole] = useState<keyof typeof roleAccess | null>(null);
 
   useEffect(() => {
-    // Get the current user's ID
     const getCurrentUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUserId(user.id);
-      } else {
+      try {
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError) throw userError;
+        
+        if (user) {
+          setUserId(user.id);
+          
+          // Fetch user role
+          const { data: roleData, error: roleError } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .single();
+            
+          if (roleError) throw roleError;
+          
+          if (roleData) {
+            setUserRole(roleData.role as keyof typeof roleAccess);
+          }
+        } else {
+          toast({
+            title: "Authentication Required",
+            description: "Please sign in to view metrics",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
         toast({
-          title: "Authentication Required",
-          description: "Please sign in to view metrics",
+          title: "Error",
+          description: "Failed to fetch user data",
           variant: "destructive",
         });
       }
@@ -58,7 +81,7 @@ export default function Dashboard() {
     getCurrentUser();
   }, [toast]);
 
-  if (!userId) {
+  if (!userId || !userRole) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <Card className="p-6 text-center">
@@ -69,6 +92,8 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  const hasFinancialAccess = roleAccess[userRole].includes("financial");
 
   return (
     <div className="space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto">
@@ -117,11 +142,11 @@ export default function Dashboard() {
       <DashboardAlerts />
 
       <div className="grid gap-6">
-        <DailyMetrics />
+        {hasFinancialAccess && <DailyMetrics />}
         
         <div className="grid gap-6 md:grid-cols-2">
-          <MetricsChart />
-          <ExpenseBreakdown />
+          {hasFinancialAccess && <MetricsChart />}
+          {hasFinancialAccess && <ExpenseBreakdown />}
         </div>
         
         <div className="grid gap-6 md:grid-cols-2">

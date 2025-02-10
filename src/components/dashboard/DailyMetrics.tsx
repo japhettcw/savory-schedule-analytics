@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowDownIcon, ArrowUpIcon } from "lucide-react";
+import { useRealtimeSync } from "@/hooks/use-realtime-sync";
 
 interface DailyMetric {
   total_revenue: number;
@@ -41,10 +42,21 @@ const calculateChange = (current: number, previous: number) => {
   };
 };
 
+const getColorClass = (value: number, type: 'revenue' | 'expense' | 'customer' | 'order') => {
+  switch (type) {
+    case 'revenue':
+    case 'customer':
+    case 'order':
+      return value >= 0 ? 'text-green-600' : 'text-red-600';
+    case 'expense':
+      return value >= 0 ? 'text-red-600' : 'text-green-600';
+  }
+};
+
 export function DailyMetrics() {
   const { toast } = useToast();
 
-  const { data: metrics, isLoading, error } = useQuery({
+  const { data: metrics, isLoading, error, refetch } = useQuery({
     queryKey: ['dailyMetrics'],
     queryFn: fetchDailyMetrics,
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
@@ -58,6 +70,12 @@ export function DailyMetrics() {
         });
       },
     },
+  });
+
+  // Set up realtime sync for daily_metrics table
+  useRealtimeSync({
+    tableName: 'daily_metrics',
+    onDataChange: refetch,
   });
 
   console.log('Current metrics state:', { metrics, isLoading, error });
@@ -116,13 +134,15 @@ export function DailyMetrics() {
       value: `$${current.total_revenue.toFixed(2)}`,
       change: `${revenueChange.value.toFixed(1)}%`,
       changeType: revenueChange.type,
+      valueClass: getColorClass(revenueChange.value, 'revenue'),
       description: "vs. previous day",
     },
     {
       title: "Total Expenses",
       value: `$${current.total_expenses.toFixed(2)}`,
       change: `${expensesChange.value.toFixed(1)}%`,
-      changeType: expensesChange.type === 'positive' ? 'negative' : 'positive', // Inverse for expenses
+      changeType: expensesChange.type === 'positive' ? 'negative' : 'positive',
+      valueClass: getColorClass(expensesChange.value, 'expense'),
       description: "vs. previous day",
     },
     {
@@ -130,6 +150,7 @@ export function DailyMetrics() {
       value: `$${current.net_profit.toFixed(2)}`,
       change: `${profitChange.value.toFixed(1)}%`,
       changeType: profitChange.type,
+      valueClass: getColorClass(profitChange.value, 'revenue'),
       description: "vs. previous day",
     },
     {
@@ -137,6 +158,7 @@ export function DailyMetrics() {
       value: current.customer_count.toString(),
       change: `${customerChange.value.toFixed(1)}%`,
       changeType: customerChange.type,
+      valueClass: getColorClass(customerChange.value, 'customer'),
       description: "vs. previous day",
     },
     {
@@ -144,6 +166,7 @@ export function DailyMetrics() {
       value: current.total_orders.toString(),
       change: `${ordersChange.value.toFixed(1)}%`,
       changeType: ordersChange.type,
+      valueClass: getColorClass(ordersChange.value, 'order'),
       description: "vs. previous day",
     },
     {
@@ -151,6 +174,7 @@ export function DailyMetrics() {
       value: `$${avgOrderValue.toFixed(2)}`,
       change: `${avgOrderChange.value.toFixed(1)}%`,
       changeType: avgOrderChange.type,
+      valueClass: getColorClass(avgOrderChange.value, 'revenue'),
       description: "vs. previous day",
     },
   ];
@@ -180,7 +204,7 @@ export function DailyMetrics() {
                 {stat.change}
               </div>
             </div>
-            <h3 className="text-2xl font-semibold tracking-tight">
+            <h3 className={`text-2xl font-semibold tracking-tight ${stat.valueClass}`}>
               {stat.value}
             </h3>
             <p className="text-xs text-muted-foreground">
