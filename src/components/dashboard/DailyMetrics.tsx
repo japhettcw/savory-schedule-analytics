@@ -18,17 +18,9 @@ interface DailyMetric {
 
 const fetchDailyMetrics = async () => {
   console.log('Fetching daily metrics...');
-  // Get today's and yesterday's metrics
   const { data, error } = await supabase
     .from('daily_metrics')
-    .select(`
-      total_revenue,
-      customer_count,
-      total_orders,
-      total_expenses,
-      net_profit,
-      date
-    `)
+    .select('*')
     .order('date', { ascending: false })
     .limit(2);
 
@@ -50,12 +42,11 @@ const calculateChange = (current: number, previous: number) => {
   };
 };
 
-const getColorClass = (value: number, type: 'revenue' | 'expense' | 'customer' | 'order' | 'profit') => {
+const getColorClass = (value: number, type: 'revenue' | 'expense' | 'customer' | 'order') => {
   switch (type) {
     case 'revenue':
     case 'customer':
     case 'order':
-    case 'profit':
       return value >= 0 ? 'text-green-600' : 'text-red-600';
     case 'expense':
       return value >= 0 ? 'text-red-600' : 'text-green-600';
@@ -68,7 +59,7 @@ export function DailyMetrics() {
   const { data: metrics, isLoading, error, refetch } = useQuery({
     queryKey: ['dailyMetrics'],
     queryFn: fetchDailyMetrics,
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
     meta: {
       onError: (error: Error) => {
         console.error('Query error:', error);
@@ -81,6 +72,7 @@ export function DailyMetrics() {
     },
   });
 
+  // Set up realtime sync for daily_metrics table
   useRealtimeSync({
     tableName: 'daily_metrics',
     onDataChange: refetch,
@@ -130,8 +122,8 @@ export function DailyMetrics() {
   const revenueChange = calculateChange(current.total_revenue, previous?.total_revenue);
   const customerChange = calculateChange(current.customer_count, previous?.customer_count);
   const ordersChange = calculateChange(current.total_orders, previous?.total_orders);
-  const expensesChange = calculateChange(current.total_expenses || 0, previous?.total_expenses || 0);
-  const profitChange = calculateChange(current.net_profit || 0, previous?.net_profit || 0);
+  const expensesChange = calculateChange(current.total_expenses, previous?.total_expenses);
+  const profitChange = calculateChange(current.net_profit, previous?.net_profit);
   const avgOrderValue = current.total_orders ? current.total_revenue / current.total_orders : 0;
   const prevAvgOrderValue = previous?.total_orders ? previous.total_revenue / previous.total_orders : 0;
   const avgOrderChange = calculateChange(avgOrderValue, prevAvgOrderValue);
@@ -147,7 +139,7 @@ export function DailyMetrics() {
     },
     {
       title: "Total Expenses",
-      value: `$${(current.total_expenses || 0).toFixed(2)}`,
+      value: `$${current.total_expenses.toFixed(2)}`,
       change: `${expensesChange.value.toFixed(1)}%`,
       changeType: expensesChange.type === 'positive' ? 'negative' : 'positive',
       valueClass: getColorClass(expensesChange.value, 'expense'),
@@ -155,10 +147,10 @@ export function DailyMetrics() {
     },
     {
       title: "Net Profit",
-      value: `$${(current.net_profit || 0).toFixed(2)}`,
+      value: `$${current.net_profit.toFixed(2)}`,
       change: `${profitChange.value.toFixed(1)}%`,
       changeType: profitChange.type,
-      valueClass: getColorClass(profitChange.value, 'profit'),
+      valueClass: getColorClass(profitChange.value, 'revenue'),
       description: "vs. previous day",
     },
     {
