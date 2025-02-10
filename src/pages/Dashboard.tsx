@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
@@ -17,17 +18,17 @@ import { DailyMetrics } from "@/components/dashboard/DailyMetrics";
 import { MetricsChart } from "@/components/dashboard/MetricsChart";
 import { ExpenseBreakdown } from "@/components/dashboard/ExpenseBreakdown";
 import { TopSellingItems } from "@/components/dashboard/TopSellingItems";
-import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useRoleGuard, AppRole } from "@/hooks/use-role-guard";
 
 type AccessFeature = "financial" | "inventory" | "waste" | "staff";
 
-const roleAccess: Record<string, AccessFeature[]> = {
+const roleAccess: Record<AppRole, AccessFeature[]> = {
   owner: ["financial", "inventory", "waste", "staff"],
   manager: ["inventory", "waste", "staff"],
   staff: ["waste", "staff"],
@@ -38,80 +39,27 @@ export default function Dashboard() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [view, setView] = useState<string>("weekly");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
-  const [userId, setUserId] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<keyof typeof roleAccess | null>(null);
+  const { isLoading, userRole } = useRoleGuard();
 
-  useEffect(() => {
-    const getCurrentUser = async () => {
-      try {
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError) throw userError;
-        
-        if (user) {
-          setUserId(user.id);
-          
-          // Fetch user role with maybeSingle() instead of single()
-          const { data: roleData, error: roleError } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', user.id)
-            .maybeSingle();
-            
-          if (roleError) {
-            console.error('Error fetching role:', roleError);
-            toast({
-              title: "Error",
-              description: "Failed to fetch user role",
-              variant: "destructive",
-            });
-            return;
-          }
-          
-          if (roleData) {
-            setUserRole(roleData.role as keyof typeof roleAccess);
-          } else {
-            // Handle case where no role is found
-            toast({
-              title: "No Role Assigned",
-              description: "You don't have any role assigned. Please contact an administrator.",
-              variant: "destructive",
-            });
-          }
-        } else {
-          toast({
-            title: "Authentication Required",
-            description: "Please sign in to view metrics",
-            variant: "destructive",
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch user data",
-          variant: "destructive",
-        });
-      }
-    };
+  if (isLoading) {
+    return null;
+  }
 
-    getCurrentUser();
-  }, [toast]);
-
-  if (!userId || !userRole) {
+  if (!userRole) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <Card className="p-6 text-center">
           <LockIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-2xl font-bold mb-2">Authentication Required</h2>
+          <h2 className="text-2xl font-bold mb-2">No Role Assigned</h2>
           <p className="text-muted-foreground">
-            {!userId ? "Please sign in to view the dashboard" : "No role assigned. Please contact an administrator."}
+            Please contact an administrator to get a role assigned.
           </p>
         </Card>
       </div>
     );
   }
 
-  const hasFinancialAccess = roleAccess[userRole]?.includes("financial" as AccessFeature) || false;
+  const hasFinancialAccess = roleAccess[userRole]?.includes("financial");
 
   return (
     <div className="space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto">

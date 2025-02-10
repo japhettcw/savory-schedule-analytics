@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -13,8 +13,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Shield } from "lucide-react";
-
-type AppRole = "owner" | "manager" | "staff";
+import { useRoleGuard, AppRole } from "@/hooks/use-role-guard";
 
 type User = {
   id: string;
@@ -24,41 +23,13 @@ type User = {
 
 export default function RoleManagement() {
   const [users, setUsers] = useState<User[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isOwner, setIsOwner] = useState(false);
+  const { isLoading } = useRoleGuard("owner");
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // Check if current user is owner
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          navigate("/auth");
-          return;
-        }
-
-        const { data: roleData, error: roleError } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", session.user.id)
-          .maybeSingle();
-
-        if (roleError) throw roleError;
-        
-        if (roleData?.role !== "owner") {
-          toast({
-            title: "Access Denied",
-            description: "Only owners can access role management",
-            variant: "destructive",
-          });
-          navigate("/");
-          return;
-        }
-
-        setIsOwner(true);
-
         // Fetch all users and their roles
         const { data: profiles, error: profilesError } = await supabase
           .from("profiles")
@@ -78,7 +49,6 @@ export default function RoleManagement() {
         }));
 
         setUsers(formattedUsers);
-        setIsLoading(false);
       } catch (error) {
         console.error("Error:", error);
         toast({
@@ -89,8 +59,10 @@ export default function RoleManagement() {
       }
     };
 
-    fetchUsers();
-  }, [navigate, toast]);
+    if (!isLoading) {
+      fetchUsers();
+    }
+  }, [isLoading, toast]);
 
   const handleRoleChange = async (userId: string, newRole: AppRole) => {
     try {
@@ -129,10 +101,6 @@ export default function RoleManagement() {
   };
 
   if (isLoading) {
-    return null;
-  }
-
-  if (!isOwner) {
     return null;
   }
 
