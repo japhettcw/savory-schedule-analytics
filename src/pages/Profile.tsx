@@ -119,7 +119,21 @@ export default function Profile() {
 
       console.log("Updating profile with values:", values);
 
-      const { error } = await supabase
+      // Update auth metadata first
+      const { error: metadataError } = await supabase.auth.updateUser({
+        data: { 
+          first_name: values.first_name,
+          last_name: values.last_name,
+        }
+      });
+
+      if (metadataError) {
+        console.error("Error updating user metadata:", metadataError);
+        throw metadataError;
+      }
+
+      // Then update profiles table
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({
           first_name: values.first_name,
@@ -127,11 +141,11 @@ export default function Profile() {
         })
         .eq("id", session.user.id);
 
-      if (error) {
-        console.error("Error updating profile:", error);
+      if (profileError) {
+        console.error("Error updating profile:", profileError);
         toast({
           title: "Error",
-          description: error.message || "Failed to update profile",
+          description: profileError.message || "Failed to update profile",
           variant: "destructive",
         });
         return;
