@@ -58,6 +58,7 @@ export default function Profile() {
           .maybeSingle();
 
         if (profileError) {
+          console.error("Error fetching profile:", profileError);
           toast({
             title: "Error",
             description: "Failed to load profile",
@@ -101,35 +102,44 @@ export default function Profile() {
   }, [navigate, form, toast]);
 
   const onSubmit = async (values: ProfileFormValues) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        navigate("/auth");
+        return;
+      }
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        first_name: values.first_name,
-        last_name: values.last_name,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", session.user.id);
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          first_name: values.first_name,
+          last_name: values.last_name,
+        })
+        .eq("id", session.user.id);
 
-    if (error) {
+      if (error) {
+        console.error("Error updating profile:", error);
+        toast({
+          title: "Error",
+          description: error.message || "Failed to update profile",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error) {
+      console.error("Error:", error);
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: "Something went wrong",
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Success",
-      description: "Profile updated successfully",
-    });
   };
 
   if (isLoading) {
