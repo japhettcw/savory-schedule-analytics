@@ -108,12 +108,8 @@ export function UserProfile() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        className="w-56 bg-popover border shadow-lg" 
-        align="end"
-        sideOffset={5}
-      >
-        <div className="flex items-center justify-start gap-2 p-2 bg-popover">
+      <DropdownMenuContent className="w-56" align="end">
+        <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">

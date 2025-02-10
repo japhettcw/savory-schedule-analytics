@@ -90,12 +90,8 @@ export function NotificationsCenter() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        align="end" 
-        className="w-80 bg-popover border shadow-lg"
-        sideOffset={5}
-      >
-        <div className="flex items-center justify-between px-4 py-2 border-b bg-popover">
+      <DropdownMenuContent align="end" className="w-80">
+        <div className="flex items-center justify-between px-4 py-2 border-b">
           <h2 className="font-semibold">Notifications</h2>
           {unreadCount > 0 && (
             <Button
@@ -108,7 +104,7 @@ export function NotificationsCenter() {
             </Button>
           )}
         </div>
-        <div className="max-h-[300px] overflow-y-auto bg-popover">
+        <div className="max-h-[300px] overflow-y-auto">
           {notifications.length === 0 ? (
             <div className="px-4 py-2 text-center text-muted-foreground">
               No notifications
