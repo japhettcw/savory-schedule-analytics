@@ -10,10 +10,10 @@ interface DashboardAlert {
 }
 
 interface DashboardAlertsProps {
-  alerts?: DashboardAlert[];
+  alerts: DashboardAlert[];
 }
 
-export function DashboardAlerts({ alerts = [] }: DashboardAlertsProps) {
+export function DashboardAlerts({ alerts }: DashboardAlertsProps) {
   if (!alerts.length) return null;
 
   return (
