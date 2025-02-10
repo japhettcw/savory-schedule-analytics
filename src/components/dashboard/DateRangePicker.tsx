@@ -70,7 +70,7 @@ export function DateRangePicker({ onRangeChange, onViewChange }: DateRangePicker
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-auto p-0 bg-white border shadow-lg !z-50" 
+          className="w-auto p-0 bg-white border shadow-lg !z-[1000]" 
           align="start"
           sideOffset={5}
         >
@@ -114,14 +114,14 @@ export function DateRangePicker({ onRangeChange, onViewChange }: DateRangePicker
           <SelectValue placeholder="Select view" />
         </SelectTrigger>
         <SelectContent 
-          className="bg-white border shadow-lg !z-50"
+          className="bg-white border shadow-lg !z-[1000]"
           position="popper"
           align="end"
           sideOffset={5}
         >
-          <SelectItem value="weekly">Weekly</SelectItem>
-          <SelectItem value="monthly">Monthly</SelectItem>
-          <SelectItem value="yearly">Yearly</SelectItem>
+          <SelectItem value="weekly" className="hover:bg-gray-100">Weekly</SelectItem>
+          <SelectItem value="monthly" className="hover:bg-gray-100">Monthly</SelectItem>
+          <SelectItem value="yearly" className="hover:bg-gray-100">Yearly</SelectItem>
         </SelectContent>
       </Select>
     </div>

@@ -92,7 +92,7 @@ export function NotificationsCenter() {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-80 bg-white border shadow-lg !z-50"
+        className="w-80 bg-white border shadow-lg !z-[1000]"
         sideOffset={5}
       >
         <div className="flex items-center justify-between px-4 py-2 border-b bg-white">
@@ -102,7 +102,7 @@ export function NotificationsCenter() {
               variant="ghost"
               size="sm"
               onClick={markAllAsRead}
-              className="text-xs"
+              className="text-xs hover:bg-gray-100"
             >
               Mark all as read
             </Button>

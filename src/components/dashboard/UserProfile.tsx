@@ -109,7 +109,7 @@ export function UserProfile() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-56 bg-white border shadow-lg !z-50" 
+        className="w-56 bg-white border shadow-lg !z-[1000]" 
         align="end"
         sideOffset={5}
       >
