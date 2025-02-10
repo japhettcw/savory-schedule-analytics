@@ -1,4 +1,3 @@
-
 import {
   ChefHat,
   ClipboardList,
@@ -65,6 +64,12 @@ const accountItems = [
     path: "/profile",
     description: "Manage your account"
   },
+  {
+    title: "Role Management",
+    icon: Users,
+    path: "/roles",
+    description: "Manage user roles"
+  }
 ];
 
 export function AppSidebar() {
