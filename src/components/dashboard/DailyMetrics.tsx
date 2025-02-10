@@ -79,13 +79,24 @@ const getPeriodLabel = (period: ComparisonPeriod) => {
 };
 
 const getColorClass = (value: number, type: 'revenue' | 'expense' | 'customer' | 'order') => {
+  // Using a neutral color (gray) for the main values
+  const baseColor = 'text-gray-700 dark:text-gray-200';
+  
+  // Only return change indicator colors for the percentage changes
+  if (type === 'expense') {
+    return value >= 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400';
+  }
+  return baseColor;
+};
+
+const getChangeColorClass = (type: 'positive' | 'negative' | 'neutral') => {
   switch (type) {
-    case 'revenue':
-    case 'customer':
-    case 'order':
-      return value >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400';
-    case 'expense':
-      return value >= 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400';
+    case 'positive':
+      return 'text-emerald-500 dark:text-emerald-400';
+    case 'negative':
+      return 'text-rose-500 dark:text-rose-400';
+    default:
+      return 'text-gray-500 dark:text-gray-400';
   }
 };
 
@@ -246,11 +257,7 @@ export function DailyMetrics() {
                 <p className="text-sm font-medium text-muted-foreground">
                   {stat.title}
                 </p>
-                <div
-                  className={`flex items-center gap-1 text-sm ${
-                    stat.changeType === "positive" ? "text-emerald-500 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"
-                  }`}
-                >
+                <div className={`flex items-center gap-1 text-sm ${getChangeColorClass(stat.changeType)}`}>
                   {stat.changeType === "positive" ? (
                     <ArrowUpIcon className="h-4 w-4" />
                   ) : (
