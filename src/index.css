@@ -52,6 +52,17 @@ nav {
   backdrop-filter: blur(8px);
 }
 
+/* Sidebar styles with backdrop filter */
+[role="complementary"] {
+  @apply !bg-white/90 border-r backdrop-blur-md;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  opacity: 1 !important;
+  z-index: 30;
+  position: relative;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
 /* Force opaque menu items */
 .menu-grid {
   @apply !bg-white;
