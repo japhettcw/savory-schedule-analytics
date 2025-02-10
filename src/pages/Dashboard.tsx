@@ -74,7 +74,7 @@ export default function Dashboard() {
   if (!userRole) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <Card className="p-6 text-center max-w-md w-full">
+        <Card className="p-6 text-center max-w-md w-full bg-background shadow-lg">
           <LockIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">No Role Assigned</h2>
           <p className="text-muted-foreground">
@@ -88,8 +88,8 @@ export default function Dashboard() {
   const hasFinancialAccess = roleAccess[userRole]?.includes("financial");
 
   return (
-    <div className="space-y-4 sm:space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+    <div className="relative space-y-4 sm:space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto bg-background">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
         <div className="space-y-1">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
@@ -99,7 +99,7 @@ export default function Dashboard() {
         <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="h-9 w-9">
+              <Button variant="outline" size="icon" className="h-9 w-9 relative z-20">
                 {layout === "grid" ? (
                   <LayoutGrid className="h-4 w-4" />
                 ) : (
@@ -107,7 +107,7 @@ export default function Dashboard() {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" className="bg-popover border shadow-lg">
               <DropdownMenuItem onClick={() => handleLayoutChange("grid")}>
                 <LayoutGrid className="mr-2 h-4 w-4" />
                 Grid Layout
@@ -123,7 +123,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 relative z-10 bg-background">
         <div className="w-full sm:w-auto">
           <QuickActions userRole={userRole} />
         </div>
@@ -137,20 +137,28 @@ export default function Dashboard() {
 
       <DashboardAlerts />
 
-      <div className="grid gap-4 sm:gap-6">
+      <div className="grid gap-4 sm:gap-6 relative z-0">
         {hasFinancialAccess && (
           <div className="grid gap-4 sm:gap-6">
-            <DailyMetrics />
+            <Card className="bg-card shadow-lg border">
+              <DailyMetrics />
+            </Card>
             
             <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-              <MetricsChart />
-              <ExpenseBreakdown />
+              <Card className="bg-card shadow-lg border">
+                <MetricsChart />
+              </Card>
+              <Card className="bg-card shadow-lg border">
+                <ExpenseBreakdown />
+              </Card>
             </div>
           </div>
         )}
         
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-          <TopSellingItems />
+          <Card className="bg-card shadow-lg border">
+            <TopSellingItems />
+          </Card>
         </div>
       </div>
     </div>
