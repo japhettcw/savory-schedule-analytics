@@ -219,7 +219,7 @@ export default function Menu() {
   }
 
   return (
-    <div className="space-y-8 overflow-x-hidden">
+    <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Menu Management</h1>
@@ -262,7 +262,7 @@ export default function Menu() {
         </Select>
       </div>
 
-      <div className="min-h-[500px] relative">
+      <div className="min-h-[500px]">
         {filteredItems.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             No menu items found
