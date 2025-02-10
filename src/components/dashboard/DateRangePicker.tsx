@@ -70,8 +70,9 @@ export function DateRangePicker({ onRangeChange, onViewChange }: DateRangePicker
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-auto p-0 bg-popover border shadow-lg" 
+          className="w-auto p-0 bg-white border shadow-lg !z-50" 
           align="start"
+          sideOffset={5}
         >
           <Calendar
             initialFocus
@@ -80,9 +81,9 @@ export function DateRangePicker({ onRangeChange, onViewChange }: DateRangePicker
             selected={date}
             onSelect={handleRangeSelect}
             numberOfMonths={2}
-            className="bg-popover"
+            className="bg-white"
           />
-          <div className="flex gap-2 p-3 border-t bg-popover">
+          <div className="flex gap-2 p-3 border-t bg-white">
             <Button
               variant="outline"
               size="sm"
@@ -113,9 +114,10 @@ export function DateRangePicker({ onRangeChange, onViewChange }: DateRangePicker
           <SelectValue placeholder="Select view" />
         </SelectTrigger>
         <SelectContent 
-          className="bg-popover border shadow-lg"
+          className="bg-white border shadow-lg !z-50"
           position="popper"
           align="end"
+          sideOffset={5}
         >
           <SelectItem value="weekly">Weekly</SelectItem>
           <SelectItem value="monthly">Monthly</SelectItem>

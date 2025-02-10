@@ -109,11 +109,11 @@ export function UserProfile() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-56 bg-popover border shadow-lg" 
+        className="w-56 bg-white border shadow-lg !z-50" 
         align="end"
         sideOffset={5}
       >
-        <div className="flex items-center justify-start gap-2 p-2 bg-popover">
+        <div className="flex items-center justify-start gap-2 p-2 bg-white">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">
@@ -122,16 +122,16 @@ export function UserProfile() {
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={() => navigate("/profile")}>
+        <DropdownMenuItem onSelect={() => navigate("/profile")} className="hover:bg-gray-100">
           <UserRound className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>
-        <DropdownMenuItem>
+        <DropdownMenuItem className="hover:bg-gray-100">
           <Settings className="mr-2 h-4 w-4" />
           <span>Settings</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-600" onSelect={handleLogout}>
+        <DropdownMenuItem className="text-red-600 hover:bg-gray-100" onSelect={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
