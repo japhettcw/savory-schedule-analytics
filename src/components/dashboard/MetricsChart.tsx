@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Suspense } from "react";
+import { Suspense, startTransition } from "react";
 
 interface DailyMetric {
   date: string;
@@ -54,7 +54,14 @@ const MetricsChartContent = () => {
 
   const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['metricsHistory'],
-    queryFn: fetchMetricsHistory,
+    queryFn: () => {
+      // Wrap the data fetching in startTransition to avoid suspense during sync updates
+      return new Promise((resolve) => {
+        startTransition(() => {
+          fetchMetricsHistory().then(resolve);
+        });
+      });
+    },
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
     meta: {
       onError: (error: Error) => {
