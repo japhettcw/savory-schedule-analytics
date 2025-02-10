@@ -49,17 +49,32 @@ export default function Dashboard() {
         if (user) {
           setUserId(user.id);
           
-          // Fetch user role
+          // Fetch user role with maybeSingle() instead of single()
           const { data: roleData, error: roleError } = await supabase
             .from('user_roles')
             .select('role')
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
             
-          if (roleError) throw roleError;
+          if (roleError) {
+            console.error('Error fetching role:', roleError);
+            toast({
+              title: "Error",
+              description: "Failed to fetch user role",
+              variant: "destructive",
+            });
+            return;
+          }
           
           if (roleData) {
             setUserRole(roleData.role as keyof typeof roleAccess);
+          } else {
+            // Handle case where no role is found
+            toast({
+              title: "No Role Assigned",
+              description: "You don't have any role assigned. Please contact an administrator.",
+              variant: "destructive",
+            });
           }
         } else {
           toast({
@@ -87,13 +102,15 @@ export default function Dashboard() {
         <Card className="p-6 text-center">
           <LockIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">Authentication Required</h2>
-          <p className="text-muted-foreground">Please sign in to view the dashboard</p>
+          <p className="text-muted-foreground">
+            {!userId ? "Please sign in to view the dashboard" : "No role assigned. Please contact an administrator."}
+          </p>
         </Card>
       </div>
     );
   }
 
-  const hasFinancialAccess = roleAccess[userRole].includes("financial");
+  const hasFinancialAccess = roleAccess[userRole]?.includes("financial") || false;
 
   return (
     <div className="space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto">
