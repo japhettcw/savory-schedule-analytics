@@ -48,7 +48,10 @@
   .menu-section,
   .menu-container,
   .menu-list,
-  .menu-grid {
+  .menu-grid,
+  .layout-wrapper,
+  .content-section,
+  .page-wrapper {
     @apply bg-white;
     background-color: white !important;
     opacity: 1 !important;
