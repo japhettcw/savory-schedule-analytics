@@ -53,6 +53,8 @@ export type Database = {
           customer_count: number
           date: string
           id: string
+          net_profit: number | null
+          total_expenses: number | null
           total_orders: number
           total_revenue: number
           user_id: string
@@ -62,6 +64,8 @@ export type Database = {
           customer_count?: number
           date?: string
           id?: string
+          net_profit?: number | null
+          total_expenses?: number | null
           total_orders?: number
           total_revenue?: number
           user_id: string
@@ -71,6 +75,8 @@ export type Database = {
           customer_count?: number
           date?: string
           id?: string
+          net_profit?: number | null
+          total_expenses?: number | null
           total_orders?: number
           total_revenue?: number
           user_id?: string
