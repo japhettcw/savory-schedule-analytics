@@ -74,7 +74,7 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode,
   }, [requiredRole]);
 
   if (isAuthenticated === null) {
-    return null; // or a loading spinner
+    return null;
   }
 
   if (!isAuthenticated) {
