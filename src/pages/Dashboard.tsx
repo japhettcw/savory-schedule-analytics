@@ -16,6 +16,7 @@ import { NotificationsCenter } from "@/components/dashboard/NotificationsCenter"
 import { Button } from "@/components/ui/button";
 import { DailyMetrics } from "@/components/dashboard/DailyMetrics";
 import { MetricsChart } from "@/components/dashboard/MetricsChart";
+import { ExpenseBreakdown } from "@/components/dashboard/ExpenseBreakdown";
 import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
@@ -116,6 +117,7 @@ export default function Dashboard() {
 
       <DailyMetrics />
       <MetricsChart />
+      <ExpenseBreakdown />
     </div>
   );
 }
