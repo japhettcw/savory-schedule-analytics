@@ -82,22 +82,8 @@ export default function Dashboard() {
 
       <DashboardAlerts />
 
-      {userRole === "owner" && (
-        <>
-          <DailyMetrics />
-          <MetricsChart />
-        </>
-      )}
-
-      {userRole !== "owner" && (
-        <Card className="col-span-2 p-6 flex items-center justify-center">
-          <div className="text-center space-y-2">
-            <LockIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-            <p className="text-lg font-medium">Financial data is restricted</p>
-            <p className="text-sm text-muted-foreground">Contact an owner for access</p>
-          </div>
-        </Card>
-      )}
+      <DailyMetrics />
+      <MetricsChart />
     </div>
   );
 }
