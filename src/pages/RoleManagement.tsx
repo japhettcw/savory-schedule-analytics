@@ -14,10 +14,12 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Shield } from "lucide-react";
 
+type AppRole = "owner" | "manager" | "staff";
+
 type User = {
   id: string;
   email: string;
-  role: string | null;
+  role: AppRole | null;
 };
 
 export default function RoleManagement() {
@@ -72,7 +74,7 @@ export default function RoleManagement() {
         const formattedUsers = profiles.map((profile: any) => ({
           id: profile.id,
           email: "User", // You would need to implement a secure way to fetch emails
-          role: profile.user_roles?.[0]?.role || null,
+          role: profile.user_roles?.[0]?.role as AppRole | null,
         }));
 
         setUsers(formattedUsers);
@@ -90,7 +92,7 @@ export default function RoleManagement() {
     fetchUsers();
   }, [navigate, toast]);
 
-  const handleRoleChange = async (userId: string, newRole: string) => {
+  const handleRoleChange = async (userId: string, newRole: AppRole) => {
     try {
       // First, delete existing role
       const { error: deleteError } = await supabase
@@ -103,9 +105,7 @@ export default function RoleManagement() {
       // Then insert new role
       const { error: insertError } = await supabase
         .from("user_roles")
-        .insert([
-          { user_id: userId, role: newRole }
-        ]);
+        .insert({ user_id: userId, role: newRole });
 
       if (insertError) throw insertError;
 
@@ -172,7 +172,7 @@ export default function RoleManagement() {
               </div>
               <Select
                 value={user.role || ""}
-                onValueChange={(value) => handleRoleChange(user.id, value)}
+                onValueChange={(value: AppRole) => handleRoleChange(user.id, value)}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select role" />
