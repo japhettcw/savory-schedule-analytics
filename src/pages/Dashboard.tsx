@@ -71,10 +71,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-6 p-6 pb-16">
-      <div className="flex justify-between items-start">
+    <div className="space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
         <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
             Welcome back to your restaurant overview
           </p>
@@ -116,12 +116,17 @@ export default function Dashboard() {
 
       <DashboardAlerts />
 
-      <DailyMetrics />
-      <MetricsChart />
-      
-      <div className="grid gap-6 md:grid-cols-2">
-        <ExpenseBreakdown />
-        <TopSellingItems />
+      <div className="grid gap-6">
+        <DailyMetrics />
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          <MetricsChart />
+          <ExpenseBreakdown />
+        </div>
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          <TopSellingItems />
+        </div>
       </div>
     </div>
   );
