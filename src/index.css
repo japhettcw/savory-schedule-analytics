@@ -43,20 +43,35 @@
 
 /* Force opaque navigation */
 nav {
-  @apply !bg-white border-b;
+  @apply !bg-white border-b fixed;
   background-color: white !important;
   opacity: 1 !important;
   z-index: 40;
-  position: relative;
+  position: fixed;
+  width: 240px;
+  height: 100vh;
+  top: 0;
+  left: 0;
 }
 
-/* Force opaque menu items */
+/* Content positioning */
+main {
+  margin-left: 240px;
+  width: calc(100% - 240px);
+  min-height: 100vh;
+  overflow-x: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Menu grid container */
 .menu-grid {
   @apply !bg-white;
   background-color: white !important;
   opacity: 1 !important;
   z-index: 10;
   position: relative;
+  padding: 1rem;
 }
 
 .menu-grid-item {
