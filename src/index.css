@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
@@ -44,7 +43,12 @@
   main,
   .app-container,
   .page-container,
-  .content-wrapper {
+  .content-wrapper,
+  .account-section,
+  .menu-section,
+  .menu-container,
+  .menu-list,
+  .menu-grid {
     @apply bg-white;
     background-color: white !important;
     opacity: 1 !important;
@@ -73,7 +77,9 @@
 [data-overlay-container="true"],
 .menu-dropdown,
 .popup-content,
-.overlay-container {
+.overlay-container,
+.account-dropdown,
+.menu-item-details {
   @apply !bg-white border shadow-lg;
   background-color: white !important;
   opacity: 1 !important;
@@ -87,7 +93,9 @@
 .dropdown-item,
 .menu-item,
 .select-item,
-.list-item {
+.list-item,
+.menu-card,
+.menu-grid-item {
   @apply hover:!bg-gray-100;
   background-color: white !important;
   opacity: 1 !important;
