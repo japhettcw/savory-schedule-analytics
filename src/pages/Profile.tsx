@@ -46,9 +46,12 @@ export default function Profile() {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
+          console.log("No session found, redirecting to auth");
           navigate("/auth");
           return;
         }
+
+        console.log("Fetching profile for user:", session.user.id);
 
         // Fetch profile data
         const { data: profileData, error: profileError } = await supabase
@@ -67,6 +70,8 @@ export default function Profile() {
           return;
         }
 
+        console.log("Profile data fetched:", profileData);
+
         // Fetch role data
         const { data: roleData, error: roleError } = await supabase
           .from("user_roles")
@@ -78,6 +83,7 @@ export default function Profile() {
           console.error("Error fetching role:", roleError);
         } else {
           setUserRole(roleData?.role || null);
+          console.log("User role set to:", roleData?.role);
         }
 
         if (profileData) {
@@ -106,9 +112,12 @@ export default function Profile() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
+        console.log("No session found during update, redirecting to auth");
         navigate("/auth");
         return;
       }
+
+      console.log("Updating profile with values:", values);
 
       const { error } = await supabase
         .from("profiles")
@@ -128,6 +137,7 @@ export default function Profile() {
         return;
       }
 
+      console.log("Profile updated successfully");
       toast({
         title: "Success",
         description: "Profile updated successfully",
