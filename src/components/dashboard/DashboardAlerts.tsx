@@ -2,18 +2,18 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 
-interface DashboardAlert {
+export interface DashboardAlert {
   id: string;
   title: string;
   description: string;
   type: 'warning' | 'error';
 }
 
-interface DashboardAlertsProps {
-  alerts: DashboardAlert[];
+export interface DashboardAlertsProps {
+  alerts?: DashboardAlert[];
 }
 
-export function DashboardAlerts({ alerts }: DashboardAlertsProps) {
+export function DashboardAlerts({ alerts = [] }: DashboardAlertsProps) {
   if (!alerts.length) return null;
 
   return (
