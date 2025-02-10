@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      daily_expenses: {
+        Row: {
+          amount: number
+          category_id: string
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category_id: string
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_metrics: {
         Row: {
           created_at: string
@@ -35,6 +73,30 @@ export type Database = {
           id?: string
           total_orders?: number
           total_revenue?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      expense_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
           user_id?: string
         }
         Relationships: []
@@ -80,6 +142,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      item_sales: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          menu_item_id: string
+          quantity: number
+          revenue: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          menu_item_id: string
+          quantity?: number
+          revenue?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          menu_item_id?: string
+          quantity?: number
+          revenue?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_sales_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       menu_item_ingredients: {
         Row: {
