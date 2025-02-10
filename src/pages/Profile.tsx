@@ -28,6 +28,7 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function Profile() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -63,8 +64,8 @@ export default function Profile() {
         if (profileError) {
           console.error("Error fetching profile:", profileError);
           toast({
-            title: "Error",
-            description: "Failed to load profile",
+            title: "Error loading profile",
+            description: "Please try refreshing the page",
             variant: "destructive",
           });
           return;
@@ -98,7 +99,7 @@ export default function Profile() {
         console.error("Error:", error);
         toast({
           title: "Error",
-          description: "Something went wrong",
+          description: "Failed to load profile data. Please try again later.",
           variant: "destructive",
         });
       }
@@ -109,6 +110,7 @@ export default function Profile() {
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {
+      setIsSaving(true);
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
@@ -138,14 +140,15 @@ export default function Profile() {
         .update({
           first_name: values.first_name,
           last_name: values.last_name,
+          updated_at: new Date().toISOString(),
         })
         .eq("id", session.user.id);
 
       if (profileError) {
         console.error("Error updating profile:", profileError);
         toast({
-          title: "Error",
-          description: profileError.message || "Failed to update profile",
+          title: "Update failed",
+          description: profileError.message || "Could not update profile. Please try again.",
           variant: "destructive",
         });
         return;
@@ -154,15 +157,17 @@ export default function Profile() {
       console.log("Profile updated successfully");
       toast({
         title: "Success",
-        description: "Profile updated successfully",
+        description: "Your profile has been updated",
       });
     } catch (error) {
       console.error("Error:", error);
       toast({
-        title: "Error",
-        description: "Something went wrong",
+        title: "Update failed",
+        description: "An unexpected error occurred. Please try again later.",
         variant: "destructive",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -232,13 +237,14 @@ export default function Profile() {
               )}
             />
             <div className="flex gap-4">
-              <Button type="submit">
-                Save Changes
+              <Button type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save Changes"}
               </Button>
               <Button 
                 type="button" 
                 variant="outline"
                 onClick={() => navigate("/")}
+                disabled={isSaving}
               >
                 Cancel
               </Button>
