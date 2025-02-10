@@ -21,9 +21,10 @@ interface DailyMetric {
   total_revenue: number;
   customer_count: number;
   total_orders: number;
+  avg_order_value?: number;
 }
 
-const fetchMetricsHistory = async () => {
+const fetchMetricsHistory = async (): Promise<DailyMetric[]> => {
   console.log('Fetching metrics history...');
   const { data, error } = await supabase
     .from('daily_metrics')
@@ -52,11 +53,10 @@ const fetchMetricsHistory = async () => {
 const MetricsChartContent = () => {
   const { toast } = useToast();
 
-  const { data: metrics, isLoading, error } = useQuery({
+  const { data: metrics, isLoading, error } = useQuery<DailyMetric[]>({
     queryKey: ['metricsHistory'],
     queryFn: () => {
-      // Wrap the data fetching in startTransition to avoid suspense during sync updates
-      return new Promise((resolve) => {
+      return new Promise<DailyMetric[]>((resolve) => {
         startTransition(() => {
           fetchMetricsHistory().then(resolve);
         });
