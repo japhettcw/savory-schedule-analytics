@@ -35,71 +35,48 @@
     @apply border-border antialiased;
   }
   
-  :root,
-  html,
-  body,
-  #root,
-  [data-overlay-container="true"],
-  .main-container,
-  main,
-  .app-container,
-  .page-container,
-  .content-wrapper,
-  .account-section,
-  .menu-section,
-  .menu-container,
-  .menu-list,
-  .menu-grid,
-  .layout-wrapper,
-  .content-section,
-  .page-wrapper {
-    @apply bg-white;
-    background-color: white !important;
-    opacity: 1 !important;
-    position: relative;
-  }
-  
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-
-  /* Ensure proper stacking context */
-  .main-container {
-    z-index: 0;
-  }
-
-  main {
-    z-index: 1;
-    position: relative;
-  }
-
-  nav {
-    z-index: 40;
-    position: relative;
-  }
 }
 
-/* Force opaque backgrounds on all dropdowns and popups */
+/* Force opaque navigation */
+nav {
+  @apply !bg-white border-b;
+  background-color: white !important;
+  opacity: 1 !important;
+  z-index: 40;
+  position: relative;
+}
+
+/* Force opaque menu items */
+.menu-grid {
+  @apply !bg-white;
+  background-color: white !important;
+  opacity: 1 !important;
+  z-index: 10;
+  position: relative;
+}
+
+.menu-grid-item {
+  @apply !bg-white hover:!bg-gray-100;
+  background-color: white !important;
+  opacity: 1 !important;
+  z-index: 15;
+  position: relative;
+}
+
+/* Force opaque dropdowns and menus */
 [role="menu"],
 [role="dialog"],
 [role="listbox"],
-[role="tooltip"],
-[role="combobox"],
 .select-content,
 .dropdown-content,
 .popover-content,
 .dialog-content,
 .command-dialog,
-.modal-content,
-.popover,
-[data-radix-popper-content-wrapper],
-[data-overlay-container="true"],
-.menu-dropdown,
-.popup-content,
-.overlay-container,
-.account-dropdown,
-.menu-item-details {
+.modal-content {
   @apply !bg-white border shadow-lg;
   background-color: white !important;
   opacity: 1 !important;
@@ -107,52 +84,6 @@
   -webkit-backdrop-filter: none !important;
   z-index: 50;
   position: relative;
-}
-
-/* Ensure proper layering for menu items */
-.menu-grid {
-  z-index: 10;
-  position: relative;
-}
-
-/* Consistent hover styles */
-[role="menuitem"],
-[role="option"],
-.dropdown-item,
-.menu-item,
-.select-item,
-.list-item,
-.menu-card,
-.menu-grid-item {
-  @apply hover:!bg-gray-100;
-  background-color: white !important;
-  opacity: 1 !important;
-  z-index: 15;
-  position: relative;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
 }
 
 /* Base transitions */
