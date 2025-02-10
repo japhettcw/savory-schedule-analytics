@@ -10,6 +10,8 @@ interface DailyMetric {
   total_revenue: number;
   customer_count: number;
   total_orders: number;
+  total_expenses: number;
+  net_profit: number;
   date: string;
 }
 
@@ -62,8 +64,8 @@ export function DailyMetrics() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array(4).fill(0).map((_, i) => (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        {Array(6).fill(0).map((_, i) => (
           <Card key={i} className="p-6">
             <div className="space-y-2">
               <Skeleton className="h-4 w-1/4" />
@@ -79,7 +81,7 @@ export function DailyMetrics() {
   if (error) {
     console.error('Rendering error state:', error);
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
         <Card className="p-6">
           <div className="text-center text-red-500">
             Failed to load metrics. Please try again later.
@@ -102,6 +104,8 @@ export function DailyMetrics() {
   const revenueChange = calculateChange(current.total_revenue, previous?.total_revenue);
   const customerChange = calculateChange(current.customer_count, previous?.customer_count);
   const ordersChange = calculateChange(current.total_orders, previous?.total_orders);
+  const expensesChange = calculateChange(current.total_expenses, previous?.total_expenses);
+  const profitChange = calculateChange(current.net_profit, previous?.net_profit);
   const avgOrderValue = current.total_orders ? current.total_revenue / current.total_orders : 0;
   const prevAvgOrderValue = previous?.total_orders ? previous.total_revenue / previous.total_orders : 0;
   const avgOrderChange = calculateChange(avgOrderValue, prevAvgOrderValue);
@@ -112,6 +116,20 @@ export function DailyMetrics() {
       value: `$${current.total_revenue.toFixed(2)}`,
       change: `${revenueChange.value.toFixed(1)}%`,
       changeType: revenueChange.type,
+      description: "vs. previous day",
+    },
+    {
+      title: "Total Expenses",
+      value: `$${current.total_expenses.toFixed(2)}`,
+      change: `${expensesChange.value.toFixed(1)}%`,
+      changeType: expensesChange.type === 'positive' ? 'negative' : 'positive', // Inverse for expenses
+      description: "vs. previous day",
+    },
+    {
+      title: "Net Profit",
+      value: `$${current.net_profit.toFixed(2)}`,
+      change: `${profitChange.value.toFixed(1)}%`,
+      changeType: profitChange.type,
       description: "vs. previous day",
     },
     {
@@ -138,7 +156,7 @@ export function DailyMetrics() {
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
       {stats.map((stat) => (
         <Card 
           key={stat.title} 
