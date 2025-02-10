@@ -50,8 +50,8 @@ export default function Menu() {
   const isTablet = useMediaQuery("(min-width: 768px)");
   
   const columnCount = useMemo(() => {
-    if (isDesktop) return 2; // Reduced from 3 to 2 for better fit
-    if (isTablet) return 2;
+    if (isDesktop) return 2;
+    if (isTablet) return 1;
     return 1;
   }, [isDesktop, isTablet]);
 
@@ -219,7 +219,7 @@ export default function Menu() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-hidden">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Menu Management</h1>
@@ -262,7 +262,7 @@ export default function Menu() {
         </Select>
       </div>
 
-      <div className="min-h-[500px]">
+      <div className="min-h-[500px] overflow-hidden">
         {filteredItems.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             No menu items found
