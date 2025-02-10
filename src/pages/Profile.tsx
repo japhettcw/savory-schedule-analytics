@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Shield } from "lucide-react";
 
 const profileSchema = z.object({
   first_name: z.string().min(2, "First name must be at least 2 characters"),
@@ -147,6 +147,16 @@ export default function Profile() {
           <ArrowLeft className="h-4 w-4" />
           Back to Dashboard
         </Button>
+        {userRole === "owner" && (
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => navigate("/role-management")}
+          >
+            <Shield className="h-4 w-4" />
+            Manage Roles
+          </Button>
+        )}
       </div>
       
       <Card className="p-6">
