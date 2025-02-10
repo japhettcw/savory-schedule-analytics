@@ -50,7 +50,7 @@ export default function Menu() {
   const isTablet = useMediaQuery("(min-width: 768px)");
   
   const columnCount = useMemo(() => {
-    if (isDesktop) return 3;
+    if (isDesktop) return 2; // Reduced from 3 to 2 for better fit
     if (isTablet) return 2;
     return 1;
   }, [isDesktop, isTablet]);
