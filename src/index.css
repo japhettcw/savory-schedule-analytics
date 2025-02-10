@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 @tailwind base;
@@ -43,7 +42,7 @@
 
 /* Navigation styles with backdrop filter */
 nav {
-  @apply !bg-white/80 border-b backdrop-blur-md;
+  @apply !bg-white border-b backdrop-blur-md;
   background-color: rgba(255, 255, 255, 0.8) !important;
   opacity: 1 !important;
   z-index: 40;
@@ -52,23 +51,14 @@ nav {
   backdrop-filter: blur(8px);
 }
 
-/* Sidebar styles with backdrop filter */
+/* Sidebar styles */
 [role="complementary"] {
-  @apply !bg-white/90 border-r backdrop-blur-md;
-  background-color: rgba(255, 255, 255, 0.9) !important;
+  @apply !bg-white border-r;
+  background-color: white !important;
   opacity: 1 !important;
   z-index: 30;
   position: fixed;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
   transition: background-color 0.3s ease-in-out;
-}
-
-/* Handle horizontal scroll for the sidebar */
-@media (min-width: 768px) {
-  [role="complementary"] {
-    background: linear-gradient(to right, rgba(255, 255, 255, 0.9) 90%, rgba(255, 255, 255, 0)) !important;
-  }
 }
 
 /* Force opaque menu items */
