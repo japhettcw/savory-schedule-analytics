@@ -15,6 +15,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Suspense, startTransition } from "react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 interface DailyMetric {
   date: string;
@@ -50,19 +52,37 @@ const fetchMetricsHistory = async (): Promise<DailyMetric[]> => {
   return formattedData;
 };
 
+const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
+  <Alert variant="destructive">
+    <AlertTriangle className="h-4 w-4" />
+    <AlertTitle>Error loading metrics</AlertTitle>
+    <AlertDescription>{error.message}</AlertDescription>
+  </Alert>
+);
+
 const MetricsChartContent = () => {
+  console.log("Rendering MetricsChartContent");
   const { toast } = useToast();
 
-  const { data: metrics, isLoading, error } = useQuery<DailyMetric[]>({
+  const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['metricsHistory'],
     queryFn: () => {
+      console.log("Starting metrics fetch...");
       return new Promise<DailyMetric[]>((resolve) => {
         startTransition(() => {
-          fetchMetricsHistory().then(resolve);
+          fetchMetricsHistory()
+            .then(data => {
+              console.log("Metrics fetch completed successfully");
+              resolve(data);
+            })
+            .catch(error => {
+              console.error("Metrics fetch failed:", error);
+              throw error;
+            });
         });
       });
     },
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    refetchInterval: 5 * 60 * 1000,
     meta: {
       onError: (error: Error) => {
         console.error('Query error:', error);
@@ -77,11 +97,7 @@ const MetricsChartContent = () => {
 
   if (error) {
     console.error('Query error:', error);
-    return (
-      <div className="text-center text-red-500">
-        Failed to load metrics. Please try again later.
-      </div>
-    );
+    return <ErrorFallback error={error} resetErrorBoundary={() => {}} />;
   }
 
   if (isLoading) {
@@ -90,7 +106,7 @@ const MetricsChartContent = () => {
 
   if (!metrics || metrics.length === 0) {
     return (
-      <div className="text-center text-muted-foreground">
+      <div className="text-center text-muted-foreground p-4">
         No metrics data available for the selected date range
       </div>
     );
@@ -166,6 +182,7 @@ const MetricsChartContent = () => {
 };
 
 export function MetricsChart() {
+  console.log("Rendering MetricsChart wrapper");
   return (
     <Card className="p-6">
       <h3 className="text-lg font-semibold mb-4">Weekly Trends (Feb 3 - Feb 10)</h3>

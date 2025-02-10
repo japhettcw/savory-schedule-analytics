@@ -9,10 +9,15 @@ import { TopSellingItems } from "@/components/dashboard/TopSellingItems";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 export default function Reports() {
+  console.log("Rendering Reports page");
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
   
   const handleExport = () => {
     toast({
@@ -21,8 +26,21 @@ export default function Reports() {
     });
   };
 
+  const handleError = (errorMessage: string) => {
+    console.error("Reports page error:", errorMessage);
+    setError(errorMessage);
+  };
+
   return (
     <div className="space-y-6">
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Financial Reports</h1>
@@ -32,7 +50,10 @@ export default function Reports() {
         </div>
         <div className="flex items-center gap-4">
           <DateRangePicker
-            onRangeChange={range => setDateRange(range)}
+            onRangeChange={range => {
+              console.log("Date range changed:", range);
+              setDateRange(range);
+            }}
             onViewChange={() => {}}
           />
           <Button

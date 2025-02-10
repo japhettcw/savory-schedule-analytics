@@ -17,6 +17,7 @@ interface QuickActionsProps {
 }
 
 export function QuickActions({ userRole }: QuickActionsProps) {
+  console.log("Rendering QuickActions with role:", userRole);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -39,6 +40,7 @@ export function QuickActions({ userRole }: QuickActionsProps) {
       label: "View Reports",
       icon: ChartBarIcon,
       onClick: () => {
+        console.log("View Reports clicked, current role:", userRole);
         if (!["owner", "manager"].includes(userRole)) {
           toast({
             title: "Access Denied",
@@ -47,6 +49,7 @@ export function QuickActions({ userRole }: QuickActionsProps) {
           });
           return;
         }
+        console.log("Navigating to /reports");
         navigate("/reports");
       },
       roles: ["owner", "manager"] as AppRole[],
@@ -87,7 +90,10 @@ export function QuickActions({ userRole }: QuickActionsProps) {
             key={action.label}
             variant="outline"
             className="flex flex-col items-center justify-center gap-2 h-auto py-4 hover:bg-accent/50 transition-colors"
-            onClick={action.onClick}
+            onClick={() => {
+              console.log(`Clicking ${action.label} button`);
+              action.onClick();
+            }}
           >
             <action.icon className="h-5 w-5" />
             <span className="text-sm text-center">{action.label}</span>
