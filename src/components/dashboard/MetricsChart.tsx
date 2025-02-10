@@ -23,14 +23,19 @@ interface DailyMetric {
 }
 
 const fetchMetricsHistory = async () => {
+  console.log('Fetching metrics history...');
   const { data, error } = await supabase
     .from('daily_metrics')
     .select('*')
     .order('date', { ascending: true })
     .limit(30);
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error fetching metrics:', error);
+    throw error;
+  }
   
+  console.log('Metrics data:', data);
   return (data as DailyMetric[]).map(metric => ({
     ...metric,
     date: new Date(metric.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
@@ -41,7 +46,7 @@ const fetchMetricsHistory = async () => {
 export function MetricsChart() {
   const { toast } = useToast();
 
-  const { data: metrics, isLoading } = useQuery({
+  const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['metricsHistory'],
     queryFn: fetchMetricsHistory,
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
@@ -56,6 +61,17 @@ export function MetricsChart() {
     },
   });
 
+  if (error) {
+    console.error('Query error:', error);
+    return (
+      <Card className="p-6">
+        <div className="text-center text-red-500">
+          Failed to load metrics. Please try again later.
+        </div>
+      </Card>
+    );
+  }
+
   if (isLoading) {
     return (
       <Card className="p-6">
@@ -65,7 +81,13 @@ export function MetricsChart() {
   }
 
   if (!metrics || metrics.length === 0) {
-    return null;
+    return (
+      <Card className="p-6">
+        <div className="text-center text-muted-foreground">
+          No metrics data available
+        </div>
+      </Card>
+    );
   }
 
   return (

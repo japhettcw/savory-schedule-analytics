@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,7 @@ import { NotificationsCenter } from "@/components/dashboard/NotificationsCenter"
 import { Button } from "@/components/ui/button";
 import { DailyMetrics } from "@/components/dashboard/DailyMetrics";
 import { MetricsChart } from "@/components/dashboard/MetricsChart";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +35,38 @@ export default function Dashboard() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [view, setView] = useState<string>("weekly");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
+  const [userId, setUserId] = useState<string | null>(null);
   const userRole = "owner"; // This should come from your auth context
+
+  useEffect(() => {
+    // Get the current user's ID
+    const getCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      } else {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to view metrics",
+          variant: "destructive",
+        });
+      }
+    };
+
+    getCurrentUser();
+  }, [toast]);
+
+  if (!userId) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6">
+        <Card className="p-6 text-center">
+          <LockIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+          <h2 className="text-2xl font-bold mb-2">Authentication Required</h2>
+          <p className="text-muted-foreground">Please sign in to view the dashboard</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 p-6 pb-16">
