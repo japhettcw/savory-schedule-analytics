@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -42,13 +42,20 @@ export default function Dashboard() {
   const { isLoading, userRole } = useRoleGuard();
 
   if (isLoading) {
-    return null;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 bg-muted rounded w-48" />
+          <div className="h-8 bg-muted rounded w-64" />
+        </div>
+      </div>
+    );
   }
 
   if (!userRole) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <Card className="p-6 text-center">
+        <Card className="p-6 text-center max-w-md w-full">
           <LockIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
           <h2 className="text-2xl font-bold mb-2">No Role Assigned</h2>
           <p className="text-muted-foreground">
@@ -62,18 +69,18 @@ export default function Dashboard() {
   const hasFinancialAccess = roleAccess[userRole]?.includes("financial");
 
   return (
-    <div className="space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
+    <div className="space-y-4 sm:space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground">
             Welcome back to your restaurant overview
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="h-9 w-9">
                 {layout === "grid" ? (
                   <LayoutGrid className="h-4 w-4" />
                 ) : (
@@ -97,25 +104,33 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <QuickActions userRole={userRole} />
-        <DateRangePicker
-          onRangeChange={setDateRange}
-          onViewChange={setView}
-        />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="w-full sm:w-auto">
+          <QuickActions userRole={userRole} />
+        </div>
+        <div className="w-full sm:w-auto">
+          <DateRangePicker
+            onRangeChange={setDateRange}
+            onViewChange={setView}
+          />
+        </div>
       </div>
 
       <DashboardAlerts />
 
-      <div className="grid gap-6">
-        {hasFinancialAccess && <DailyMetrics />}
+      <div className="grid gap-4 sm:gap-6">
+        {hasFinancialAccess && (
+          <div className="grid gap-4 sm:gap-6">
+            <DailyMetrics />
+            
+            <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+              <MetricsChart />
+              <ExpenseBreakdown />
+            </div>
+          </div>
+        )}
         
-        <div className="grid gap-6 md:grid-cols-2">
-          {hasFinancialAccess && <MetricsChart />}
-          {hasFinancialAccess && <ExpenseBreakdown />}
-        </div>
-        
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
           <TopSellingItems />
         </div>
       </div>
