@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -49,8 +50,8 @@ export default function Menu() {
   const isTablet = useMediaQuery("(min-width: 768px)");
   
   const columnCount = useMemo(() => {
-    if (isDesktop) return 1; // Changed to single column for all screen sizes
-    if (isTablet) return 1;
+    if (isDesktop) return 2; // Reduced from 3 to 2 for better fit
+    if (isTablet) return 2;
     return 1;
   }, [isDesktop, isTablet]);
 

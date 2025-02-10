@@ -23,9 +23,9 @@ const VirtualizedMenuList = React.memo(({
   
   const rowCount = Math.ceil(items.length / columnCount);
   const containerWidth = typeof window !== 'undefined' ? 
-    document.querySelector('main')?.clientWidth || window.innerWidth - 80 : 
+    document.querySelector('main')?.clientWidth || window.innerWidth - 80 : // Account for sidebar and padding
     1024;
-  const cellWidth = Math.floor((containerWidth - (24 * (columnCount + 1))) / columnCount);
+  const cellWidth = Math.floor((containerWidth - (24 * (columnCount + 1))) / columnCount); // Account for gaps
   const cellHeight = 500;
 
   const Cell = ({ columnIndex, rowIndex, style }: any) => {
@@ -67,22 +67,20 @@ const VirtualizedMenuList = React.memo(({
   });
 
   return (
-    <div className="w-full max-w-full overflow-hidden">
-      <div className="max-w-full">
-        <FixedSizeGrid
-          columnCount={columnCount}
-          columnWidth={cellWidth}
-          height={Math.min(window.innerHeight * 0.8, rowCount * cellHeight)}
-          rowCount={rowCount}
-          rowHeight={cellHeight}
-          width={containerWidth}
-          overscanRowCount={2}
-          overscanColumnCount={1}
-          className="overflow-hidden"
-        >
-          {Cell}
-        </FixedSizeGrid>
-      </div>
+    <div className="w-full overflow-x-hidden">
+      <FixedSizeGrid
+        columnCount={columnCount}
+        columnWidth={cellWidth}
+        height={Math.min(window.innerHeight * 0.8, rowCount * cellHeight)}
+        rowCount={rowCount}
+        rowHeight={cellHeight}
+        width={containerWidth - 24} // Account for container padding
+        overscanRowCount={2}
+        overscanColumnCount={1}
+        className="!overflow-x-hidden"
+      >
+        {Cell}
+      </FixedSizeGrid>
     </div>
   );
 });
@@ -90,3 +88,4 @@ const VirtualizedMenuList = React.memo(({
 VirtualizedMenuList.displayName = 'VirtualizedMenuList';
 
 export default VirtualizedMenuList;
+
