@@ -39,7 +39,12 @@
   html,
   body,
   #root,
-  [data-overlay-container="true"] {
+  [data-overlay-container="true"],
+  .main-container,
+  main,
+  .app-container,
+  .page-container,
+  .content-wrapper {
     @apply bg-white;
     background-color: white !important;
     opacity: 1 !important;
@@ -65,7 +70,10 @@
 .modal-content,
 .popover,
 [data-radix-popper-content-wrapper],
-[data-overlay-container="true"] {
+[data-overlay-container="true"],
+.menu-dropdown,
+.popup-content,
+.overlay-container {
   @apply !bg-white border shadow-lg;
   background-color: white !important;
   opacity: 1 !important;
@@ -78,7 +86,8 @@
 [role="option"],
 .dropdown-item,
 .menu-item,
-.select-item {
+.select-item,
+.list-item {
   @apply hover:!bg-gray-100;
   background-color: white !important;
   opacity: 1 !important;
