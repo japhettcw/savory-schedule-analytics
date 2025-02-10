@@ -61,11 +61,6 @@ export default function AuthPage() {
           }}
           providers={[]}
           redirectTo={window.location.origin}
-          // Handle errors through the auth state change event instead
-          onError={(error) => {
-            console.error("Auth error:", error);
-            // We'll handle errors through the auth state change event
-          }}
         />
       </Card>
     </div>
