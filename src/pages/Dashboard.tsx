@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
@@ -26,11 +25,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const roleAccess = {
+type AccessFeature = "financial" | "inventory" | "waste" | "staff";
+
+const roleAccess: Record<string, AccessFeature[]> = {
   owner: ["financial", "inventory", "waste", "staff"],
   manager: ["inventory", "waste", "staff"],
   staff: ["waste", "staff"],
-} as const;
+};
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -110,7 +111,7 @@ export default function Dashboard() {
     );
   }
 
-  const hasFinancialAccess = roleAccess[userRole]?.includes("financial") || false;
+  const hasFinancialAccess = roleAccess[userRole]?.includes("financial" as AccessFeature) || false;
 
   return (
     <div className="space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto">
