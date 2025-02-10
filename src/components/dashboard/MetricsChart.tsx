@@ -27,20 +27,25 @@ const fetchMetricsHistory = async () => {
   const { data, error } = await supabase
     .from('daily_metrics')
     .select('*')
-    .order('date', { ascending: true })
-    .limit(30);
+    .gte('date', '2025-02-03')
+    .lte('date', '2025-02-10')
+    .order('date', { ascending: true });
 
   if (error) {
     console.error('Error fetching metrics:', error);
     throw error;
   }
   
-  console.log('Metrics data:', data);
-  return (data as DailyMetric[]).map(metric => ({
+  console.log('Raw metrics data:', data);
+  
+  const formattedData = (data as DailyMetric[]).map(metric => ({
     ...metric,
     date: new Date(metric.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     avg_order_value: metric.total_orders ? metric.total_revenue / metric.total_orders : 0,
   }));
+  
+  console.log('Formatted metrics data:', formattedData);
+  return formattedData;
 };
 
 export function MetricsChart() {
@@ -51,7 +56,8 @@ export function MetricsChart() {
     queryFn: fetchMetricsHistory,
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
     meta: {
-      onError: () => {
+      onError: (error: Error) => {
+        console.error('Query error:', error);
         toast({
           title: "Error",
           description: "Failed to fetch metrics history",
@@ -84,7 +90,7 @@ export function MetricsChart() {
     return (
       <Card className="p-6">
         <div className="text-center text-muted-foreground">
-          No metrics data available
+          No metrics data available for the selected date range
         </div>
       </Card>
     );
@@ -92,7 +98,7 @@ export function MetricsChart() {
 
   return (
     <Card className="p-6">
-      <h3 className="text-lg font-semibold mb-4">30-Day Trends</h3>
+      <h3 className="text-lg font-semibold mb-4">Weekly Trends (Feb 3 - Feb 10)</h3>
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={metrics} className="animate-fade-in">

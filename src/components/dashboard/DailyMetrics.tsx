@@ -14,13 +14,19 @@ interface DailyMetric {
 }
 
 const fetchDailyMetrics = async () => {
+  console.log('Fetching daily metrics...');
   const { data, error } = await supabase
     .from('daily_metrics')
     .select('*')
     .order('date', { ascending: false })
     .limit(2);
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error fetching daily metrics:', error);
+    throw error;
+  }
+
+  console.log('Daily metrics data:', data);
   return data as DailyMetric[];
 };
 
@@ -36,12 +42,13 @@ const calculateChange = (current: number, previous: number) => {
 export function DailyMetrics() {
   const { toast } = useToast();
 
-  const { data: metrics, isLoading } = useQuery({
+  const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['dailyMetrics'],
     queryFn: fetchDailyMetrics,
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
     meta: {
-      onError: () => {
+      onError: (error: Error) => {
+        console.error('Query error:', error);
         toast({
           title: "Error",
           description: "Failed to fetch daily metrics",
@@ -50,6 +57,8 @@ export function DailyMetrics() {
       },
     },
   });
+
+  console.log('Current metrics state:', { metrics, isLoading, error });
 
   if (isLoading) {
     return (
@@ -67,12 +76,28 @@ export function DailyMetrics() {
     );
   }
 
+  if (error) {
+    console.error('Rendering error state:', error);
+    return (
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="p-6">
+          <div className="text-center text-red-500">
+            Failed to load metrics. Please try again later.
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   if (!metrics || metrics.length === 0) {
+    console.log('No metrics data available');
     return null;
   }
 
   const current = metrics[0];
   const previous = metrics[1];
+
+  console.log('Processing metrics:', { current, previous });
 
   const revenueChange = calculateChange(current.total_revenue, previous?.total_revenue);
   const customerChange = calculateChange(current.customer_count, previous?.customer_count);
