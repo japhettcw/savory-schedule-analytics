@@ -22,11 +22,14 @@ interface DailyMetric {
   total_orders: number;
 }
 
+const formatCurrency = (value: number) => `$${value.toFixed(2)}`;
+const formatCount = (value: number) => value.toFixed(0);
+
 const fetchMetricsHistory = async () => {
   console.log('Fetching metrics history...');
   const { data, error } = await supabase
     .from('daily_metrics')
-    .select('*')
+    .select('total_revenue, customer_count, total_orders, total_expenses, net_profit, date')
     .gte('date', '2025-02-03')
     .lte('date', '2025-02-10')
     .order('date', { ascending: true });
@@ -38,7 +41,7 @@ const fetchMetricsHistory = async () => {
   
   console.log('Raw metrics data:', data);
   
-  const formattedData = (data as DailyMetric[]).map(metric => ({
+  const formattedData = (data || []).map(metric => ({
     ...metric,
     date: new Date(metric.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
     avg_order_value: metric.total_orders ? metric.total_revenue / metric.total_orders : 0,
@@ -48,13 +51,31 @@ const fetchMetricsHistory = async () => {
   return formattedData;
 };
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 border rounded-lg shadow-lg">
+        <p className="font-medium">{label}</p>
+        {payload.map((entry: any) => (
+          <p key={entry.name} className="text-sm" style={{ color: entry.color }}>
+            {entry.name}: {entry.name.includes('Revenue') || entry.name.includes('Profit') || entry.name.includes('Expenses')
+              ? formatCurrency(entry.value)
+              : formatCount(entry.value)}
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
 export function MetricsChart() {
   const { toast } = useToast();
 
   const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['metricsHistory'],
     queryFn: fetchMetricsHistory,
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    refetchInterval: 5 * 60 * 1000,
     meta: {
       onError: (error: Error) => {
         console.error('Query error:', error);
@@ -102,64 +123,82 @@ export function MetricsChart() {
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={metrics} className="animate-fade-in">
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis 
               dataKey="date"
               tick={{ fontSize: 12 }}
               interval="preserveStartEnd"
             />
             <YAxis 
-              yAxisId="left"
+              yAxisId="revenue"
+              orientation="left"
               tick={{ fontSize: 12 }}
+              tickFormatter={formatCurrency}
               label={{ 
-                value: 'Revenue ($)', 
+                value: 'Revenue & Financial Metrics ($)', 
                 angle: -90, 
                 position: 'insideLeft',
-                style: { textAnchor: 'middle' }
+                style: { textAnchor: 'middle', fill: '#6b7280', fontSize: 12 }
               }}
             />
             <YAxis 
-              yAxisId="right"
+              yAxisId="count"
               orientation="right"
               tick={{ fontSize: 12 }}
+              tickFormatter={formatCount}
               label={{ 
-                value: 'Count', 
+                value: 'Count (Orders & Customers)', 
                 angle: 90, 
                 position: 'insideRight',
-                style: { textAnchor: 'middle' }
+                style: { textAnchor: 'middle', fill: '#6b7280', fontSize: 12 }
               }}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                border: '1px solid #e5e7eb',
-                borderRadius: '0.5rem',
-              }}
-            />
+            <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Line
-              yAxisId="left"
+              yAxisId="revenue"
               type="monotone"
               dataKey="total_revenue"
-              stroke="#059669"
               name="Revenue"
+              stroke="#059669"
               dot={false}
+              strokeWidth={2}
             />
             <Line
-              yAxisId="right"
+              yAxisId="revenue"
+              type="monotone"
+              dataKey="total_expenses"
+              name="Expenses"
+              stroke="#dc2626"
+              dot={false}
+              strokeWidth={2}
+            />
+            <Line
+              yAxisId="revenue"
+              type="monotone"
+              dataKey="net_profit"
+              name="Net Profit"
+              stroke="#2563eb"
+              dot={false}
+              strokeWidth={2}
+            />
+            <Line
+              yAxisId="count"
               type="monotone"
               dataKey="customer_count"
-              stroke="#0ea5e9"
               name="Customers"
+              stroke="#0ea5e9"
               dot={false}
+              strokeWidth={2}
             />
             <Line
-              yAxisId="right"
+              yAxisId="count"
               type="monotone"
               dataKey="total_orders"
-              stroke="#8b5cf6"
               name="Orders"
+              stroke="#8b5cf6"
               dot={false}
+              strokeWidth={2}
             />
           </LineChart>
         </ResponsiveContainer>
