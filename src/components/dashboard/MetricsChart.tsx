@@ -14,7 +14,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Suspense, startTransition } from "react";
+import { Suspense, useTransition } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 
@@ -63,6 +63,7 @@ const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetError
 const MetricsChartContent = () => {
   console.log("Rendering MetricsChartContent");
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
 
   const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['metricsHistory'],
@@ -100,7 +101,7 @@ const MetricsChartContent = () => {
     return <ErrorFallback error={error} resetErrorBoundary={() => {}} />;
   }
 
-  if (isLoading) {
+  if (isLoading || isPending) {
     return <Skeleton className="h-[400px] w-full" />;
   }
 
