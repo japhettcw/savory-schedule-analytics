@@ -58,9 +58,17 @@ nav {
   background-color: rgba(255, 255, 255, 0.9) !important;
   opacity: 1 !important;
   z-index: 30;
-  position: relative;
+  position: fixed;
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Handle horizontal scroll for the sidebar */
+@media (min-width: 768px) {
+  [role="complementary"] {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.9) 90%, rgba(255, 255, 255, 0)) !important;
+  }
 }
 
 /* Force opaque menu items */
