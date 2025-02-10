@@ -1,22 +1,61 @@
 
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
-import { ReportsHeader } from "@/components/reports/ReportsHeader";
-import { PerformanceMetrics } from "@/components/reports/PerformanceMetrics";
-import { FinancialInsights } from "@/components/reports/FinancialInsights";
+import { Card } from "@/components/ui/card";
+import { DateRangePicker } from "@/components/dashboard/DateRangePicker";
+import { MetricsChart } from "@/components/dashboard/MetricsChart";
+import { ExpenseBreakdown } from "@/components/dashboard/ExpenseBreakdown";
+import { TopSellingItems } from "@/components/dashboard/TopSellingItems";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Reports() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const { toast } = useToast();
+  
+  const handleExport = () => {
+    toast({
+      title: "Coming Soon",
+      description: "Export functionality will be available soon",
+    });
+  };
 
   return (
     <div className="space-y-6">
-      <ReportsHeader 
-        dateRange={dateRange}
-        onRangeChange={range => setDateRange(range)}
-      />
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Financial Reports</h1>
+          <p className="text-muted-foreground">
+            View and analyze your financial performance
+          </p>
+        </div>
+        <div className="flex items-center gap-4">
+          <DateRangePicker
+            onRangeChange={range => setDateRange(range)}
+            onViewChange={() => {}}
+          />
+          <Button
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={handleExport}
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </Button>
+        </div>
+      </div>
+
       <div className="grid gap-6">
-        <PerformanceMetrics />
-        <FinancialInsights />
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold mb-4">Revenue & Performance</h2>
+          <MetricsChart />
+        </Card>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ExpenseBreakdown />
+          <TopSellingItems />
+        </div>
       </div>
     </div>
   );
