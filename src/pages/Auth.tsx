@@ -27,11 +27,9 @@ export default function AuthPage() {
         
         if (event === "SIGNED_IN" && session) {
           navigate("/");
-        } else if (event === "USER_DELETED") {
-          toast({
-            title: "Account deleted",
-            description: "Your account has been successfully deleted",
-          });
+        } else if (event === "SIGNED_OUT") {
+          // Handle sign out
+          console.log("User signed out");
         } else if (event === "PASSWORD_RECOVERY") {
           toast({
             title: "Password Recovery",
@@ -63,13 +61,10 @@ export default function AuthPage() {
           }}
           providers={[]}
           redirectTo={window.location.origin}
+          // Handle errors through the auth state change event instead
           onError={(error) => {
             console.error("Auth error:", error);
-            toast({
-              title: "Authentication Error",
-              description: error.message || "An error occurred during authentication",
-              variant: "destructive",
-            });
+            // We'll handle errors through the auth state change event
           }}
         />
       </Card>
