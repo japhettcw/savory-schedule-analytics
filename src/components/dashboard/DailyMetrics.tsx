@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,6 +24,7 @@ interface DailyMetric {
 }
 
 type ComparisonPeriod = "previous_day" | "previous_week" | "previous_month";
+type ChangeType = "positive" | "negative" | "neutral";
 
 const fetchDailyMetrics = async (comparisonPeriod: ComparisonPeriod) => {
   console.log('Fetching daily metrics...', { comparisonPeriod });
@@ -58,12 +58,12 @@ const fetchDailyMetrics = async (comparisonPeriod: ComparisonPeriod) => {
   return data as DailyMetric[];
 };
 
-const calculateChange = (current: number, previous: number) => {
+const calculateChange = (current: number, previous: number): { value: number, type: ChangeType } => {
   if (!previous) return { value: 0, type: 'neutral' };
   const change = ((current - previous) / previous) * 100;
   return {
     value: Math.abs(change),
-    type: change >= 0 ? 'positive' as const : 'negative' as const,
+    type: change >= 0 ? 'positive' : 'negative',
   };
 };
 
@@ -89,7 +89,7 @@ const getColorClass = (value: number, type: 'revenue' | 'expense' | 'customer' |
   return baseColor;
 };
 
-const getChangeColorClass = (type: 'positive' | 'negative' | 'neutral') => {
+const getChangeColorClass = (type: ChangeType) => {
   switch (type) {
     case 'positive':
       return 'text-emerald-500 dark:text-emerald-400';
@@ -193,7 +193,7 @@ export function DailyMetrics() {
       title: "Total Expenses",
       value: `$${current.total_expenses.toFixed(2)}`,
       change: `${expensesChange.value.toFixed(1)}%`,
-      changeType: expensesChange.type === 'positive' ? 'negative' : 'positive',
+      changeType: expensesChange.type === 'positive' ? 'negative' as const : 'positive' as const,
       valueClass: getColorClass(expensesChange.value, 'expense'),
       description: getPeriodLabel(comparisonPeriod),
     },
