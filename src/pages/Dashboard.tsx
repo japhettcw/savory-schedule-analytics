@@ -136,24 +136,25 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 sm:gap-6 relative z-0">
+        {/* KPI Metrics */}
         <Card className="bg-card shadow-lg border">
           <DailyMetrics />
         </Card>
 
+        {/* Business Health Check */}
         <Card className="bg-card shadow-lg border">
           <DashboardAlerts />
         </Card>
 
+        {/* Charts Section */}
         {hasFinancialAccess && (
-          <div className="grid gap-4 sm:gap-6">            
-            <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-              <Card className="bg-card shadow-lg border">
-                <MetricsChart />
-              </Card>
-              <Card className="bg-card shadow-lg border">
-                <ExpenseBreakdown />
-              </Card>
-            </div>
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+            <Card className="bg-card shadow-lg border">
+              <MetricsChart />
+            </Card>
+            <Card className="bg-card shadow-lg border">
+              <ExpenseBreakdown />
+            </Card>
           </div>
         )}
         
@@ -166,3 +167,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
