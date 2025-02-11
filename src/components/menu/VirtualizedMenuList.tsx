@@ -7,15 +7,17 @@ const MenuItemCard = lazy(() => import('./MenuItemCard'));
 
 interface VirtualizedMenuListProps {
   items: MenuItem[];
-  onEdit: (item: MenuItem) => void;
-  onDelete: (item: MenuItem) => void;
+  onEdit?: (item: MenuItem) => void;
+  onDelete?: (item: MenuItem) => void;
+  onAddToOrder?: (item: MenuItem) => void;
   columnCount: number;
 }
 
 const VirtualizedMenuList = React.memo(({ 
   items, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onAddToOrder,
 }: VirtualizedMenuListProps) => {
   console.log('VirtualizedMenuList render:', { items });
 
@@ -34,6 +36,7 @@ const VirtualizedMenuList = React.memo(({
               item={item}
               onEdit={onEdit}
               onDelete={onDelete}
+              onAddToOrder={onAddToOrder}
             />
           </Suspense>
         </div>
