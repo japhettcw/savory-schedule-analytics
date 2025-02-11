@@ -163,7 +163,10 @@ export default function Dashboard() {
               <MetricsChart />
             </Card>
             <Card className="bg-card shadow-lg border">
-              <ExpenseBreakdown />
+              <div className="p-6">
+                <h2 className="text-lg font-semibold mb-4">Expense Breakdown</h2>
+                <ExpenseBreakdown />
+              </div>
             </Card>
           </div>
         )}
