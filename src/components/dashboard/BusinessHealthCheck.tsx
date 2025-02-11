@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertTriangle, TrendingUp } from "lucide-react";
+import { AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export function BusinessHealthCheck() {
@@ -39,6 +39,8 @@ export function BusinessHealthCheck() {
   });
 
   const hasHighExpense = expenses?.some(item => item.amount > 2000);
+  const profitMarginIncrease = 15; // This would typically come from your data
+  const isProfitMarginHealthy = profitMarginIncrease > 10;
 
   return (
     <Card className="p-6 space-y-4">
@@ -46,7 +48,10 @@ export function BusinessHealthCheck() {
       
       <div className="space-y-4">
         {hasHighExpense && (
-          <Alert variant="destructive">
+          <Alert 
+            variant="destructive"
+            className="border-destructive/50 text-destructive bg-destructive/10"
+          >
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>High Expense Alert</AlertTitle>
             <AlertDescription>
@@ -55,11 +60,22 @@ export function BusinessHealthCheck() {
           </Alert>
         )}
 
-        <Alert>
-          <TrendingUp className="h-4 w-4" />
+        <Alert
+          variant={isProfitMarginHealthy ? "default" : "destructive"}
+          className={`${
+            isProfitMarginHealthy 
+              ? "border-primary/50 text-primary bg-primary/10" 
+              : "border-destructive/50 text-destructive bg-destructive/10"
+          }`}
+        >
+          {isProfitMarginHealthy ? (
+            <TrendingUp className="h-4 w-4" />
+          ) : (
+            <TrendingDown className="h-4 w-4" />
+          )}
           <AlertTitle>Profit Margin Health</AlertTitle>
           <AlertDescription>
-            Profit Margin is healthy with a 15% increase
+            Profit Margin is {isProfitMarginHealthy ? "healthy" : "concerning"} with a {profitMarginIncrease}% increase
           </AlertDescription>
         </Alert>
       </div>
