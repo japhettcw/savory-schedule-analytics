@@ -135,13 +135,15 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <DashboardAlerts />
-
       <div className="grid gap-4 sm:gap-6 relative z-0">
         {hasFinancialAccess && (
           <div className="grid gap-4 sm:gap-6">
             <Card className="bg-card shadow-lg border">
               <DailyMetrics />
+            </Card>
+
+            <Card className="bg-card shadow-lg border">
+              <DashboardAlerts />
             </Card>
             
             <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
