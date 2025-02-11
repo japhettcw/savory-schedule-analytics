@@ -18,6 +18,7 @@ import { DailyMetrics } from "@/components/dashboard/DailyMetrics";
 import { MetricsChart } from "@/components/dashboard/MetricsChart";
 import { ExpenseBreakdown } from "@/components/dashboard/ExpenseBreakdown";
 import { TopSellingItems } from "@/components/dashboard/TopSellingItems";
+import { BusinessHealthCheck } from "@/components/dashboard/BusinessHealthCheck";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -140,6 +141,8 @@ export default function Dashboard() {
       <div className="grid gap-4 sm:gap-6 relative z-0">
         {hasFinancialAccess && (
           <div className="grid gap-4 sm:gap-6">
+            <BusinessHealthCheck />
+            
             <Card className="bg-card shadow-lg border">
               <DailyMetrics />
             </Card>
