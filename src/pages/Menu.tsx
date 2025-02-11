@@ -1,39 +1,12 @@
-import { useState, useCallback, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
-import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
-import { useToast } from "@/hooks/use-toast";
-import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const categories = [
-  "All",
-  "Starters",
-  "Main Course",
-  "Desserts",
-  "Beverages",
-  "Sides",
-];
+import { useState, useCallback, useMemo } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { MenuItem } from "@/types/menu";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
+import { MenuControls } from "@/components/menu/MenuControls";
+import { MenuItemManager } from "@/components/menu/MenuItemManager";
 
 export default function Menu() {
   const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
@@ -52,8 +25,6 @@ export default function Menu() {
         .from('menu_items')
         .select('*');
       
-      console.log('Supabase response:', { data, error });
-      
       if (error) {
         console.error('Error fetching menu items:', error);
         toast({
@@ -64,7 +35,7 @@ export default function Menu() {
         return [];
       }
       
-      const transformedData = data.map(item => ({
+      return data.map(item => ({
         ...item,
         id: item.id,
         allergens: item.allergens || [],
@@ -72,18 +43,15 @@ export default function Menu() {
           name: ing.name || '',
           quantity: ing.quantity || '',
           unit: ing.unit || '',
-        })) as Ingredient[],
+        })),
         image: item.image || "/placeholder.svg",
         variations: (item.variations as any[] || []).map((var_: any) => ({
           id: var_.id || crypto.randomUUID(),
           name: var_.name || '',
           price: Number(var_.price) || 0,
-        })) as MenuItemVariation[],
+        })),
         stockLevel: item.stock_level || 0,
       })) as MenuItem[];
-      
-      console.log('Transformed menu items:', transformedData);
-      return transformedData;
     },
   });
 
@@ -114,7 +82,6 @@ export default function Menu() {
         .select()
         .single();
 
-      console.log('Upsert response:', { data, error });
       if (error) throw error;
       return data;
     },
@@ -199,47 +166,28 @@ export default function Menu() {
 
   return (
     <div className="container mx-auto px-4 space-y-8 max-w-7xl">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight">Menu Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your restaurant's menu items
-          </p>
-        </div>
-        <Button
-          className="flex items-center gap-2"
-          onClick={() => {
-            setSelectedItem(undefined);
-            setIsAddEditDialogOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Add Item
-        </Button>
-      </div>
+      <MenuItemManager
+        selectedItem={selectedItem}
+        isAddEditDialogOpen={isAddEditDialogOpen}
+        isDeleteDialogOpen={isDeleteDialogOpen}
+        onAddNewClick={() => {
+          setSelectedItem(undefined);
+          setIsAddEditDialogOpen(true);
+        }}
+        onEditClick={handleEditClick}
+        onDeleteClick={handleDeleteClick}
+        onAddEditDialogChange={setIsAddEditDialogOpen}
+        onDeleteDialogChange={setIsDeleteDialogOpen}
+        onSave={handleAddEditItem}
+        onDelete={() => selectedItem && handleDeleteItem(selectedItem.id)}
+      />
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
-          <Input
-            placeholder="Search menu items..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
-          />
-        </div>
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <MenuControls
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+      />
 
       <div className="min-h-[500px]">
         {filteredItems.length === 0 ? (
@@ -255,34 +203,6 @@ export default function Menu() {
           />
         )}
       </div>
-
-      <AddEditMenuDialog
-        open={isAddEditDialogOpen}
-        onOpenChange={setIsAddEditDialogOpen}
-        item={selectedItem}
-        onSave={handleAddEditItem}
-      />
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Menu Item</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{selectedItem?.name}"? This action
-              cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => selectedItem && handleDeleteItem(selectedItem.id)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
