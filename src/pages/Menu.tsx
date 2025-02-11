@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -91,6 +90,7 @@ export default function Menu() {
           ingredients: item.ingredients,
           variations: item.variations,
           stock_level: item.stockLevel,
+          user_id: (await supabase.auth.getUser()).data.user?.id,
         })
         .select()
         .single();
@@ -118,11 +118,11 @@ export default function Menu() {
   });
 
   const { mutate: handleDeleteItem } = useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (item: MenuItem) => {
       const { error } = await supabase
         .from('menu_items')
         .delete()
-        .eq('id', id);
+        .eq('id', item.id);
 
       if (error) throw error;
     },
@@ -195,12 +195,18 @@ export default function Menu() {
     try {
       setIsSubmittingOrder(true);
       
+      const userId = (await supabase.auth.getUser()).data.user?.id;
+      if (!userId) {
+        throw new Error("User not authenticated");
+      }
+
       // Create order
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
           table_number: tableNumber,
           status: 'pending',
+          user_id: userId,
         })
         .select()
         .single();
