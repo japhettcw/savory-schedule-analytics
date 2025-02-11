@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit2, Trash2, Plus } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import type { MenuItem } from "@/types/menu";
 import { StockChecker } from "./StockChecker";
 import { FeatureTooltip } from "@/components/ui/feature-tooltip";
@@ -11,15 +11,12 @@ import { useState } from "react";
 
 interface MenuItemCardProps {
   item: MenuItem;
-  onEdit?: (item: MenuItem) => void;
-  onDelete?: (item: MenuItem) => void;
-  onAddToOrder?: (item: MenuItem) => void;
+  onEdit: (item: MenuItem) => void;
+  onDelete: (item: MenuItem) => void;
 }
 
-const MenuItemCard = ({ item, onEdit, onDelete, onAddToOrder }: MenuItemCardProps) => {
+const MenuItemCard = ({ item, onEdit, onDelete }: MenuItemCardProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const isManagementView = !!onEdit && !!onDelete;
-  const isOrderView = !!onAddToOrder;
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -90,36 +87,22 @@ const MenuItemCard = ({ item, onEdit, onDelete, onAddToOrder }: MenuItemCardProp
           <span className="text-lg font-bold">${item.price.toFixed(2)}</span>
         </div>
         <div className="flex gap-2 mt-4">
-          {isManagementView && (
-            <>
-              <FeatureTooltip content="Edit menu item details" showIcon={false}>
-                <Button variant="outline" size="sm" onClick={() => onEdit?.(item)}>
-                  <Edit2 className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-              </FeatureTooltip>
-              <FeatureTooltip content="Remove item from menu" showIcon={false}>
-                <Button 
-                  variant="destructive" 
-                  size="sm" 
-                  onClick={() => setShowDeleteConfirmation(true)}
-                >
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Delete
-                </Button>
-              </FeatureTooltip>
-            </>
-          )}
-          {isOrderView && (
-            <Button 
-              className="w-full"
-              onClick={() => onAddToOrder?.(item)}
-              disabled={item.stockLevel === 0}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add to Order
+          <FeatureTooltip content="Edit menu item details" showIcon={false}>
+            <Button variant="outline" size="sm" onClick={() => onEdit(item)}>
+              <Edit className="h-4 w-4 mr-1" />
+              Edit
             </Button>
-          )}
+          </FeatureTooltip>
+          <FeatureTooltip content="Remove item from menu" showIcon={false}>
+            <Button 
+              variant="destructive" 
+              size="sm" 
+              onClick={() => setShowDeleteConfirmation(true)}
+            >
+              <Trash className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          </FeatureTooltip>
         </div>
       </div>
 
@@ -131,7 +114,7 @@ const MenuItemCard = ({ item, onEdit, onDelete, onAddToOrder }: MenuItemCardProp
         confirmText="Delete"
         cancelText="Cancel"
         onConfirm={() => {
-          onDelete?.(item);
+          onDelete(item);
           setShowDeleteConfirmation(false);
         }}
       />

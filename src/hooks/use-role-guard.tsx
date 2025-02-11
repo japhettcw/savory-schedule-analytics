@@ -16,27 +16,20 @@ export function useRoleGuard(requiredRole?: AppRole) {
   useEffect(() => {
     const checkAccess = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) throw sessionError;
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (!session) {
-          console.log("No session found, redirecting to auth");
           navigate("/auth");
           return;
         }
 
-        // Direct query without using RLS policies
         const { data: roleData, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", session.user.id)
           .maybeSingle();
 
-        if (roleError) {
-          console.error("Role check error:", roleError);
-          throw roleError;
-        }
+        if (roleError) throw roleError;
 
         const currentRole = roleData?.role as AppRole | null;
         setUserRole(currentRole);
@@ -58,7 +51,9 @@ export function useRoleGuard(requiredRole?: AppRole) {
             staff: 1,
           };
 
-          const hasRequiredAccess = roleHierarchy[currentRole] >= roleHierarchy[requiredRole];
+          const hasRequiredAccess = 
+            roleHierarchy[currentRole] >= roleHierarchy[requiredRole];
+
           setHasAccess(hasRequiredAccess);
 
           if (!hasRequiredAccess) {
@@ -82,24 +77,11 @@ export function useRoleGuard(requiredRole?: AppRole) {
           description: "Failed to verify access rights",
           variant: "destructive",
         });
-        navigate("/auth");
+        navigate("/");
       }
     };
 
     checkAccess();
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT') {
-        navigate("/auth");
-      } else if (session) {
-        checkAccess();
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
   }, [navigate, requiredRole, toast]);
 
   return { isLoading, hasAccess, userRole };

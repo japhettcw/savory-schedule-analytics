@@ -316,81 +316,6 @@ export type Database = {
         }
         Relationships: []
       }
-      order_items: {
-        Row: {
-          created_at: string
-          id: string
-          menu_item_id: string
-          notes: string | null
-          order_id: string
-          quantity: number
-          unit_price: number
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          menu_item_id: string
-          notes?: string | null
-          order_id: string
-          quantity?: number
-          unit_price: number
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          menu_item_id?: string
-          notes?: string | null
-          order_id?: string
-          quantity?: number
-          unit_price?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "order_items_menu_item_id_fkey"
-            columns: ["menu_item_id"]
-            isOneToOne: false
-            referencedRelation: "menu_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "order_items_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "orders"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      orders: {
-        Row: {
-          created_at: string
-          id: string
-          notes: string | null
-          status: Database["public"]["Enums"]["order_status"]
-          table_number: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          notes?: string | null
-          status?: Database["public"]["Enums"]["order_status"]
-          table_number?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          notes?: string | null
-          status?: Database["public"]["Enums"]["order_status"]
-          table_number?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -501,13 +426,6 @@ export type Database = {
     }
     Enums: {
       app_role: "owner" | "manager" | "staff"
-      order_status:
-        | "pending"
-        | "confirmed"
-        | "preparing"
-        | "ready"
-        | "delivered"
-        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
