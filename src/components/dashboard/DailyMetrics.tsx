@@ -254,22 +254,22 @@ export function DailyMetrics() {
           >
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground">
+                <p className="text-sm font-medium text-muted-foreground truncate max-w-[70%]">
                   {stat.title}
                 </p>
                 <div className={`flex items-center gap-1 text-sm ${getChangeColorClass(stat.changeType)}`}>
                   {stat.changeType === "positive" ? (
-                    <ArrowUpIcon className="h-4 w-4" />
+                    <ArrowUpIcon className="h-4 w-4 shrink-0" />
                   ) : (
-                    <ArrowDownIcon className="h-4 w-4" />
+                    <ArrowDownIcon className="h-4 w-4 shrink-0" />
                   )}
-                  {stat.change}
+                  <span className="truncate">{stat.change}</span>
                 </div>
               </div>
-              <h3 className={`text-2xl font-semibold tracking-tight ${stat.valueClass}`}>
+              <h3 className={`text-2xl font-semibold tracking-tight truncate ${stat.valueClass}`}>
                 {stat.value}
               </h3>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground truncate">
                 {stat.description}
               </p>
             </div>
