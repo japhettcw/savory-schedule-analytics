@@ -35,7 +35,6 @@ const roleAccess: Record<AppRole, AccessFeature[]> = {
 };
 
 export default function Dashboard() {
-  console.log('Rendering Dashboard component');
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [view, setView] = useState<string>("weekly");
@@ -88,8 +87,6 @@ export default function Dashboard() {
 
   const hasFinancialAccess = roleAccess[userRole]?.includes("financial");
 
-  console.log('Rendering main dashboard content');
-
   return (
     <div className="relative space-y-4 sm:space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto bg-background">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
@@ -138,36 +135,23 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid gap-4 sm:gap-6 relative">
-        {/* KPI Metrics */}
-        <div className="w-full">
-          <Card className="bg-card shadow-lg border">
-            <DailyMetrics />
-          </Card>
-        </div>
+      <DashboardAlerts />
 
-        {/* Business Health Check with Alerts */}
-        <div className="w-full">
-          <Card className="bg-card shadow-lg border">
-            <div className="p-6">
-              <h2 className="text-lg font-semibold mb-4">Business Health Check</h2>
-              <DashboardAlerts />
-            </div>
-          </Card>
-        </div>
-
-        {/* Charts Section */}
+      <div className="grid gap-4 sm:gap-6 relative z-0">
         {hasFinancialAccess && (
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 sm:gap-6">
             <Card className="bg-card shadow-lg border">
-              <MetricsChart />
+              <DailyMetrics />
             </Card>
-            <Card className="bg-card shadow-lg border">
-              <div className="p-6">
-                <h2 className="text-lg font-semibold mb-4">Expense Breakdown</h2>
+            
+            <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+              <Card className="bg-card shadow-lg border">
+                <MetricsChart />
+              </Card>
+              <Card className="bg-card shadow-lg border">
                 <ExpenseBreakdown />
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         )}
         
