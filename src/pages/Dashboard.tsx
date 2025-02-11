@@ -146,7 +146,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        {/* Business Health Check - Explicitly placed and styled */}
+        {/* Business Health Check with Alerts */}
         <div className="w-full">
           <Card className="bg-card shadow-lg border">
             <div className="p-6">
