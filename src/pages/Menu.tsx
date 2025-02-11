@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -24,7 +23,6 @@ import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
 import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
 import { useToast } from "@/hooks/use-toast";
 import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
-import { useMediaQuery } from "@/hooks/use-media-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -45,17 +43,7 @@ export default function Menu() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
-  const isTablet = useMediaQuery("(min-width: 768px)");
-  
-  const columnCount = useMemo(() => {
-    if (isDesktop) return 2;
-    if (isTablet) return 1;
-    return 1;
-  }, [isDesktop, isTablet]);
 
-  // Fetch menu items with detailed logging
   const { data: menuItems = [], isLoading, error } = useQuery({
     queryKey: ['menuItems'],
     queryFn: async () => {
@@ -99,7 +87,6 @@ export default function Menu() {
     },
   });
 
-  // Add/Edit mutation
   const { mutate: handleAddEditItem } = useMutation({
     mutationFn: async (item: MenuItem) => {
       console.log('Adding/Editing menu item:', item);
@@ -150,7 +137,6 @@ export default function Menu() {
     },
   });
 
-  // Delete mutation
   const { mutate: handleDeleteItem } = useMutation({
     mutationFn: async (id: string) => {
       console.log('Deleting menu item:', id);
@@ -203,13 +189,6 @@ export default function Menu() {
     });
   }, [menuItems, searchTerm, selectedCategory]);
 
-  console.log('Rendering Menu component with:', {
-    filteredItems,
-    columnCount,
-    isLoading,
-    error
-  });
-
   if (isLoading) {
     return <div>Loading menu items...</div>;
   }
@@ -219,7 +198,7 @@ export default function Menu() {
   }
 
   return (
-    <div className="space-y-8 overflow-hidden">
+    <div className="container mx-auto px-4 space-y-8 max-w-7xl">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Menu Management</h1>
@@ -262,7 +241,7 @@ export default function Menu() {
         </Select>
       </div>
 
-      <div className="min-h-[500px] overflow-hidden">
+      <div className="min-h-[500px]">
         {filteredItems.length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             No menu items found
@@ -272,7 +251,7 @@ export default function Menu() {
             items={filteredItems}
             onEdit={handleEditClick}
             onDelete={handleDeleteClick}
-            columnCount={columnCount}
+            columnCount={1}
           />
         )}
       </div>
