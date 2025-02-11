@@ -26,7 +26,7 @@ export function useRoleGuard(requiredRole?: AppRole) {
           return;
         }
 
-        // Direct query without using RLS policies
+        // Direct query to check user role
         const { data: roleData, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
@@ -86,10 +86,12 @@ export function useRoleGuard(requiredRole?: AppRole) {
       }
     };
 
+    // Initial check
     checkAccess();
 
-    // Listen for auth changes
+    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event);
       if (event === 'SIGNED_OUT') {
         navigate("/auth");
       } else if (session) {
@@ -97,6 +99,7 @@ export function useRoleGuard(requiredRole?: AppRole) {
       }
     });
 
+    // Cleanup subscription
     return () => {
       subscription.unsubscribe();
     };
