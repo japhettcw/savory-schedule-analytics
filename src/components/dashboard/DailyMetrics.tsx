@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -12,6 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { startTransition, useState } from "react";
 
 interface DailyMetric {
@@ -254,24 +261,60 @@ export function DailyMetrics() {
           >
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-muted-foreground truncate max-w-[70%]">
-                  {stat.title}
-                </p>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <p className="text-sm font-medium text-muted-foreground truncate max-w-[70%]">
+                        {stat.title}
+                      </p>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{stat.title}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
                 <div className={`flex items-center gap-1 text-sm ${getChangeColorClass(stat.changeType)}`}>
                   {stat.changeType === "positive" ? (
                     <ArrowUpIcon className="h-4 w-4 shrink-0" />
                   ) : (
                     <ArrowDownIcon className="h-4 w-4 shrink-0" />
                   )}
-                  <span className="truncate">{stat.change}</span>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="truncate">{stat.change}</span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{stat.change}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
-              <h3 className={`text-2xl font-semibold tracking-tight truncate ${stat.valueClass}`}>
-                {stat.value}
-              </h3>
-              <p className="text-xs text-muted-foreground truncate">
-                {stat.description}
-              </p>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <h3 className={`text-2xl font-semibold tracking-tight truncate ${stat.valueClass}`}>
+                      {stat.value}
+                    </h3>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{stat.value}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {stat.description}
+                    </p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{stat.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </Card>
         ))}
