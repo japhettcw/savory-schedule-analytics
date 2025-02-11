@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Shield, LogOut } from "lucide-react";
+import { ArrowLeft, Shield } from "lucide-react";
 
 const profileSchema = z.object({
   first_name: z.string().min(2, "First name must be at least 2 characters"),
@@ -53,6 +54,7 @@ export default function Profile() {
 
         console.log("Fetching profile for user:", session.user.id);
 
+        // Fetch profile data
         const { data: profileData, error: profileError } = await supabase
           .from("profiles")
           .select("*")
@@ -71,6 +73,7 @@ export default function Profile() {
 
         console.log("Profile data fetched:", profileData);
 
+        // Fetch role data
         const { data: roleData, error: roleError } = await supabase
           .from("user_roles")
           .select("role")
@@ -118,6 +121,7 @@ export default function Profile() {
 
       console.log("Updating profile with values:", values);
 
+      // Update auth metadata first
       const { error: metadataError } = await supabase.auth.updateUser({
         data: { 
           first_name: values.first_name,
@@ -130,6 +134,7 @@ export default function Profile() {
         throw metadataError;
       }
 
+      // Then update profiles table
       const { error: profileError } = await supabase
         .from("profiles")
         .update({
@@ -163,28 +168,6 @@ export default function Profile() {
       });
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to sign out",
-          variant: "destructive",
-        });
-        return;
-      }
-      navigate("/auth");
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred while signing out",
-        variant: "destructive",
-      });
     }
   };
 
@@ -268,17 +251,6 @@ export default function Profile() {
             </div>
           </form>
         </Form>
-
-        <div className="mt-8 pt-6 border-t">
-          <Button 
-            variant="destructive" 
-            className="flex items-center gap-2"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-4 w-4" />
-            Log Out
-          </Button>
-        </div>
       </Card>
     </div>
   );

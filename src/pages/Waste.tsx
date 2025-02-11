@@ -1,169 +1,83 @@
-
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AddWasteLogDialog } from "@/components/waste/AddWasteLogDialog";
 import { WasteLogList, type WasteLog } from "@/components/waste/WasteLogList";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { WasteTrendChart } from "@/components/waste/WasteTrendChart";
 import { MostWastedItemsReport } from "@/components/waste/MostWastedItemsReport";
 import { WasteCostCalculator } from "@/components/waste/WasteCostCalculator";
 import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
-import { supabase } from "@/integrations/supabase/client";
+
+// Temporary mock data until we integrate with Supabase
+const initialWasteData: WasteLog[] = [
+  {
+    id: 1,
+    itemName: "Tomato Soup",
+    quantity: 2.5,
+    unit: "kg",
+    date: "2024-03-15",
+    reason: "expired",
+    costImpact: 25.0,
+    notes: "Found during weekly inventory check",
+  },
+  {
+    id: 2,
+    itemName: "Chicken Breast",
+    quantity: 1.8,
+    unit: "kg",
+    date: "2024-03-14",
+    reason: "over-prepared",
+    costImpact: 18.0,
+    notes: "Overestimated dinner service needs",
+  },
+];
+
+const analyticsData = [
+  { name: "Mon", waste: 45 },
+  { name: "Tue", waste: 30 },
+  { name: "Wed", waste: 25 },
+  { name: "Thu", waste: 40 },
+  { name: "Fri", waste: 35 },
+  { name: "Sat", waste: 50 },
+  { name: "Sun", waste: 42 },
+];
 
 export default function Waste() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [wasteLogs, setWasteLogs] = useState<WasteLog[]>([]);
+  const [wasteLogs, setWasteLogs] = useState<WasteLog[]>(initialWasteData);
   const [selectedLog, setSelectedLog] = useState<WasteLog | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const fetchWasteLogs = async () => {
-      const { data, error } = await supabase
-        .from('waste_logs')
-        .select(`
-          id,
-          inventory_item_id,
-          quantity,
-          unit,
-          reason,
-          date,
-          cost_impact,
-          notes,
-          inventory_items (name)
-        `)
-        .order('date', { ascending: false });
-
-      if (error) {
-        toast({
-          title: "Error fetching waste logs",
-          description: error.message,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const formattedLogs: WasteLog[] = data.map(log => ({
-        id: log.id,
-        itemName: log.inventory_items.name,
-        quantity: log.quantity,
-        unit: log.unit,
-        reason: log.reason,
-        date: new Date(log.date).toISOString().split('T')[0],
-        costImpact: log.cost_impact,
-        notes: log.notes || undefined,
-      }));
-
-      setWasteLogs(formattedLogs);
+  const handleAddLog = (log: WasteLog) => {
+    const newLog = {
+      ...log,
+      id: Math.max(0, ...wasteLogs.map((l) => l.id)) + 1,
     };
-
-    fetchWasteLogs();
-  }, [toast]);
-
-  const handleAddLog = async (log: WasteLog) => {
-    try {
-      const { data: inventoryItem, error: inventoryError } = await supabase
-        .from('inventory_items')
-        .select('id')
-        .eq('name', log.itemName)
-        .single();
-
-      if (inventoryError) throw inventoryError;
-
-      const { error } = await supabase
-        .from('waste_logs')
-        .insert({
-          inventory_item_id: inventoryItem.id,
-          quantity: log.quantity,
-          unit: log.unit,
-          reason: log.reason,
-          date: log.date,
-          cost_impact: log.costImpact,
-          notes: log.notes,
-        });
-
-      if (error) throw error;
-
-      setWasteLogs([log, ...wasteLogs]);
-      setIsDialogOpen(false);
-      toast({
-        title: "Waste log added",
-        description: "The waste log has been successfully recorded.",
-      });
-    } catch (error) {
-      console.error('Error adding waste log:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add waste log. Please try again.",
-        variant: "destructive",
-      });
-    }
+    setWasteLogs([newLog, ...wasteLogs]);
+    setIsDialogOpen(false);
+    toast({
+      title: "Waste log added",
+      description: "The waste log has been successfully recorded.",
+    });
   };
 
-  const handleEditLog = async (log: WasteLog) => {
-    try {
-      const { data: inventoryItem, error: inventoryError } = await supabase
-        .from('inventory_items')
-        .select('id')
-        .eq('name', log.itemName)
-        .single();
-
-      if (inventoryError) throw inventoryError;
-
-      const { error } = await supabase
-        .from('waste_logs')
-        .update({
-          inventory_item_id: inventoryItem.id,
-          quantity: log.quantity,
-          unit: log.unit,
-          reason: log.reason,
-          date: log.date,
-          cost_impact: log.costImpact,
-          notes: log.notes,
-        })
-        .eq('id', log.id);
-
-      if (error) throw error;
-
-      setWasteLogs(wasteLogs.map((l) => (l.id === log.id ? log : l)));
-      setSelectedLog(null);
-      toast({
-        title: "Waste log updated",
-        description: "The waste log has been successfully updated.",
-      });
-    } catch (error) {
-      console.error('Error updating waste log:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update waste log. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleEditLog = (log: WasteLog) => {
+    setWasteLogs(wasteLogs.map((l) => (l.id === log.id ? log : l)));
+    setSelectedLog(null);
+    toast({
+      title: "Waste log updated",
+      description: "The waste log has been successfully updated.",
+    });
   };
 
-  const handleDeleteLog = async (id: number) => {
-    try {
-      const { error } = await supabase
-        .from('waste_logs')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setWasteLogs(wasteLogs.filter((log) => log.id !== id));
-      toast({
-        title: "Waste log deleted",
-        description: "The waste log has been successfully deleted.",
-      });
-    } catch (error) {
-      console.error('Error deleting waste log:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete waste log. Please try again.",
-        variant: "destructive",
-      });
-    }
+  const handleDeleteLog = (id: number) => {
+    setWasteLogs(wasteLogs.filter((log) => log.id !== id));
+    toast({
+      title: "Waste log deleted",
+      description: "The waste log has been successfully deleted.",
+    });
   };
 
   const totalWasteCost = wasteLogs.reduce(
@@ -247,7 +161,7 @@ export default function Waste() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <WasteTrendChart data={wasteLogs} />
+        <WasteTrendChart data={analyticsData} />
         <WasteCostCalculator 
           wasteByReason={wasteByReason}
           totalCost={totalWasteCost}
