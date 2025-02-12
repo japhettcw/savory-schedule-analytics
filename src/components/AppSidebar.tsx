@@ -68,7 +68,7 @@ const accountItems = [
   {
     title: "Role Management",
     icon: Users,
-    path: "/roles",
+    path: "/role-management",
     description: "Manage user roles"
   }
 ];

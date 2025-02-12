@@ -18,7 +18,7 @@ const StaffScheduling = lazy(() => import("./pages/StaffScheduling"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Auth = lazy(() => import("./pages/Auth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const RoleManager = lazy(() => import("./components/roles/RoleManager"));
+const RoleManagement = lazy(() => import("./pages/RoleManagement"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,23 +45,13 @@ const LoadingFallback = () => (
   </div>
 );
 
-const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode, requiredRole?: string }) => {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [hasRequiredRole, setHasRequiredRole] = useState<boolean>(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAuthenticated(!!session);
-
-      if (session && requiredRole) {
-        const { data: roles } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id);
-
-        setHasRequiredRole(roles?.some(r => r.role === requiredRole) ?? false);
-      }
     };
 
     checkAuth();
@@ -71,7 +61,7 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode,
     });
 
     return () => subscription.unsubscribe();
-  }, [requiredRole]);
+  }, []);
 
   if (isAuthenticated === null) {
     return <LoadingFallback />;
@@ -79,10 +69,6 @@ const ProtectedRoute = ({ children, requiredRole }: { children: React.ReactNode,
 
   if (!isAuthenticated) {
     return <Navigate to="/auth" />;
-  }
-
-  if (requiredRole && !hasRequiredRole) {
-    return <Navigate to="/" />;
   }
 
   return <>{children}</>;
@@ -176,12 +162,12 @@ const App = () => (
             }
           />
           <Route
-            path="/roles"
+            path="/role-management"
             element={
-              <ProtectedRoute requiredRole="owner">
+              <ProtectedRoute>
                 <Layout>
                   <Suspense fallback={<LoadingFallback />}>
-                    <RoleManager />
+                    <RoleManagement />
                   </Suspense>
                 </Layout>
               </ProtectedRoute>
