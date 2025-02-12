@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash, ShoppingCart } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import type { MenuItem } from "@/types/menu";
 import { StockChecker } from "./StockChecker";
 import { FeatureTooltip } from "@/components/ui/feature-tooltip";
@@ -13,17 +13,9 @@ interface MenuItemCardProps {
   item: MenuItem;
   onEdit: (item: MenuItem) => void;
   onDelete: (item: MenuItem) => void;
-  onOrder?: (item: MenuItem) => void;
-  showOrderButton?: boolean;
 }
 
-const MenuItemCard = ({ 
-  item, 
-  onEdit, 
-  onDelete,
-  onOrder,
-  showOrderButton = false 
-}: MenuItemCardProps) => {
+const MenuItemCard = ({ item, onEdit, onDelete }: MenuItemCardProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   return (
@@ -111,18 +103,6 @@ const MenuItemCard = ({
               Delete
             </Button>
           </FeatureTooltip>
-          {showOrderButton && onOrder && (
-            <FeatureTooltip content="Place an order for this item" showIcon={false}>
-              <Button
-                size="sm"
-                onClick={() => onOrder(item)}
-                className="bg-green-600 hover:bg-green-700 ml-auto"
-              >
-                <ShoppingCart className="h-4 w-4 mr-1" />
-                Place Order
-              </Button>
-            </FeatureTooltip>
-          )}
         </div>
       </div>
 
