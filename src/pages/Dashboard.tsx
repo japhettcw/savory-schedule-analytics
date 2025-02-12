@@ -104,9 +104,9 @@ export default function Dashboard() {
         <div className="grid gap-4 sm:gap-6">
           <BusinessHealthCheck />
           
-          <Card className="bg-card shadow-lg border">
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-6">
             <DailyMetrics />
-          </Card>
+          </div>
           
           <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             <Card className="bg-card shadow-lg border">
