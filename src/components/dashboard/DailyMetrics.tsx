@@ -49,9 +49,22 @@ const fetchDailyMetrics = async (comparisonPeriod: ComparisonPeriod) => {
       compareDate.setDate(currentDate.getDate() - 1);
   }
 
+  // Get user ID from the current session
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error('Session error:', sessionError);
+    throw sessionError;
+  }
+
+  if (!session?.user?.id) {
+    console.error('No user session found');
+    throw new Error('Authentication required');
+  }
+
   const { data, error } = await supabase
     .from('daily_metrics')
     .select('*')
+    .eq('user_id', session.user.id)
     .gte('date', compareDate.toISOString().split('T')[0])
     .lte('date', currentDate.toISOString().split('T')[0])
     .order('date', { ascending: false });
@@ -62,6 +75,33 @@ const fetchDailyMetrics = async (comparisonPeriod: ComparisonPeriod) => {
   }
 
   console.log('Daily metrics data:', data);
+  
+  // If no data exists, create a default entry
+  if (!data || data.length === 0) {
+    const defaultMetric = {
+      total_revenue: 0,
+      customer_count: 0,
+      total_orders: 0,
+      total_expenses: 0,
+      net_profit: 0,
+      date: currentDate.toISOString().split('T')[0],
+      user_id: session.user.id
+    };
+
+    const { data: insertedData, error: insertError } = await supabase
+      .from('daily_metrics')
+      .insert([defaultMetric])
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Error creating default metrics:', insertError);
+      throw insertError;
+    }
+
+    return [insertedData, null] as DailyMetric[];
+  }
+
   return data as DailyMetric[];
 };
 
@@ -86,10 +126,8 @@ const getPeriodLabel = (period: ComparisonPeriod) => {
 };
 
 const getColorClass = (value: number, type: 'revenue' | 'expense' | 'customer' | 'order') => {
-  // Using a neutral color (gray) for the main values
   const baseColor = 'text-gray-700 dark:text-gray-200';
   
-  // Only return change indicator colors for the percentage changes
   if (type === 'expense') {
     return value >= 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400';
   }
@@ -111,10 +149,10 @@ export function DailyMetrics() {
   const { toast } = useToast();
   const [comparisonPeriod, setComparisonPeriod] = useState<ComparisonPeriod>("previous_day");
 
-  const { data: metrics, isLoading, error, refetch } = useQuery<DailyMetric[]>({
+  const { data: metrics, isLoading, error, refetch } = useQuery({
     queryKey: ['dailyMetrics', comparisonPeriod],
     queryFn: () => fetchDailyMetrics(comparisonPeriod),
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
     meta: {
       onError: (error: Error) => {
         console.error('Query error:', error);
@@ -159,7 +197,7 @@ export function DailyMetrics() {
     console.error('Rendering error state:', error);
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-        <Card className="p-6">
+        <Card className="p-6 col-span-full">
           <div className="text-center text-rose-500">
             Failed to load metrics. Please try again later.
           </div>
