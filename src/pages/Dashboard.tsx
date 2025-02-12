@@ -25,15 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRoleGuard, AppRole } from "@/hooks/use-role-guard";
-
-type AccessFeature = "financial" | "inventory" | "waste" | "staff";
-
-const roleAccess: Record<AppRole, AccessFeature[]> = {
-  owner: ["financial", "inventory", "waste", "staff"],
-  manager: ["inventory", "waste", "staff"],
-  staff: ["waste", "staff"],
-};
+import { useRoleGuard } from "@/hooks/use-role-guard";
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -86,8 +78,6 @@ export default function Dashboard() {
     );
   }
 
-  const hasFinancialAccess = roleAccess[userRole]?.includes("financial");
-
   return (
     <div className="relative space-y-4 sm:space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto bg-background">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
@@ -139,24 +129,22 @@ export default function Dashboard() {
       <DashboardAlerts />
 
       <div className="grid gap-4 sm:gap-6 relative z-0">
-        {hasFinancialAccess && (
-          <div className="grid gap-4 sm:gap-6">
-            <BusinessHealthCheck />
-            
+        <div className="grid gap-4 sm:gap-6">
+          <BusinessHealthCheck />
+          
+          <Card className="bg-card shadow-lg border">
+            <DailyMetrics />
+          </Card>
+          
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
             <Card className="bg-card shadow-lg border">
-              <DailyMetrics />
+              <MetricsChart />
             </Card>
-            
-            <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-              <Card className="bg-card shadow-lg border">
-                <MetricsChart />
-              </Card>
-              <Card className="bg-card shadow-lg border">
-                <ExpenseBreakdown />
-              </Card>
-            </div>
+            <Card className="bg-card shadow-lg border">
+              <ExpenseBreakdown />
+            </Card>
           </div>
-        )}
+        </div>
         
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
           <Card className="bg-card shadow-lg border">
