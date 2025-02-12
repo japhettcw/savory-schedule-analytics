@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Shield } from "lucide-react";
-import { useRoleGuard, AppRole } from "@/hooks/use-role-guard";
+
+type AppRole = 'owner' | 'manager' | 'staff';
 
 type User = {
   id: string;
@@ -23,7 +24,6 @@ type User = {
 
 export default function RoleManagement() {
   const [users, setUsers] = useState<User[]>([]);
-  const { isLoading } = useRoleGuard("owner");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -59,10 +59,8 @@ export default function RoleManagement() {
       }
     };
 
-    if (!isLoading) {
-      fetchUsers();
-    }
-  }, [isLoading, toast]);
+    fetchUsers();
+  }, [toast]);
 
   const handleRoleChange = async (userId: string, newRole: AppRole) => {
     try {
@@ -99,10 +97,6 @@ export default function RoleManagement() {
       });
     }
   };
-
-  if (isLoading) {
-    return null;
-  }
 
   return (
     <div className="container max-w-4xl py-6">
