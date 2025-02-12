@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -48,64 +49,60 @@ const fetchDailyMetrics = async (comparisonPeriod: ComparisonPeriod) => {
       compareDate.setDate(currentDate.getDate() - 1);
   }
 
-  try {
-    // Get user ID from the current session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError) {
-      console.error('Session error:', sessionError);
-      throw sessionError;
-    }
-
-    if (!session?.user?.id) {
-      console.error('No user session found');
-      throw new Error('Authentication required');
-    }
-
-    const { data, error } = await supabase
-      .from('daily_metrics')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .gte('date', compareDate.toISOString().split('T')[0])
-      .lte('date', currentDate.toISOString().split('T')[0])
-      .order('date', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching daily metrics:', error);
-      throw error;
-    }
-
-    console.log('Daily metrics data:', data);
-    
-    // If no data exists, use mock data for demonstration
-    if (!data || data.length === 0) {
-      console.log('Using mock data for empty response');
-      const mockCurrent = generateMockMetrics(currentDate.toISOString().split('T')[0]);
-      const mockPrevious = generateMockMetrics(compareDate.toISOString().split('T')[0]);
-      
-      // Adjust previous data to show some variation
-      mockPrevious.total_revenue *= 0.9;
-      mockPrevious.customer_count = Math.floor(mockPrevious.customer_count * 0.9);
-      mockPrevious.total_orders = Math.floor(mockPrevious.total_orders * 0.9);
-      mockPrevious.total_expenses *= 0.95;
-      mockPrevious.net_profit = mockPrevious.total_revenue - mockPrevious.total_expenses;
-
-      return [mockCurrent, mockPrevious] as DailyMetric[];
-    }
-
-    // If we only have one data point, create a mock previous entry
-    if (data.length === 1) {
-      const mockPrevious = generateMockMetrics(compareDate.toISOString().split('T')[0]);
-      return [...data, mockPrevious] as DailyMetric[];
-    }
-
-    return data as DailyMetric[];
-  } catch (error) {
-    console.error('Error in fetchDailyMetrics:', error);
-    // Return mock data in case of error for demonstration
-    const mockCurrent = generateMockMetrics(currentDate.toISOString().split('T')[0]);
-    const mockPrevious = generateMockMetrics(compareDate.toISOString().split('T')[0]);
-    return [mockCurrent, mockPrevious] as DailyMetric[];
+  // Get user ID from the current session
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) {
+    console.error('Session error:', sessionError);
+    throw sessionError;
   }
+
+  if (!session?.user?.id) {
+    console.error('No user session found');
+    throw new Error('Authentication required');
+  }
+
+  const { data, error } = await supabase
+    .from('daily_metrics')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .gte('date', compareDate.toISOString().split('T')[0])
+    .lte('date', currentDate.toISOString().split('T')[0])
+    .order('date', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching daily metrics:', error);
+    throw error;
+  }
+
+  console.log('Daily metrics data:', data);
+  
+  // If no data exists, create a default entry
+  if (!data || data.length === 0) {
+    const defaultMetric = {
+      total_revenue: 0,
+      customer_count: 0,
+      total_orders: 0,
+      total_expenses: 0,
+      net_profit: 0,
+      date: currentDate.toISOString().split('T')[0],
+      user_id: session.user.id
+    };
+
+    const { data: insertedData, error: insertError } = await supabase
+      .from('daily_metrics')
+      .insert([defaultMetric])
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('Error creating default metrics:', insertError);
+      throw insertError;
+    }
+
+    return [insertedData, null] as DailyMetric[];
+  }
+
+  return data as DailyMetric[];
 };
 
 const calculateChange = (current: number, previous: number): { value: number, type: ChangeType } => {
@@ -148,22 +145,11 @@ const getChangeColorClass = (type: ChangeType) => {
   }
 };
 
-const generateMockMetrics = (date: string): DailyMetric => {
-  return {
-    total_revenue: Math.floor(Math.random() * 10000),
-    customer_count: Math.floor(Math.random() * 100),
-    total_orders: Math.floor(Math.random() * 100),
-    total_expenses: Math.floor(Math.random() * 1000),
-    net_profit: Math.floor(Math.random() * 1000),
-    date,
-  };
-};
-
 export function DailyMetrics() {
   const { toast } = useToast();
   const [comparisonPeriod, setComparisonPeriod] = useState<ComparisonPeriod>("previous_day");
 
-  const { data: metricsData, isLoading, error, refetch } = useQuery({
+  const { data: metrics, isLoading, error, refetch } = useQuery({
     queryKey: ['dailyMetrics', comparisonPeriod],
     queryFn: () => fetchDailyMetrics(comparisonPeriod),
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
@@ -220,16 +206,13 @@ export function DailyMetrics() {
     );
   }
 
-  // Handle empty or missing data with mock data
-  const metrics = !metricsData || metricsData.length === 0 
-    ? [
-        generateMockMetrics(new Date().toISOString().split('T')[0]),
-        generateMockMetrics(new Date(Date.now() - 86400000).toISOString().split('T')[0])
-      ]
-    : metricsData;
+  if (!metrics || metrics.length === 0) {
+    console.log('No metrics data available');
+    return null;
+  }
 
   const current = metrics[0];
-  const previous = metrics[1] || current; // Use current as fallback if no previous data
+  const previous = metrics[1];
 
   console.log('Processing metrics:', { current, previous });
 
