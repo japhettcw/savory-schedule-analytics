@@ -163,7 +163,7 @@ export function DailyMetrics() {
   const { toast } = useToast();
   const [comparisonPeriod, setComparisonPeriod] = useState<ComparisonPeriod>("previous_day");
 
-  const { data: metrics, isLoading, error, refetch } = useQuery({
+  const { data: metricsData, isLoading, error, refetch } = useQuery({
     queryKey: ['dailyMetrics', comparisonPeriod],
     queryFn: () => fetchDailyMetrics(comparisonPeriod),
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
@@ -220,12 +220,13 @@ export function DailyMetrics() {
     );
   }
 
-  if (!metrics || metrics.length === 0) {
-    console.log('No metrics data available, using mock data');
-    const mockCurrent = generateMockMetrics(new Date().toISOString().split('T')[0]);
-    const mockPrevious = generateMockMetrics(new Date(Date.now() - 86400000).toISOString().split('T')[0]);
-    metrics = [mockCurrent, mockPrevious];
-  }
+  // Handle empty or missing data with mock data
+  const metrics = !metricsData || metricsData.length === 0 
+    ? [
+        generateMockMetrics(new Date().toISOString().split('T')[0]),
+        generateMockMetrics(new Date(Date.now() - 86400000).toISOString().split('T')[0])
+      ]
+    : metricsData;
 
   const current = metrics[0];
   const previous = metrics[1] || current; // Use current as fallback if no previous data
