@@ -7,17 +7,10 @@ import {
   FileTextIcon, 
   ChartBarIcon, 
   PlusIcon,
-  AlertTriangle
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { AppRole } from "@/hooks/use-role-guard";
 
-interface QuickActionsProps {
-  userRole: AppRole;
-}
-
-export function QuickActions({ userRole }: QuickActionsProps) {
-  console.log("Rendering QuickActions with role:", userRole);
+export function QuickActions() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -26,33 +19,20 @@ export function QuickActions({ userRole }: QuickActionsProps) {
       label: "Add Menu Item",
       icon: PlusIcon,
       onClick: () => navigate("/menu"),
-      roles: ["owner", "manager"] as AppRole[],
       path: "/menu"
     },
     {
       label: "Staff Schedule",
       icon: CalendarIcon,
       onClick: () => navigate("/staff"),
-      roles: ["owner", "manager", "staff"] as AppRole[],
       path: "/staff"
     },
     {
       label: "View Reports",
       icon: ChartBarIcon,
       onClick: () => {
-        console.log("View Reports clicked, current role:", userRole);
-        if (!["owner", "manager"].includes(userRole)) {
-          toast({
-            title: "Access Denied",
-            description: "You don't have permission to view reports",
-            variant: "destructive",
-          });
-          return;
-        }
-        console.log("Navigating to /reports");
         navigate("/reports");
       },
-      roles: ["owner", "manager"] as AppRole[],
       path: "/reports"
     },
     {
@@ -64,28 +44,17 @@ export function QuickActions({ userRole }: QuickActionsProps) {
           description: "Daily log feature will be available soon",
         });
       },
-      roles: ["owner", "manager", "staff"] as AppRole[],
       path: null
     },
   ];
-
-  const filteredActions = actions.filter((action) =>
-    action.roles.includes(userRole)
-  );
 
   return (
     <Card className="p-4 w-full">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Quick Actions</h2>
-        {filteredActions.length === 0 && (
-          <div className="flex items-center text-muted-foreground text-sm">
-            <AlertTriangle className="h-4 w-4 mr-2" />
-            No available actions
-          </div>
-        )}
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-        {filteredActions.map((action) => (
+        {actions.map((action) => (
           <Button
             key={action.label}
             variant="outline"

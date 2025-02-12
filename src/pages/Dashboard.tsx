@@ -88,7 +88,7 @@ export default function Dashboard() {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 relative z-10 bg-background">
         <div className="w-full sm:w-auto">
-          <QuickActions userRole="staff" />
+          <QuickActions />
         </div>
         <div className="w-full sm:w-auto">
           <DateRangePicker
