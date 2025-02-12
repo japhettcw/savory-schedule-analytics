@@ -1,5 +1,5 @@
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition } from "react";
 import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
@@ -18,8 +18,6 @@ import { MetricsChart } from "@/components/dashboard/MetricsChart";
 import { ExpenseBreakdown } from "@/components/dashboard/ExpenseBreakdown";
 import { TopSellingItems } from "@/components/dashboard/TopSellingItems";
 import { BusinessHealthCheck } from "@/components/dashboard/BusinessHealthCheck";
-import { supabase } from "@/integrations/supabase/client";
-import { AppRole } from "@/hooks/use-role-guard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,38 +31,6 @@ export default function Dashboard() {
   const [view, setView] = useState<string>("weekly");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
   const [isPending, startTransition] = useTransition();
-  const [userRole, setUserRole] = useState<AppRole>("staff");
-
-  useEffect(() => {
-    const fetchUserRole = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session?.user?.id) {
-          console.error('No user session found');
-          return;
-        }
-
-        const { data: userRoles, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching user role:', error);
-          return;
-        }
-
-        if (userRoles?.role) {
-          setUserRole(userRoles.role as AppRole);
-        }
-      } catch (error) {
-        console.error('Error in fetchUserRole:', error);
-      }
-    };
-
-    fetchUserRole();
-  }, []);
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
     startTransition(() => {
@@ -122,7 +88,7 @@ export default function Dashboard() {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 relative z-10 bg-background">
         <div className="w-full sm:w-auto">
-          <QuickActions userRole={userRole} />
+          <QuickActions userRole="staff" />
         </div>
         <div className="w-full sm:w-auto">
           <DateRangePicker
