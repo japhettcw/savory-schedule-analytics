@@ -24,14 +24,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRoleGuard } from "@/hooks/use-role-guard";
 
 export default function Dashboard() {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [view, setView] = useState<string>("weekly");
   const [layout, setLayout] = useState<"grid" | "list">("grid");
-  const { isLoading, userRole } = useRoleGuard();
   const [isPending, startTransition] = useTransition();
 
   const handleDateRangeChange = (range: DateRange | undefined) => {
@@ -51,17 +49,6 @@ export default function Dashboard() {
       setLayout(newLayout);
     });
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse space-y-4">
-          <div className="h-4 bg-muted rounded w-48" />
-          <div className="h-8 bg-muted rounded w-64" />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="relative space-y-4 sm:space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto bg-background">
@@ -101,7 +88,7 @@ export default function Dashboard() {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 relative z-10 bg-background">
         <div className="w-full sm:w-auto">
-          <QuickActions userRole={userRole || 'staff'} />
+          <QuickActions userRole="staff" />
         </div>
         <div className="w-full sm:w-auto">
           <DateRangePicker
