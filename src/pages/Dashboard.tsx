@@ -4,7 +4,6 @@ import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { 
-  LockIcon,
   LayoutGrid,
   LayoutList,
 } from "lucide-react";
@@ -64,20 +63,6 @@ export default function Dashboard() {
     );
   }
 
-  if (!userRole) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <Card className="p-6 text-center max-w-md w-full bg-background shadow-lg">
-          <LockIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-          <h2 className="text-2xl font-bold mb-2">No Role Assigned</h2>
-          <p className="text-muted-foreground">
-            Please contact an administrator to get a role assigned.
-          </p>
-        </Card>
-      </div>
-    );
-  }
-
   return (
     <div className="relative space-y-4 sm:space-y-6 p-4 md:p-6 pb-16 max-w-[2000px] mx-auto bg-background">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/95">
@@ -116,7 +101,7 @@ export default function Dashboard() {
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 relative z-10 bg-background">
         <div className="w-full sm:w-auto">
-          <QuickActions userRole={userRole} />
+          <QuickActions userRole={userRole || 'staff'} />
         </div>
         <div className="w-full sm:w-auto">
           <DateRangePicker
