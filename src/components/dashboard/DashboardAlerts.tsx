@@ -29,7 +29,19 @@ async function fetchAlerts() {
     throw error;
   }
 
-  return data as DashboardAlert[];
+  // Remove duplicate alerts based on type and title
+  const uniqueAlerts = data.reduce((acc: DashboardAlert[], current) => {
+    const exists = acc.some(alert => 
+      alert.type === current.type && 
+      alert.title === current.title
+    );
+    if (!exists) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+
+  return uniqueAlerts as DashboardAlert[];
 }
 
 async function dismissAlert(alertId: string) {
