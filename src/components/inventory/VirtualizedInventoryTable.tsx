@@ -57,16 +57,22 @@ const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
 
   return (
     <TableRow 
-      style={style}
+      style={{
+        ...style,
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        borderBottom: '1px solid var(--border)'
+      }}
       className={cn(
         isOutOfStock && "bg-red-50 dark:bg-red-950",
         isLowStock && !isOutOfStock && "bg-yellow-50 dark:bg-yellow-950"
       )}
     >
-      <TableCell className="font-medium text-left">{item.name}</TableCell>
-      <TableCell className="font-mono text-sm text-left">{item.sku}</TableCell>
-      <TableCell className="capitalize text-left">{item.category}</TableCell>
-      <TableCell className="text-right">
+      <TableCell className="flex-[2] min-w-[200px] font-medium">{item.name}</TableCell>
+      <TableCell className="flex-1 min-w-[120px] font-mono text-sm">{item.sku}</TableCell>
+      <TableCell className="flex-1 min-w-[120px] capitalize">{item.category}</TableCell>
+      <TableCell className="flex-1 min-w-[120px] text-right">
         <span className={cn(
           "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-sm font-medium",
           isOutOfStock && "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
@@ -76,13 +82,13 @@ const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
           {item.quantity.toLocaleString()} {item.unit}
         </span>
       </TableCell>
-      <TableCell className="text-right tabular-nums">
+      <TableCell className="flex-1 min-w-[100px] text-right tabular-nums">
         {formatCurrency(item.unit_price)}
       </TableCell>
-      <TableCell className="text-left">
+      <TableCell className="flex-1 min-w-[120px]">
         {item.supplier || "—"}
       </TableCell>
-      <TableCell className="text-center whitespace-nowrap">
+      <TableCell className="flex-1 min-w-[120px] text-center">
         {isOutOfStock ? (
           <span 
             className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
@@ -106,7 +112,7 @@ const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
           </span>
         )}
       </TableCell>
-      <TableCell className="text-center">
+      <TableCell className="flex-none w-[80px] text-center">
         <Button
           variant="ghost"
           size="icon"
@@ -327,35 +333,35 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
       <div className="rounded-md border">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('name')}>
-                  Name {sortField === 'name' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+            <TableRow className="flex w-full">
+              <TableHead className="flex-[2] min-w-[200px]">
+                <Button variant="ghost" onClick={() => handleSort('name')} className="h-8 flex items-center gap-1">
+                  Name {sortField === 'name' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('sku')}>
-                  SKU {sortField === 'sku' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+              <TableHead className="flex-1 min-w-[120px]">
+                <Button variant="ghost" onClick={() => handleSort('sku')} className="h-8 flex items-center gap-1">
+                  SKU {sortField === 'sku' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('category')}>
-                  Category {sortField === 'category' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+              <TableHead className="flex-1 min-w-[120px]">
+                <Button variant="ghost" onClick={() => handleSort('category')} className="h-8 flex items-center gap-1">
+                  Category {sortField === 'category' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('quantity')}>
-                  Quantity {sortField === 'quantity' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+              <TableHead className="flex-1 min-w-[120px] text-right">
+                <Button variant="ghost" onClick={() => handleSort('quantity')} className="h-8 flex items-center gap-1 justify-end">
+                  Quantity {sortField === 'quantity' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead>
-                <Button variant="ghost" onClick={() => handleSort('unit_price')}>
-                  Price {sortField === 'unit_price' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+              <TableHead className="flex-1 min-w-[100px] text-right">
+                <Button variant="ghost" onClick={() => handleSort('unit_price')} className="h-8 flex items-center gap-1 justify-end">
+                  Price {sortField === 'unit_price' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead>Supplier</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead className="flex-1 min-w-[120px]">Supplier</TableHead>
+              <TableHead className="flex-1 min-w-[120px] text-center">Status</TableHead>
+              <TableHead className="flex-none w-[80px] text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
         </Table>
@@ -363,7 +369,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
           <FixedSizeList
             height={visibleHeight - headerHeight}
             itemCount={filteredAndSortedItems.length}
-            itemSize={rowHeight}
+            itemSize={52}
             width="100%"
             itemData={{
               items: filteredAndSortedItems,
