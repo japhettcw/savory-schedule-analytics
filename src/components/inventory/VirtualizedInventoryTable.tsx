@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { FixedSizeList } from 'react-window';
 import {
@@ -139,15 +138,15 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
       );
     }
 
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== 'all') {
       result = result.filter(item => item.category === categoryFilter);
     }
 
-    if (supplierFilter) {
+    if (supplierFilter && supplierFilter !== 'all') {
       result = result.filter(item => item.supplier === supplierFilter);
     }
 
-    if (statusFilter) {
+    if (statusFilter && statusFilter !== 'all') {
       result = result.filter(item => {
         switch (statusFilter) {
           case 'out':
@@ -260,7 +259,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All categories</SelectItem>
+            <SelectItem value="all">All categories</SelectItem>
             {categories.map(category => (
               <SelectItem key={category} value={category}>
                 {category}
@@ -274,7 +273,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
             <SelectValue placeholder="Filter by supplier" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All suppliers</SelectItem>
+            <SelectItem value="all">All suppliers</SelectItem>
             {suppliers.map(supplier => (
               <SelectItem key={supplier} value={supplier}>
                 {supplier}
@@ -288,7 +287,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All statuses</SelectItem>
+            <SelectItem value="all">All statuses</SelectItem>
             <SelectItem value="out">Out of Stock</SelectItem>
             <SelectItem value="low">Low Stock</SelectItem>
             <SelectItem value="ok">OK</SelectItem>
@@ -402,12 +401,12 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
 
             <div className="space-y-2">
               <Label htmlFor="supplier">Supplier</Label>
-              <Select name="supplier" defaultValue={editingItem?.supplier || ''}>
+              <Select name="supplier" defaultValue={editingItem?.supplier || 'none'}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No supplier</SelectItem>
+                  <SelectItem value="none">No supplier</SelectItem>
                   {suppliers.map(supplier => (
                     <SelectItem key={supplier} value={supplier}>
                       {supplier}
