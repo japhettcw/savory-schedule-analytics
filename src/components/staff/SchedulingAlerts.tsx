@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SchedulingAlertsProps {
   alerts: ConflictAlert[];
@@ -19,11 +19,28 @@ interface SchedulingAlertsProps {
 
 export function SchedulingAlerts({ alerts }: SchedulingAlertsProps) {
   const [isStaffingDialogOpen, setIsStaffingDialogOpen] = useState(false);
-  
-  if (!alerts.length) return null;
-
   const staffingAlerts = alerts.filter(alert => alert.type === 'staffing');
   const otherAlerts = alerts.filter(alert => alert.type !== 'staffing');
+
+  // Force re-render when alerts change
+  useEffect(() => {
+    if (staffingAlerts.length > 0) {
+      console.log('Staffing alerts available:', staffingAlerts.length);
+    }
+  }, [staffingAlerts]);
+
+  // Aggressive click handler
+  const handleStaffingAlertClick = () => {
+    console.log('Staffing alert clicked');
+    try {
+      setIsStaffingDialogOpen(true);
+      console.log('Dialog state set to open');
+    } catch (error) {
+      console.error('Error opening staffing dialog:', error);
+    }
+  };
+
+  if (!alerts.length) return null;
 
   return (
     <>
@@ -31,8 +48,8 @@ export function SchedulingAlerts({ alerts }: SchedulingAlertsProps) {
         {staffingAlerts.length > 0 && (
           <Alert
             variant="default"
-            className="cursor-pointer"
-            onClick={() => setIsStaffingDialogOpen(true)}
+            className="cursor-pointer hover:bg-accent transition-colors"
+            onClick={handleStaffingAlertClick}
           >
             <Users className="h-4 w-4" />
             <AlertTitle>Staffing Level Issues</AlertTitle>
@@ -72,10 +89,13 @@ export function SchedulingAlerts({ alerts }: SchedulingAlertsProps) {
         ))}
       </div>
 
-      <Dialog open={isStaffingDialogOpen} onOpenChange={setIsStaffingDialogOpen}>
-        <DialogContent className="max-w-lg">
+      <Dialog 
+        open={isStaffingDialogOpen} 
+        onOpenChange={setIsStaffingDialogOpen}
+      >
+        <DialogContent className="fixed left-1/2 top-1/2 z-[9999] w-[95vw] max-w-lg -translate-x-1/2 -translate-y-1/2 bg-white">
           <DialogHeader>
-            <DialogTitle>Staffing Level Issues</DialogTitle>
+            <DialogTitle className="text-xl font-bold">Staffing Level Issues</DialogTitle>
             <DialogDescription>
               The following staffing level issues have been detected:
             </DialogDescription>
