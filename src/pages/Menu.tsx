@@ -45,18 +45,30 @@ export default function Menu() {
   } = useMenuItems();
 
   const handleEditClick = useCallback((item: MenuItem) => {
-    console.log('Edit clicked for item:', item);
     setSelectedItem(item);
     setIsAddEditDialogOpen(true);
   }, []);
 
   const handleDeleteClick = useCallback((item: MenuItem) => {
-    console.log('Delete clicked for item:', item);
     setSelectedItem(item);
     setIsDeleteDialogOpen(true);
   }, []);
 
   const handleAddToCart = useCallback((item: MenuItem) => {
+    // Check if we have enough stock before adding to cart
+    const currentQuantityInCart = orderBasket.find(
+      basketItem => basketItem.item.id === item.id
+    )?.quantity || 0;
+
+    if (currentQuantityInCart >= (item.stockLevel || 0)) {
+      toast({
+        title: "Cannot Add Item",
+        description: `Sorry, only ${item.stockLevel} ${item.name} available in stock.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setOrderBasket(prevBasket => {
       const existingItem = prevBasket.find(basketItem => basketItem.item.id === item.id);
       
@@ -75,27 +87,41 @@ export default function Menu() {
       title: "Added to cart",
       description: `${item.name} has been added to your cart.`,
     });
-  }, [toast]);
+  }, [orderBasket, toast]);
 
   const handleUpdateQuantity = useCallback((itemId: string, change: number) => {
     setOrderBasket(prevBasket => {
-      return prevBasket.reduce((acc: OrderBasketItem[], basketItem) => {
-        if (basketItem.item.id !== itemId) {
-          return [...acc, basketItem];
-        }
-        
-        const newQuantity = basketItem.quantity + change;
-        if (newQuantity <= 0) {
-          return acc;
-        }
-        
-        return [...acc, { ...basketItem, quantity: newQuantity }];
-      }, []);
+      const existingItem = prevBasket.find(basketItem => basketItem.item.id === itemId);
+      
+      if (!existingItem) return prevBasket;
+      
+      const newQuantity = existingItem.quantity + change;
+
+      // If the new quantity would be zero or less, remove the item
+      if (newQuantity <= 0) {
+        return prevBasket.filter(basketItem => basketItem.item.id !== itemId);
+      }
+
+      // Check if we have enough stock for the increase
+      if (change > 0 && newQuantity > (existingItem.item.stockLevel || 0)) {
+        toast({
+          title: "Cannot Add More",
+          description: `Sorry, only ${existingItem.item.stockLevel} ${existingItem.item.name} available in stock.`,
+          variant: "destructive",
+        });
+        return prevBasket;
+      }
+
+      // Update the quantity
+      return prevBasket.map(basketItem =>
+        basketItem.item.id === itemId
+          ? { ...basketItem, quantity: newQuantity }
+          : basketItem
+      );
     });
-  }, []);
+  }, [toast]);
 
   const filteredItems = useMemo(() => {
-    console.log('Filtering items:', { menuItems, searchTerm, selectedCategory });
     return menuItems.filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;

@@ -31,33 +31,36 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
 
   const handleConfirmOrder = async () => {
     try {
-      // Check stock levels before confirming
-      const outOfStockItems = items.filter(
-        item => (item.item.stockLevel || 0) < item.quantity
-      );
-
-      if (outOfStockItems.length > 0) {
-        toast({
-          title: "Cannot Confirm Order",
-          description: `Some items are out of stock: ${outOfStockItems.map(item => item.item.name).join(", ")}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Update stock levels
-      for (const item of items) {
-        const { data, error } = await supabase
+      // Check current stock levels for all items
+      for (const basketItem of items) {
+        const { data: currentItem, error: fetchError } = await supabase
           .from('menu_items')
-          .update({ 
-            stock_level: (item.item.stockLevel || 0) - item.quantity 
-          })
-          .eq('id', item.item.id)
-          .select();
+          .select('stock_level')
+          .eq('id', basketItem.item.id)
+          .single();
 
-        if (error) {
-          console.error('Error updating stock level:', error);
-          throw error;
+        if (fetchError) {
+          console.error('Error fetching current stock:', fetchError);
+          throw new Error(`Error checking stock for ${basketItem.item.name}`);
+        }
+
+        // Verify we have enough stock
+        if (!currentItem || currentItem.stock_level < basketItem.quantity) {
+          throw new Error(
+            `Not enough stock for ${basketItem.item.name}. Available: ${currentItem?.stock_level || 0}`
+          );
+        }
+
+        // Update stock level
+        const newStockLevel = currentItem.stock_level - basketItem.quantity;
+        const { error: updateError } = await supabase
+          .from('menu_items')
+          .update({ stock_level: newStockLevel })
+          .eq('id', basketItem.item.id);
+
+        if (updateError) {
+          console.error('Error updating stock level:', updateError);
+          throw updateError;
         }
       }
 
@@ -70,11 +73,12 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
       items.forEach(item => {
         onUpdateQuantity(item.item.id, -item.quantity);
       });
+
     } catch (error) {
       console.error('Error confirming order:', error);
       toast({
         title: "Error Confirming Order",
-        description: "There was an error processing your order. Please try again.",
+        description: error instanceof Error ? error.message : "There was an error processing your order. Please try again.",
         variant: "destructive",
       });
     }
@@ -126,6 +130,15 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
                     size="icon"
                     className="h-8 w-8 hover:bg-primary hover:text-primary-foreground transition-colors"
                     onClick={() => {
+                      // Check if we have enough stock before increasing quantity
+                      if (basketItem.quantity >= (basketItem.item.stockLevel || 0)) {
+                        toast({
+                          title: "Cannot Add More",
+                          description: `Sorry, only ${basketItem.item.stockLevel} ${basketItem.item.name} available in stock.`,
+                          variant: "destructive",
+                        });
+                        return;
+                      }
                       onUpdateQuantity(basketItem.item.id, 1);
                       toast({
                         title: "Quantity Updated",
