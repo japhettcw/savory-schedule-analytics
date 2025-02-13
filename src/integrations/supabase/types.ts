@@ -152,6 +152,7 @@ export type Database = {
           name: string
           quantity: number
           reorder_point: number
+          sku: string
           supplier: string | null
           unit: string
           unit_price: number
@@ -166,6 +167,7 @@ export type Database = {
           name: string
           quantity?: number
           reorder_point?: number
+          sku: string
           supplier?: string | null
           unit: string
           unit_price?: number
@@ -180,6 +182,7 @@ export type Database = {
           name?: string
           quantity?: number
           reorder_point?: number
+          sku?: string
           supplier?: string | null
           unit?: string
           unit_price?: number

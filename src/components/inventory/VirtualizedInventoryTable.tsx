@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { FixedSizeList } from 'react-window';
 import {
@@ -17,13 +18,16 @@ import { Edit, Search, ArrowUpDown } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 type InventoryItem = {
   id: string;
   name: string;
+  sku: string;
   category: string;
   quantity: number;
   unit: string;
+  unit_price: number;
   expiry_date: string | null;
   supplier: string | null;
   reorder_point: number;
@@ -36,45 +40,63 @@ interface VirtualizedInventoryTableProps {
   items: InventoryItem[];
 }
 
-type SortField = 'name' | 'category' | 'quantity' | 'supplier';
+type SortField = 'name' | 'sku' | 'category' | 'quantity' | 'unit_price';
 type SortDirection = 'asc' | 'desc';
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount);
+};
 
 const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
   const item = items[index];
+  const isLowStock = item.quantity <= item.reorder_point;
+  const isOutOfStock = item.quantity === 0;
+
   return (
     <TableRow 
       style={style}
-      role="row"
-      tabIndex={0}
+      className={cn(
+        isOutOfStock && "bg-red-50 dark:bg-red-950",
+        isLowStock && !isOutOfStock && "bg-yellow-50 dark:bg-yellow-950"
+      )}
     >
       <TableCell className="font-medium">{item.name}</TableCell>
+      <TableCell className="font-mono text-sm">{item.sku}</TableCell>
       <TableCell className="capitalize">{item.category}</TableCell>
-      <TableCell>{item.quantity}</TableCell>
-      <TableCell>{item.unit}</TableCell>
-      <TableCell>{item.expiry_date}</TableCell>
+      <TableCell>
+        <span className={cn(
+          "px-2 py-1 rounded-full text-sm font-medium",
+          isOutOfStock && "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+          isLowStock && !isOutOfStock && "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+          !isLowStock && "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+        )}>
+          {item.quantity} {item.unit}
+        </span>
+      </TableCell>
+      <TableCell>{formatCurrency(item.unit_price)}</TableCell>
       <TableCell>{item.supplier}</TableCell>
       <TableCell>
-        {item.quantity === 0 ? (
+        {isOutOfStock ? (
           <span 
-            className="text-destructive font-medium"
+            className="text-red-600 dark:text-red-400 font-medium"
             role="status"
-            aria-label={`${item.name} is out of stock`}
           >
             Out of Stock
           </span>
-        ) : item.quantity <= item.reorder_point ? (
+        ) : isLowStock ? (
           <span 
-            className="text-yellow-600 dark:text-yellow-500 font-medium"
+            className="text-yellow-600 dark:text-yellow-400 font-medium"
             role="status"
-            aria-label={`${item.name} is running low on stock`}
           >
             Low Stock
           </span>
         ) : (
           <span 
-            className="text-green-600 dark:text-green-500 font-medium"
+            className="text-green-600 dark:text-green-400 font-medium"
             role="status"
-            aria-label={`${item.name} stock level is good`}
           >
             OK
           </span>
@@ -85,7 +107,6 @@ const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
           variant="ghost"
           size="icon"
           onClick={() => onEdit(item)}
-          aria-label={`Edit ${item.name}`}
         >
           <Edit className="h-4 w-4" />
         </Button>
@@ -133,6 +154,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
       const query = searchQuery.toLowerCase().trim();
       result = result.filter(item => 
         item.name.toLowerCase().includes(query) ||
+        item.sku.toLowerCase().includes(query) ||
         item.category.toLowerCase().includes(query) ||
         (item.supplier && item.supplier.toLowerCase().includes(query))
       );
@@ -168,14 +190,17 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
         case 'name':
           comparison = a.name.localeCompare(b.name);
           break;
+        case 'sku':
+          comparison = a.sku.localeCompare(b.sku);
+          break;
         case 'category':
           comparison = a.category.localeCompare(b.category);
           break;
         case 'quantity':
           comparison = a.quantity - b.quantity;
           break;
-        case 'supplier':
-          comparison = (a.supplier || '').localeCompare(b.supplier || '');
+        case 'unit_price':
+          comparison = a.unit_price - b.unit_price;
           break;
       }
       return sortDirection === 'asc' ? comparison : -comparison;
@@ -246,11 +271,10 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
         <div className="flex-1 min-w-[200px] relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search by name, category, or supplier..."
+            placeholder="Search by name, SKU, category, or supplier..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
-            aria-label="Search inventory items"
           />
         </div>
         
@@ -295,39 +319,42 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
         </Select>
       </div>
       
-      <div 
-        className="rounded-md border"
-        role="region"
-        aria-label="Inventory items"
-      >
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead scope="col">
-                <SortButton field="name">Name</SortButton>
+              <TableHead>
+                <Button variant="ghost" onClick={() => handleSort('name')}>
+                  Name {sortField === 'name' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+                </Button>
               </TableHead>
-              <TableHead scope="col">
-                <SortButton field="category">Category</SortButton>
+              <TableHead>
+                <Button variant="ghost" onClick={() => handleSort('sku')}>
+                  SKU {sortField === 'sku' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+                </Button>
               </TableHead>
-              <TableHead scope="col">
-                <SortButton field="quantity">Quantity</SortButton>
+              <TableHead>
+                <Button variant="ghost" onClick={() => handleSort('category')}>
+                  Category {sortField === 'category' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+                </Button>
               </TableHead>
-              <TableHead scope="col">Unit</TableHead>
-              <TableHead scope="col">Expiry Date</TableHead>
-              <TableHead scope="col">
-                <SortButton field="supplier">Supplier</SortButton>
+              <TableHead>
+                <Button variant="ghost" onClick={() => handleSort('quantity')}>
+                  Quantity {sortField === 'quantity' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+                </Button>
               </TableHead>
-              <TableHead scope="col">Status</TableHead>
-              <TableHead scope="col">Actions</TableHead>
+              <TableHead>
+                <Button variant="ghost" onClick={() => handleSort('unit_price')}>
+                  Price {sortField === 'unit_price' && <ArrowUpDown className="ml-2 h-4 w-4" />}
+                </Button>
+              </TableHead>
+              <TableHead>Supplier</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
         </Table>
-        <div 
-          style={{ height: visibleHeight - headerHeight }}
-          tabIndex={0}
-          role="grid"
-          aria-rowcount={filteredAndSortedItems.length}
-        >
+        <div style={{ height: visibleHeight - headerHeight }}>
           <FixedSizeList
             height={visibleHeight - headerHeight}
             itemCount={filteredAndSortedItems.length}
