@@ -7,7 +7,7 @@ import { AlertCircle, X } from "lucide-react";
 
 interface DashboardAlert {
   id: string;
-  type: 'low_stock' | 'high_waste' | 'expense';
+  type: 'low_stock' | 'high_waste';
   status: 'active' | 'resolved' | 'dismissed';
   title: string;
   message: string;
@@ -21,6 +21,7 @@ async function fetchAlerts() {
     .from('alerts')
     .select('*')
     .eq('status', 'active')
+    .neq('type', 'expense') // Exclude expense alerts
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -30,7 +31,7 @@ async function fetchAlerts() {
 
   // Type guard function to validate alert types
   const isValidAlertType = (type: string): type is DashboardAlert['type'] => {
-    return ['low_stock', 'high_waste', 'expense'].includes(type);
+    return ['low_stock', 'high_waste'].includes(type); // Removed 'expense' from valid types
   };
 
   // Group alerts by type and keep only the most recent one
@@ -41,7 +42,6 @@ async function fetchAlerts() {
         ['active', 'resolved', 'dismissed'].includes(alert.status)) {
       const existingAlert = alertsByType.get(alert.type);
       
-      // Only update if this is the first alert of this type or if it's more recent
       if (!existingAlert || new Date(alert.created_at) > new Date(existingAlert.created_at)) {
         alertsByType.set(alert.type, {
           id: alert.id,
