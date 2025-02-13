@@ -145,7 +145,7 @@ export function AddEditMenuDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed inset-0 m-auto w-[90vw] sm:max-w-[600px] h-[90vh] sm:h-[85vh] flex flex-col bg-background">
+      <DialogContent className="fixed inset-0 -mt-20 m-auto w-[90vw] sm:max-w-[600px] h-[90vh] sm:h-[85vh] flex flex-col bg-background">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>
             {item ? "Edit Menu Item" : "Add New Menu Item"}
