@@ -43,7 +43,7 @@ export function SchedulingAlerts({ alerts }: SchedulingAlertsProps) {
   if (!alerts.length) return null;
 
   return (
-    <>
+    <div className="relative">
       <div className="space-y-4">
         {staffingAlerts.length > 0 && (
           <Alert
@@ -93,7 +93,7 @@ export function SchedulingAlerts({ alerts }: SchedulingAlertsProps) {
         open={isStaffingDialogOpen} 
         onOpenChange={setIsStaffingDialogOpen}
       >
-        <DialogContent className="fixed left-1/2 top-1/2 z-[9999] w-[95vw] max-w-lg -translate-x-1/2 -translate-y-1/2 bg-white">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle className="text-xl font-bold">Staffing Level Issues</DialogTitle>
             <DialogDescription>
@@ -127,6 +127,6 @@ export function SchedulingAlerts({ alerts }: SchedulingAlertsProps) {
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
