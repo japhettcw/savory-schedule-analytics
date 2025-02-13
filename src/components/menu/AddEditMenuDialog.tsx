@@ -145,15 +145,18 @@ export function AddEditMenuDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] h-[90vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="fixed inset-4 sm:inset-auto sm:max-w-[600px] h-[90vh] sm:h-[85vh] flex flex-col bg-background mx-auto my-auto">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>
             {item ? "Edit Menu Item" : "Add New Menu Item"}
           </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto space-y-4 pr-2">
+          <form 
+            onSubmit={form.handleSubmit(onSubmit)} 
+            className="flex-1 overflow-y-auto space-y-4 pr-2 -mr-2"
+          >
             <div className="flex items-center justify-center mb-6">
               <ImageUploader
                 imageUrl={imagePreview}
@@ -318,7 +321,7 @@ export function AddEditMenuDialog({
           </form>
         </Form>
 
-        <DialogFooter className="flex-shrink-0 border-t pt-4">
+        <DialogFooter className="flex-shrink-0 border-t pt-4 mt-4">
           <Button
             type="button"
             variant="outline"
