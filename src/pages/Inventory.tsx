@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
 import { VirtualizedInventoryTable } from "@/components/inventory/VirtualizedInventoryTable";
 import { InventorySummary } from "@/components/inventory/InventorySummary";
@@ -20,6 +22,39 @@ import { WasteForecast } from "@/components/waste/WasteForecast";
 export default function Inventory() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const { data: inventoryItems = [], isLoading } = useQuery({
+    queryKey: ['inventory_items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+
+  // Calculate inventory summary
+  const totalItems = inventoryItems.length;
+  const totalValue = inventoryItems.reduce((sum, item) => sum + (item.quantity * (item.unit_price || 0)), 0);
+  const lowStockItems = inventoryItems.filter(item => item.quantity <= item.reorder_point).length;
+
+  // Prepare expiry tracking items
+  const expiryItems = inventoryItems
+    .filter(item => item.expiry_date)
+    .map(item => ({
+      name: item.name,
+      expiryDate: item.expiry_date
+    }));
+
+  // Prepare stock alert items
+  const stockAlertItems = inventoryItems.map(item => ({
+    name: item.name,
+    quantity: item.quantity,
+    reorderPoint: item.reorder_point
+  }));
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -36,17 +71,21 @@ export default function Inventory() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <LowStockAlert />
-        <OutOfStockNotification />
+        <LowStockAlert items={stockAlertItems} />
+        <OutOfStockNotification items={stockAlertItems} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <InventorySummary />
+        <InventorySummary 
+          totalItems={totalItems}
+          totalValue={totalValue}
+          lowStockItems={lowStockItems}
+        />
         <WasteForecast />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <ExpirationTracker />
+        <ExpirationTracker items={expiryItems} />
         <CostAnalysis />
       </div>
 
@@ -60,10 +99,10 @@ export default function Inventory() {
         <SupplierManagement />
       </div>
 
-      <AutomaticReorderSystem />
+      <AutomaticReorderSystem items={inventoryItems} />
 
       <Card>
-        <VirtualizedInventoryTable />
+        <VirtualizedInventoryTable items={inventoryItems} />
       </Card>
 
       <AddInventoryDialog
