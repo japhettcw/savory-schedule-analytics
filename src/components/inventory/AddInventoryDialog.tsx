@@ -69,14 +69,13 @@ export function AddInventoryDialog({ open, onOpenChange }: AddInventoryDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        aria-labelledby="add-inventory-title"
-      >
-        <DialogHeader>
-          <DialogTitle id="add-inventory-title">Add Inventory Item</DialogTitle>
-        </DialogHeader>
-        <InventoryItemForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+      <DialogContent className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="bg-background rounded-lg border shadow-lg w-full max-w-lg p-6">
+          <DialogHeader>
+            <DialogTitle id="add-inventory-title">Add Inventory Item</DialogTitle>
+          </DialogHeader>
+          <InventoryItemForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+        </div>
       </DialogContent>
     </Dialog>
   );

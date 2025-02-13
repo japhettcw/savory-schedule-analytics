@@ -382,109 +382,111 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
       </div>
 
       <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Inventory Item</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleSave} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                name="name"
-                defaultValue={editingItem?.name}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select name="category" defaultValue={editingItem?.category}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+        <DialogContent className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="bg-background rounded-lg border shadow-lg w-full max-w-lg p-6">
+            <DialogHeader>
+              <DialogTitle>Edit Inventory Item</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSave} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity</Label>
+                <Label htmlFor="name">Name</Label>
                 <Input
-                  id="quantity"
-                  name="quantity"
+                  id="name"
+                  name="name"
+                  defaultValue={editingItem?.name}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select name="category" defaultValue={editingItem?.category}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(category => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="quantity">Quantity</Label>
+                  <Input
+                    id="quantity"
+                    name="quantity"
+                    type="number"
+                    min="0"
+                    defaultValue={editingItem?.quantity}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="unit">Unit</Label>
+                  <Input
+                    id="unit"
+                    name="unit"
+                    defaultValue={editingItem?.unit}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="supplier">Supplier</Label>
+                <Select name="supplier" defaultValue={editingItem?.supplier || 'none'}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No supplier</SelectItem>
+                    {suppliers.map(supplier => (
+                      <SelectItem key={supplier} value={supplier}>
+                        {supplier}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reorder_point">Reorder Point</Label>
+                <Input
+                  id="reorder_point"
+                  name="reorder_point"
                   type="number"
                   min="0"
-                  defaultValue={editingItem?.quantity}
+                  defaultValue={editingItem?.reorder_point}
                   required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="unit">Unit</Label>
+                <Label htmlFor="expiry_date">Expiry Date</Label>
                 <Input
-                  id="unit"
-                  name="unit"
-                  defaultValue={editingItem?.unit}
-                  required
+                  id="expiry_date"
+                  name="expiry_date"
+                  type="date"
+                  defaultValue={editingItem?.expiry_date?.split('T')[0]}
                 />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="supplier">Supplier</Label>
-              <Select name="supplier" defaultValue={editingItem?.supplier || 'none'}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No supplier</SelectItem>
-                  {suppliers.map(supplier => (
-                    <SelectItem key={supplier} value={supplier}>
-                      {supplier}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="reorder_point">Reorder Point</Label>
-              <Input
-                id="reorder_point"
-                name="reorder_point"
-                type="number"
-                min="0"
-                defaultValue={editingItem?.reorder_point}
-                required
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="expiry_date">Expiry Date</Label>
-              <Input
-                id="expiry_date"
-                name="expiry_date"
-                type="date"
-                defaultValue={editingItem?.expiry_date?.split('T')[0]}
-              />
-            </div>
-
-            <div className="flex justify-end space-x-2">
-              <Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
-                Cancel
-              </Button>
-              <Button type="submit">
-                Save Changes
-              </Button>
-            </div>
-          </form>
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setEditingItem(null)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
