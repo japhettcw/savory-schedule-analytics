@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -144,7 +145,7 @@ export function AddEditMenuDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {item ? "Edit Menu Item" : "Add New Menu Item"}
@@ -152,7 +153,7 @@ export function AddEditMenuDialog({
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto space-y-4 pr-2">
             <div className="flex items-center justify-center mb-6">
               <ImageUploader
                 imageUrl={imagePreview}
@@ -314,21 +315,21 @@ export function AddEditMenuDialog({
                 </FormItem>
               )}
             />
-
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">
-                {item ? "Update" : "Add"} Item
-              </Button>
-            </DialogFooter>
           </form>
         </Form>
+
+        <DialogFooter className="flex-shrink-0 border-t pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" onClick={form.handleSubmit(onSubmit)}>
+            {item ? "Update" : "Add"} Item
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
