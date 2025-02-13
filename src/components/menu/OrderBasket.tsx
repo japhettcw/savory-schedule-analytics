@@ -46,7 +46,6 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
                     size="icon"
                     className="h-8 w-8"
                     onClick={() => onUpdateQuantity(basketItem.item.id, -1)}
-                    disabled={basketItem.quantity <= 1}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
