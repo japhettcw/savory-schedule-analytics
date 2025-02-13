@@ -22,7 +22,6 @@ export function AddInventoryDialog({ open, onOpenChange }: AddInventoryDialogPro
   const handleSubmit = async (values: any) => {
     setIsSubmitting(true);
     try {
-      // Log the values being sent
       console.log('Attempting to save inventory item:', values);
 
       const { data, error } = await supabase
@@ -35,6 +34,7 @@ export function AddInventoryDialog({ open, onOpenChange }: AddInventoryDialogPro
           supplier: values.supplier,
           reorder_point: values.reorderPoint,
           expiry_date: values.expiryDate || null,
+          unit_price: values.unitPrice || 0,
           user_id: (await supabase.auth.getUser()).data.user?.id
         }])
         .select()

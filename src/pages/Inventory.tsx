@@ -18,6 +18,7 @@ import { PortionAdjustmentSuggestion } from "@/components/waste/PortionAdjustmen
 import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
 import { HighWasteAlert } from "@/components/waste/HighWasteAlert";
 import { SupplierQualityAlert } from "@/components/waste/SupplierQualityAlert";
+import { InventorySummary } from "@/components/inventory/InventorySummary";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRealtimeSync } from "@/hooks/use-realtime-sync";
@@ -59,6 +60,15 @@ export default function Inventory() {
     onDataChange: fetchInventoryItems,
   });
 
+  // Calculate summary values
+  const totalItems = inventoryItems.length;
+  const totalValue = inventoryItems.reduce((sum, item: any) => 
+    sum + (item.quantity * item.unit_price), 0
+  );
+  const lowStockItems = inventoryItems.filter((item: any) => 
+    item.quantity <= item.reorder_point
+  ).length;
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -67,6 +77,12 @@ export default function Inventory() {
           <Plus className="mr-2 h-4 w-4" /> Add Item
         </Button>
       </div>
+
+      <InventorySummary 
+        totalItems={totalItems}
+        totalValue={totalValue}
+        lowStockItems={lowStockItems}
+      />
 
       <div className="grid gap-6">
         <HighWasteAlert items={[]} />
