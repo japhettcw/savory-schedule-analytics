@@ -9,13 +9,17 @@ interface VirtualizedMenuListProps {
   items: MenuItem[];
   onEdit: (item: MenuItem) => void;
   onDelete: (item: MenuItem) => void;
+  onAddToCart: (item: MenuItem) => void;
+  isStaff: boolean;
   columnCount: number;
 }
 
 const VirtualizedMenuList = React.memo(({ 
   items, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onAddToCart,
+  isStaff,
 }: VirtualizedMenuListProps) => {
   console.log('VirtualizedMenuList render:', { items });
 
@@ -34,6 +38,8 @@ const VirtualizedMenuList = React.memo(({
               item={item}
               onEdit={onEdit}
               onDelete={onDelete}
+              onAddToCart={onAddToCart}
+              isStaff={isStaff}
             />
           </Suspense>
         </div>
