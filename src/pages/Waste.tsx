@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AddWasteLogDialog } from "@/components/waste/AddWasteLogDialog";
 import { WasteLogList, type WasteLog } from "@/components/waste/WasteLogList";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,6 +11,8 @@ import { WasteCostCalculator } from "@/components/waste/WasteCostCalculator";
 import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
 import { WasteForecast } from "@/components/waste/WasteForecast";
 import { WastageReport } from "@/components/inventory/WastageReport";
+import { ExpirationTracker } from "@/components/inventory/ExpirationTracker";
+import { supabase } from "@/integrations/supabase/client";
 
 const initialWasteData: WasteLog[] = [
   {
@@ -49,7 +51,31 @@ export default function Waste() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [wasteLogs, setWasteLogs] = useState<WasteLog[]>(initialWasteData);
   const [selectedLog, setSelectedLog] = useState<WasteLog | null>(null);
+  const [inventoryItems, setInventoryItems] = useState([]);
   const { toast } = useToast();
+
+  // Add fetch for inventory items to get expiry dates
+  const fetchInventoryItems = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('inventory_items')
+        .select('name, expiry_date');
+      
+      if (error) throw error;
+      setInventoryItems(data || []);
+    } catch (error) {
+      console.error('Error fetching inventory items:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchInventoryItems();
+  }, []);
+
+  const expiryItems = inventoryItems.map((item: any) => ({
+    name: item.name,
+    expiryDate: item.expiry_date
+  }));
 
   const handleAddLog = (log: WasteLog) => {
     const newLog = {
@@ -133,6 +159,8 @@ export default function Waste() {
           Log Waste
         </Button>
       </div>
+
+      <ExpirationTracker items={expiryItems} />
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="p-6">

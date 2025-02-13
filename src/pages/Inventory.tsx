@@ -3,16 +3,13 @@ import { Plus } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
 import { LowStockAlert } from "@/components/inventory/LowStockAlert";
-import { ExpirationTracker } from "@/components/inventory/ExpirationTracker";
 import { OutOfStockNotification } from "@/components/inventory/OutOfStockNotification";
 import { SupplierManagement } from "@/components/inventory/SupplierManagement";
 import { AutomaticReorderSystem } from "@/components/inventory/AutomaticReorderSystem";
 import { OrderTracker } from "@/components/inventory/OrderTracker";
 import { IngredientUsageAnalysis } from "@/components/inventory/IngredientUsageAnalysis";
-import { WastageReport } from "@/components/inventory/WastageReport";
 import { CostAnalysis } from "@/components/inventory/CostAnalysis";
 import { VirtualizedInventoryTable } from "@/components/inventory/VirtualizedInventoryTable";
-import { WasteForecast } from "@/components/waste/WasteForecast";
 import { PortionAdjustmentSuggestion } from "@/components/waste/PortionAdjustmentSuggestion";
 import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
 import { HighWasteAlert } from "@/components/waste/HighWasteAlert";
@@ -72,13 +69,6 @@ export default function Inventory() {
     reorderPoint: item.reorder_point
   }));
 
-  const expiryItems = inventoryItems
-    .filter((item: any) => item.expiry_date)
-    .map((item: any) => ({
-      name: item.name,
-      expiryDate: item.expiry_date
-    }));
-
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -105,7 +95,6 @@ export default function Inventory() {
         <SupplierQualityAlert issues={[]} />
         <OutOfStockNotification items={stockItems} />
         <LowStockAlert items={stockItems} />
-        <ExpirationTracker items={expiryItems} />
         <SupplierManagement />
         <AutomaticReorderSystem items={inventoryItems} />
         <OrderTracker />
