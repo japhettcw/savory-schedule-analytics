@@ -1,3 +1,4 @@
+
 import { useState, useTransition } from "react";
 import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
@@ -18,6 +19,7 @@ import { ExpenseBreakdown } from "@/components/dashboard/ExpenseBreakdown";
 import { TopSellingItems } from "@/components/dashboard/TopSellingItems";
 import { BusinessHealthCheck } from "@/components/dashboard/BusinessHealthCheck";
 import { PredictiveSalesChart } from "@/components/dashboard/PredictiveSalesChart";
+import { AnomalyDetection } from "@/components/dashboard/AnomalyDetection";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -130,6 +132,8 @@ export default function Dashboard() {
               <TopSellingItems />
             </Card>
           </div>
+
+          <AnomalyDetection />
         </div>
       </div>
     </div>
