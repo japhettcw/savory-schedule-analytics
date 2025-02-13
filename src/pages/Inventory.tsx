@@ -39,7 +39,7 @@ export default function Inventory() {
         throw error;
       }
 
-      setInventoryItems(data);
+      setInventoryItems(data || []);
     } catch (error) {
       console.error('Error fetching inventory items:', error);
       toast({
@@ -69,6 +69,20 @@ export default function Inventory() {
     item.quantity <= item.reorder_point
   ).length;
 
+  // Transform data for components that need specific formats
+  const stockItems = inventoryItems.map((item: any) => ({
+    name: item.name,
+    quantity: item.quantity,
+    reorderPoint: item.reorder_point
+  }));
+
+  const expiryItems = inventoryItems
+    .filter((item: any) => item.expiry_date)
+    .map((item: any) => ({
+      name: item.name,
+      expiryDate: item.expiry_date
+    }));
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -84,15 +98,14 @@ export default function Inventory() {
         lowStockItems={lowStockItems}
       />
 
-      {/* Move the VirtualizedInventoryTable right after the summary */}
       <VirtualizedInventoryTable items={inventoryItems} />
 
       <div className="grid gap-6">
         <HighWasteAlert items={[]} />
         <SupplierQualityAlert issues={[]} />
-        <OutOfStockNotification items={inventoryItems} />
-        <LowStockAlert items={inventoryItems} />
-        <ExpirationTracker items={inventoryItems} />
+        <OutOfStockNotification items={stockItems} />
+        <LowStockAlert items={stockItems} />
+        <ExpirationTracker items={expiryItems} />
         <SupplierManagement />
         <AutomaticReorderSystem items={inventoryItems} />
         <OrderTracker />
