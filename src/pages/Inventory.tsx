@@ -1,112 +1,74 @@
 
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Plus } from "lucide-react";
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { AddInventoryDialog } from "@/components/inventory/AddInventoryDialog";
-import { LowStockAlert } from "@/components/inventory/LowStockAlert";
+import { VirtualizedInventoryTable } from "@/components/inventory/VirtualizedInventoryTable";
+import { InventorySummary } from "@/components/inventory/InventorySummary";
+import { AutomaticReorderSystem } from "@/components/inventory/AutomaticReorderSystem";
+import { CostAnalysis } from "@/components/inventory/CostAnalysis";
 import { ExpirationTracker } from "@/components/inventory/ExpirationTracker";
+import { IngredientUsageAnalysis } from "@/components/inventory/IngredientUsageAnalysis";
+import { LowStockAlert } from "@/components/inventory/LowStockAlert";
+import { OrderTracker } from "@/components/inventory/OrderTracker";
 import { OutOfStockNotification } from "@/components/inventory/OutOfStockNotification";
 import { SupplierManagement } from "@/components/inventory/SupplierManagement";
-import { AutomaticReorderSystem } from "@/components/inventory/AutomaticReorderSystem";
-import { OrderTracker } from "@/components/inventory/OrderTracker";
-import { IngredientUsageAnalysis } from "@/components/inventory/IngredientUsageAnalysis";
 import { WastageReport } from "@/components/inventory/WastageReport";
-import { CostAnalysis } from "@/components/inventory/CostAnalysis";
-import { VirtualizedInventoryTable } from "@/components/inventory/VirtualizedInventoryTable";
 import { WasteForecast } from "@/components/waste/WasteForecast";
-import { PortionAdjustmentSuggestion } from "@/components/waste/PortionAdjustmentSuggestion";
-import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
-import { HighWasteAlert } from "@/components/waste/HighWasteAlert";
-import { SupplierQualityAlert } from "@/components/waste/SupplierQualityAlert";
-import { InventorySummary } from "@/components/inventory/InventorySummary";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { useRealtimeSync } from "@/hooks/use-realtime-sync";
 
 export default function Inventory() {
-  const [isAddInventoryOpen, setIsAddInventoryOpen] = useState(false);
-  const [inventoryItems, setInventoryItems] = useState([]);
-  const { toast } = useToast();
-
-  const fetchInventoryItems = useCallback(async () => {
-    try {
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        throw error;
-      }
-
-      setInventoryItems(data);
-    } catch (error) {
-      console.error('Error fetching inventory items:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fetch inventory items",
-        variant: "destructive",
-      });
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    fetchInventoryItems();
-  }, [fetchInventoryItems]);
-
-  // Set up realtime sync using our custom hook
-  useRealtimeSync({
-    tableName: 'inventory_items',
-    onDataChange: fetchInventoryItems,
-  });
-
-  // Calculate summary values
-  const totalItems = inventoryItems.length;
-  const totalValue = inventoryItems.reduce((sum, item: any) => 
-    sum + (item.quantity * item.unit_price), 0
-  );
-  const lowStockItems = inventoryItems.filter((item: any) => 
-    item.quantity <= item.reorder_point
-  ).length;
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Inventory Management</h1>
-        <Button onClick={() => setIsAddInventoryOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Item
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight">Inventory Management</h1>
+          <p className="text-muted-foreground mt-2">
+            Track and manage your restaurant's inventory
+          </p>
+        </div>
+        <Button onClick={() => setIsDialogOpen(true)}>
+          <Plus className="mr-2" />
+          Add Item
         </Button>
       </div>
 
-      <InventorySummary 
-        totalItems={totalItems}
-        totalValue={totalValue}
-        lowStockItems={lowStockItems}
-      />
-
-      {/* Move the VirtualizedInventoryTable right after the summary */}
-      <VirtualizedInventoryTable items={inventoryItems} />
-
-      <div className="grid gap-6">
-        <HighWasteAlert items={[]} />
-        <SupplierQualityAlert issues={[]} />
-        <OutOfStockNotification items={inventoryItems} />
-        <LowStockAlert items={inventoryItems} />
-        <ExpirationTracker items={inventoryItems} />
-        <SupplierManagement />
-        <AutomaticReorderSystem items={inventoryItems} />
-        <OrderTracker />
-        <IngredientUsageAnalysis />
-        <WastageReport />
-        <CostAnalysis />
-        <WasteForecast historicalData={[]} />
-        <PortionAdjustmentSuggestion data={[]} />
-        <InventoryWasteLink data={[]} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <LowStockAlert />
+        <OutOfStockNotification />
       </div>
 
+      <div className="grid gap-4 md:grid-cols-2">
+        <InventorySummary />
+        <WasteForecast />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <ExpirationTracker />
+        <CostAnalysis />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <IngredientUsageAnalysis />
+        <WastageReport />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <OrderTracker />
+        <SupplierManagement />
+      </div>
+
+      <AutomaticReorderSystem />
+
+      <Card>
+        <VirtualizedInventoryTable />
+      </Card>
+
       <AddInventoryDialog
-        open={isAddInventoryOpen}
-        onOpenChange={setIsAddInventoryOpen}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
       />
     </div>
   );
