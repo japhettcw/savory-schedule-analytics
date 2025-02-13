@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -82,7 +83,6 @@ export function BusinessHealthCheck() {
     },
   });
 
-  const hasHighExpense = expenses?.some(item => item.amount > 2000);
   const profitMarginIncrease = profitMarginData?.increase ?? 0;
   const isProfitMarginHealthy = profitMarginIncrease > 0;
 
@@ -91,19 +91,6 @@ export function BusinessHealthCheck() {
       <h3 className="text-lg font-semibold">Business Health Check</h3>
       
       <div className="space-y-4">
-        {hasHighExpense && (
-          <Alert 
-            variant="destructive"
-            className="border-destructive/50 text-destructive bg-destructive/10"
-          >
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>High Expense Alert</AlertTitle>
-            <AlertDescription>
-              Some expense categories have exceeded the weekly budget threshold of $2,000
-            </AlertDescription>
-          </Alert>
-        )}
-
         <Alert
           variant={isProfitMarginHealthy ? "default" : "destructive"}
           className={`${
