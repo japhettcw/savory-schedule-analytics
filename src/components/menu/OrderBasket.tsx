@@ -57,7 +57,7 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
             {items.map((basketItem) => (
               <li 
                 key={basketItem.item.id} 
-                className="flex items-center justify-between gap-4 text-sm"
+                className="flex items-center justify-between gap-4 text-sm animate-fade-in"
               >
                 <div className="flex flex-col flex-grow">
                   <span>{basketItem.item.name}</span>
@@ -69,17 +69,31 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
-                    onClick={() => onUpdateQuantity(basketItem.item.id, -1)}
+                    className="h-8 w-8 hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    onClick={() => {
+                      onUpdateQuantity(basketItem.item.id, -1);
+                      if (basketItem.quantity === 1) {
+                        toast({
+                          title: "Item Removed",
+                          description: `${basketItem.item.name} has been removed from your basket.`,
+                        });
+                      }
+                    }}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="w-8 text-center">{basketItem.quantity}</span>
+                  <span className="w-8 text-center font-medium">{basketItem.quantity}</span>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
-                    onClick={() => onUpdateQuantity(basketItem.item.id, 1)}
+                    className="h-8 w-8 hover:bg-primary hover:text-primary-foreground transition-colors"
+                    onClick={() => {
+                      onUpdateQuantity(basketItem.item.id, 1);
+                      toast({
+                        title: "Quantity Updated",
+                        description: `Added another ${basketItem.item.name} to your basket.`,
+                      });
+                    }}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -103,7 +117,7 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
                 step="0.001"
                 value={taxPercentage}
                 onChange={(e) => setTaxPercentage(e.target.value)}
-                className="max-w-[100px]"
+                className="max-w-[100px] transition-all focus:ring-2 focus:ring-primary"
               />
             </div>
             
@@ -116,7 +130,7 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
                 step="1"
                 value={tipPercentage}
                 onChange={(e) => setTipPercentage(e.target.value)}
-                className="max-w-[100px]"
+                className="max-w-[100px] transition-all focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -124,15 +138,15 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
           <div className="w-full space-y-2 pt-2">
             <div className="flex justify-between w-full text-sm">
               <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span className="font-medium">${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between w-full text-sm">
               <span>Tax ({taxPercentage}%)</span>
-              <span>${taxAmount.toFixed(2)}</span>
+              <span className="font-medium">${taxAmount.toFixed(2)}</span>
             </div>
             <div className="flex justify-between w-full text-sm">
               <span>Tip ({tipPercentage}%)</span>
-              <span>${tipAmount.toFixed(2)}</span>
+              <span className="font-medium">${tipAmount.toFixed(2)}</span>
             </div>
             <Separator className="my-2" />
             <div className="flex justify-between w-full text-lg font-semibold">
@@ -142,7 +156,7 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
           </div>
 
           <Button 
-            className="w-full mt-4" 
+            className="w-full mt-4 hover:scale-[1.02] transition-transform"
             size="lg"
             onClick={handleConfirmOrder}
           >
