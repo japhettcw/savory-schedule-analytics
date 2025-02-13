@@ -91,6 +91,7 @@ export function AddEditMenuDialog({
     item?.image || "/placeholder.svg"
   );
 
+  // Initialize form with existing item data or defaults
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -108,6 +109,27 @@ export function AddEditMenuDialog({
       variations: item?.variations || [],
     },
   });
+
+  // Reset form when item changes
+  React.useEffect(() => {
+    if (open) {
+      form.reset({
+        name: item?.name || "",
+        price: item?.price?.toString() || "",
+        category: item?.category || "",
+        description: item?.description || "",
+        allergens: item?.allergens || [],
+        ingredients: (item?.ingredients || []).map(ing => ({
+          name: ing.name,
+          quantity: ing.quantity,
+          unit: ing.unit
+        })),
+        stockLevel: item?.stockLevel?.toString() || "0",
+        variations: item?.variations || [],
+      });
+      setImagePreview(item?.image || "/placeholder.svg");
+    }
+  }, [form, item, open]);
 
   const handleImageUpload = (file: File) => {
     const reader = new FileReader();
