@@ -7,12 +7,32 @@ import {
   FileTextIcon, 
   ChartBarIcon, 
   PlusIcon,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState, startTransition } from "react";
 
 export function QuickActions() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isLoadingReport, setIsLoadingReport] = useState(false);
+
+  const handleReportAction = () => {
+    setIsLoadingReport(true);
+    startTransition(() => {
+      try {
+        navigate("/reports");
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load reports. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingReport(false);
+      }
+    });
+  };
 
   const actions = [
     {
@@ -30,10 +50,9 @@ export function QuickActions() {
     {
       label: "View Reports",
       icon: ChartBarIcon,
-      onClick: () => {
-        navigate("/reports");
-      },
-      path: "/reports"
+      onClick: handleReportAction,
+      path: "/reports",
+      loading: isLoadingReport
     },
     {
       label: "Daily Log",
@@ -63,8 +82,13 @@ export function QuickActions() {
               console.log(`Clicking ${action.label} button`);
               action.onClick();
             }}
+            disabled={action.loading}
           >
-            <action.icon className="h-5 w-5" />
+            {action.loading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <action.icon className="h-5 w-5" />
+            )}
             <span className="text-sm text-center">{action.label}</span>
           </Button>
         ))}
