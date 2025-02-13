@@ -98,6 +98,7 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Single instance of DashboardAlerts */}
       <DashboardAlerts />
 
       <div className="grid gap-4 sm:gap-6 relative z-0">
