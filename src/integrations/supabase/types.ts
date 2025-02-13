@@ -642,6 +642,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_inventory_waste_correlation: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          inventory_level: number
+          waste_amount: number
+          item_name: string
+        }[]
+      }
       has_role: {
         Args: {
           user_id: string
