@@ -136,6 +136,7 @@ export default function StaffScheduling() {
 
   return (
     <div className="space-y-6">
+      {/* Header section */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Staff Scheduling</h1>
@@ -177,6 +178,11 @@ export default function StaffScheduling() {
         </div>
       </Card>
 
+      {/* Weekly Availability Form */}
+      <Card className="p-4 sm:p-6">
+        <EmployeeAvailabilityForm />
+      </Card>
+
       {/* Side by Side Forms Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {isMobile ? (
@@ -213,11 +219,6 @@ export default function StaffScheduling() {
 
       <OpenShiftsBoard />
       <TimeOffApprovalDashboard />
-
-      {/* Weekly Availability Form at Bottom */}
-      <Card className="p-4 sm:p-6">
-        <EmployeeAvailabilityForm />
-      </Card>
 
       {/* Upcoming Shifts Table */}
       <Card className="overflow-hidden">
