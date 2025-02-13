@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Plus, ShoppingBasket } from "lucide-react";
-import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from "@/components/ui/dialog";
 import { OrderBasket } from "@/components/menu/OrderBasket";
 import type { OrderBasketItem } from "@/types/menu";
 
@@ -39,10 +39,12 @@ export function MenuHeader({ onAddItem, basketItems, onUpdateQuantity }: MenuHea
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
-            <DialogTitle className="text-xl font-semibold mb-4">Your Order</DialogTitle>
-            <DialogDescription className="sr-only">
-              Manage your order items and checkout
-            </DialogDescription>
+            <DialogHeader>
+              <DialogTitle className="text-xl font-semibold">Your Order</DialogTitle>
+              <DialogDescription className="sr-only">
+                Manage your order items and checkout
+              </DialogDescription>
+            </DialogHeader>
             <OrderBasket 
               items={basketItems}
               onUpdateQuantity={onUpdateQuantity}
