@@ -1,7 +1,5 @@
 
 import { useState, useCallback, useMemo } from "react";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,20 +10,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
 import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
+import { MenuHeader } from "@/components/menu/MenuHeader";
+import { MenuFilters } from "@/components/menu/MenuFilters";
+import { useMenuItems } from "@/hooks/useMenuItems";
+import type { MenuItem } from "@/types/menu";
 import { useToast } from "@/hooks/use-toast";
-import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
-import { supabase } from "@/integrations/supabase/client";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 const categories = [
   "All",
@@ -43,131 +34,14 @@ export default function Menu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const { toast } = useToast();
-  const queryClient = useQueryClient();
 
-  const { data: menuItems = [], isLoading, error } = useQuery({
-    queryKey: ['menuItems'],
-    queryFn: async () => {
-      console.log('Fetching menu items...');
-      const { data, error } = await supabase
-        .from('menu_items')
-        .select('*');
-      
-      console.log('Supabase response:', { data, error });
-      
-      if (error) {
-        console.error('Error fetching menu items:', error);
-        toast({
-          title: "Error fetching menu items",
-          description: error.message,
-          variant: "destructive",
-        });
-        return [];
-      }
-      
-      const transformedData = data.map(item => ({
-        ...item,
-        id: item.id,
-        allergens: item.allergens || [],
-        ingredients: (item.ingredients as any[] || []).map((ing: any) => ({
-          name: ing.name || '',
-          quantity: ing.quantity || '',
-          unit: ing.unit || '',
-        })) as Ingredient[],
-        image: item.image || "/placeholder.svg",
-        variations: (item.variations as any[] || []).map((var_: any) => ({
-          id: var_.id || crypto.randomUUID(),
-          name: var_.name || '',
-          price: Number(var_.price) || 0,
-        })) as MenuItemVariation[],
-        stockLevel: item.stock_level || 0,
-      })) as MenuItem[];
-      
-      console.log('Transformed menu items:', transformedData);
-      return transformedData;
-    },
-  });
-
-  const { mutate: handleAddEditItem } = useMutation({
-    mutationFn: async (item: MenuItem) => {
-      console.log('Adding/Editing menu item:', item);
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session?.user?.id) {
-        throw new Error("No user session found");
-      }
-
-      const { data, error } = await supabase
-        .from('menu_items')
-        .upsert({
-          id: item.id,
-          name: item.name,
-          price: item.price,
-          category: item.category,
-          description: item.description,
-          image: item.image,
-          available: item.available,
-          allergens: item.allergens,
-          ingredients: item.ingredients,
-          variations: item.variations,
-          stock_level: item.stockLevel,
-          user_id: session.session.user.id,
-        })
-        .select()
-        .single();
-
-      console.log('Upsert response:', { data, error });
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      toast({
-        title: selectedItem ? "Menu item updated" : "Menu item added",
-        description: `${variables.name} has been ${selectedItem ? "updated" : "added"} successfully.`,
-      });
-      setIsAddEditDialogOpen(false);
-      setSelectedItem(undefined);
-    },
-    onError: (error: Error) => {
-      console.error('Mutation error:', error);
-      toast({
-        title: "Error saving menu item",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const { mutate: handleDeleteItem } = useMutation({
-    mutationFn: async (id: string) => {
-      console.log('Deleting menu item:', id);
-      const { error } = await supabase
-        .from('menu_items')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
-      if (selectedItem) {
-        toast({
-          title: "Menu item deleted",
-          description: `${selectedItem.name} has been deleted successfully.`,
-        });
-      }
-      setIsDeleteDialogOpen(false);
-      setSelectedItem(undefined);
-    },
-    onError: (error: Error) => {
-      console.error('Delete error:', error);
-      toast({
-        title: "Error deleting menu item",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+  const { 
+    menuItems, 
+    isLoading, 
+    error, 
+    handleAddEditItem, 
+    handleDeleteItem 
+  } = useMenuItems();
 
   const handleEditClick = useCallback((item: MenuItem) => {
     console.log('Edit clicked for item:', item);
@@ -207,47 +81,20 @@ export default function Menu() {
 
   return (
     <div className="container mx-auto px-4 space-y-8 max-w-7xl">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight">Menu Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your restaurant's menu items
-          </p>
-        </div>
-        <Button
-          className="flex items-center gap-2"
-          onClick={() => {
-            setSelectedItem(undefined);
-            setIsAddEditDialogOpen(true);
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          Add Item
-        </Button>
-      </div>
+      <MenuHeader 
+        onAddItem={() => {
+          setSelectedItem(undefined);
+          setIsAddEditDialogOpen(true);
+        }}
+      />
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
-          <Input
-            placeholder="Search menu items..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
-          />
-        </div>
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select category" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <MenuFilters
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        categories={categories}
+      />
 
       <div className="min-h-[500px]">
         {filteredItems.length === 0 ? (
@@ -260,7 +107,7 @@ export default function Menu() {
             onEdit={handleEditClick}
             onDelete={handleDeleteClick}
             onAddToCart={handleAddToCart}
-            isStaff={true} // For now, everyone has staff privileges as requested
+            isStaff={true}
             columnCount={1}
           />
         )}
