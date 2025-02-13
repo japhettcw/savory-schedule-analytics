@@ -1,12 +1,44 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
 import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 export function useMenuItems() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Set up realtime subscription for stock updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('menu-items-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'menu_items'
+        },
+        (payload) => {
+          console.log('Received real-time update:', payload);
+          queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+          
+          // Show low stock notification if applicable
+          if (payload.new && payload.new.stock_level < 5 && payload.new.stock_level > 0) {
+            toast({
+              title: "Low Stock Alert",
+              description: `${payload.new.name} is running low on stock (${payload.new.stock_level} remaining)`,
+              variant: "warning",
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient, toast]);
 
   const { data: menuItems = [], isLoading, error } = useQuery({
     queryKey: ['menuItems'],

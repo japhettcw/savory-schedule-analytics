@@ -1,4 +1,3 @@
-
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
@@ -7,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import type { OrderBasketItem } from "@/types/menu";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
 
 interface OrderBasketProps {
   items: OrderBasketItem[];
@@ -14,32 +14,69 @@ interface OrderBasketProps {
 }
 
 export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
-  const [taxPercentage, setTaxPercentage] = useState("8.875"); // Default tax rate
-  const [tipPercentage, setTipPercentage] = useState("15"); // Default tip percentage
+  const [taxPercentage, setTaxPercentage] = useState("8.875");
+  const [tipPercentage, setTipPercentage] = useState("15");
   const { toast } = useToast();
 
-  // Calculate subtotal by summing up (item price × quantity) for all items
+  // Calculate totals
   const subtotal = items.reduce((sum, basketItem) => {
     const itemTotal = basketItem.item.price * basketItem.quantity;
     return sum + itemTotal;
   }, 0);
 
-  // Calculate tax and tip amounts
   const taxAmount = (subtotal * (parseFloat(taxPercentage) / 100));
   const tipAmount = (subtotal * (parseFloat(tipPercentage) / 100));
   const total = subtotal + taxAmount + tipAmount;
 
-  const handleConfirmOrder = () => {
-    // Show success message
-    toast({
-      title: "Order Confirmed",
-      description: `Your order total of $${total.toFixed(2)} has been confirmed.`,
-    });
+  const handleConfirmOrder = async () => {
+    try {
+      // Check stock levels before confirming
+      const outOfStockItems = items.filter(
+        item => (item.item.stockLevel || 0) < item.quantity
+      );
 
-    // Reset quantities to 0 to clear the basket
-    items.forEach(item => {
-      onUpdateQuantity(item.item.id, -item.quantity);
-    });
+      if (outOfStockItems.length > 0) {
+        toast({
+          title: "Cannot Confirm Order",
+          description: `Some items are out of stock: ${outOfStockItems.map(item => item.item.name).join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Update stock levels
+      for (const item of items) {
+        const { data, error } = await supabase
+          .from('menu_items')
+          .update({ 
+            stock_level: (item.item.stockLevel || 0) - item.quantity 
+          })
+          .eq('id', item.item.id)
+          .select();
+
+        if (error) {
+          console.error('Error updating stock level:', error);
+          throw error;
+        }
+      }
+
+      toast({
+        title: "Order Confirmed",
+        description: `Your order total of $${total.toFixed(2)} has been confirmed.`,
+      });
+
+      // Reset quantities to clear the basket
+      items.forEach(item => {
+        onUpdateQuantity(item.item.id, -item.quantity);
+      });
+    } catch (error) {
+      console.error('Error confirming order:', error);
+      toast({
+        title: "Error Confirming Order",
+        description: "There was an error processing your order. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

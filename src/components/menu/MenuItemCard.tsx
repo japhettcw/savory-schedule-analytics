@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +21,27 @@ const MenuItemCard = ({ item, onEdit, onDelete, onAddToCart, isStaff }: MenuItem
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const { toast } = useToast();
 
+  const handleAddToCart = () => {
+    if (!item.stockLevel || item.stockLevel <= 0) {
+      toast({
+        title: "Item Out of Stock",
+        description: `${item.name} is currently out of stock.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    onAddToCart(item);
+  };
+
   const handleAcceptOrder = (item: MenuItem) => {
+    if (!item.stockLevel || item.stockLevel <= 0) {
+      toast({
+        title: "Cannot Accept Order",
+        description: `${item.name} is out of stock.`,
+        variant: "destructive",
+      });
+      return;
+    }
     toast({
       title: "Order Accepted",
       description: `Order Accepted for ${item.name}`,
@@ -102,7 +121,8 @@ const MenuItemCard = ({ item, onEdit, onDelete, onAddToCart, isStaff }: MenuItem
             <Button
               variant="default"
               size="sm"
-              onClick={() => onAddToCart(item)}
+              onClick={handleAddToCart}
+              disabled={!item.stockLevel || item.stockLevel <= 0}
             >
               Add to Cart
             </Button>
@@ -112,10 +132,17 @@ const MenuItemCard = ({ item, onEdit, onDelete, onAddToCart, isStaff }: MenuItem
               variant="outline"
               size="sm"
               onClick={() => handleAcceptOrder(item)}
-              className="bg-green-50 hover:bg-green-100 border-green-200"
+              disabled={!item.stockLevel || item.stockLevel <= 0}
+              className={`${
+                item.stockLevel && item.stockLevel > 0
+                  ? "bg-green-50 hover:bg-green-100 border-green-200"
+                  : "bg-gray-50 border-gray-200 cursor-not-allowed"
+              }`}
             >
-              <CheckCircle className="h-4 w-4 mr-1 text-green-500" />
-              Accept Order
+              <CheckCircle className={`h-4 w-4 mr-1 ${
+                item.stockLevel && item.stockLevel > 0 ? "text-green-500" : "text-gray-400"
+              }`} />
+              {item.stockLevel && item.stockLevel > 0 ? "Accept Order" : "Not Accepting Order"}
             </Button>
           </FeatureTooltip>
           {isStaff && (
