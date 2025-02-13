@@ -90,15 +90,21 @@ export function SupplierManagement() {
   });
 
   const handleSave = async (formData: FormData) => {
-    const supplierData = {
-      name: formData.get('name'),
-      contact_name: formData.get('contact_name'),
-      email: formData.get('email'),
-      phone: formData.get('phone'),
-      address: formData.get('address'),
-    };
-
     try {
+      const user = await supabase.auth.getUser();
+      if (!user.data.user?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      const supplierData = {
+        name: formData.get('name') as string,
+        contact_name: formData.get('contact_name') as string | null,
+        email: formData.get('email') as string | null,
+        phone: formData.get('phone') as string | null,
+        address: formData.get('address') as string | null,
+        user_id: user.data.user.id,
+      };
+
       if (editingSupplier) {
         const { error } = await supabase
           .from('suppliers')
@@ -106,21 +112,18 @@ export function SupplierManagement() {
           .eq('id', editingSupplier.id);
 
         if (error) throw error;
-        toast({
-          title: "Success",
-          description: "Supplier updated successfully",
-        });
       } else {
         const { error } = await supabase
           .from('suppliers')
           .insert([supplierData]);
 
         if (error) throw error;
-        toast({
-          title: "Success",
-          description: "Supplier added successfully",
-        });
       }
+
+      toast({
+        title: "Success",
+        description: editingSupplier ? "Supplier updated successfully" : "Supplier added successfully",
+      });
 
       setIsAddDialogOpen(false);
       setEditingSupplier(null);

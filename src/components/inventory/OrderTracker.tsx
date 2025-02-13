@@ -13,13 +13,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRealtimeSync } from "@/hooks/use-realtime-sync";
 
+type OrderStatus = "pending" | "shipped" | "delivered";
+
 type PurchaseOrder = {
   id: string;
   supplier_id: string;
   supplier: {
     name: string;
   };
-  status: "pending" | "shipped" | "delivered";
+  status: OrderStatus;
   expected_delivery: string;
   notes: string | null;
   items: Array<{
@@ -127,11 +129,16 @@ export function OrderTracker() {
     
     try {
       const orderData = {
-        supplier_id: formData.get('supplier_id'),
-        status: formData.get('status'),
-        expected_delivery: formData.get('expected_delivery'),
-        notes: formData.get('notes'),
+        supplier_id: formData.get('supplier_id') as string,
+        status: formData.get('status') as OrderStatus,
+        expected_delivery: formData.get('expected_delivery') as string,
+        notes: formData.get('notes') as string | null,
+        user_id: (await supabase.auth.getUser()).data.user?.id,
       };
+
+      if (!orderData.user_id) {
+        throw new Error('User not authenticated');
+      }
 
       let orderId;
       if (editingOrder) {
