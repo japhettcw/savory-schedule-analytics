@@ -11,6 +11,19 @@ import { Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Suspense } from "react";
+
+const LoadingState = () => (
+  <div className="space-y-4">
+    <Skeleton className="h-8 w-64" />
+    <Skeleton className="h-[200px] w-full" />
+    <div className="grid gap-4 md:grid-cols-2">
+      <Skeleton className="h-[300px]" />
+      <Skeleton className="h-[300px]" />
+    </div>
+  </div>
+);
 
 export default function Reports() {
   console.log("Rendering Reports page");
@@ -67,17 +80,19 @@ export default function Reports() {
         </div>
       </div>
 
-      <div className="grid gap-6">
-        <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">Revenue & Performance</h2>
-          <MetricsChart />
-        </Card>
+      <Suspense fallback={<LoadingState />}>
+        <div className="grid gap-6">
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold mb-4">Revenue & Performance</h2>
+            <MetricsChart />
+          </Card>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <ExpenseBreakdown />
-          <TopSellingItems />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <ExpenseBreakdown />
+            <TopSellingItems />
+          </div>
         </div>
-      </div>
+      </Suspense>
     </div>
   );
 }
