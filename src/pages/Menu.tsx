@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, ShoppingCart } from "lucide-react";
@@ -80,18 +79,68 @@ export default function Menu() {
           name: ing.name || '',
           quantity: ing.quantity || '',
           unit: ing.unit || '',
-        })),
+        })) as Ingredient[],
         image: item.image || "/placeholder.svg",
         variations: (item.variations as any[] || []).map((var_: any) => ({
           id: var_.id || crypto.randomUUID(),
           name: var_.name || '',
           price: Number(var_.price) || 0,
-        })),
+        })) as MenuItemVariation[],
         stockLevel: item.stock_level || 0,
-      }));
+      })) as MenuItem[];
       
       console.log('Transformed menu items:', transformedData);
       return transformedData;
+    },
+  });
+
+  const { mutate: handleAddEditItem } = useMutation({
+    mutationFn: async (item: MenuItem) => {
+      console.log('Adding/Editing menu item:', item);
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user?.id) {
+        throw new Error("No user session found");
+      }
+
+      const { data, error } = await supabase
+        .from('menu_items')
+        .upsert({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          category: item.category,
+          description: item.description,
+          image: item.image,
+          available: item.available,
+          allergens: item.allergens,
+          ingredients: item.ingredients,
+          variations: item.variations,
+          stock_level: item.stockLevel,
+          user_id: session.session.user.id,
+        })
+        .select()
+        .single();
+
+      console.log('Upsert response:', { data, error });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['menuItems'] });
+      toast({
+        title: selectedItem ? "Menu item updated" : "Menu item added",
+        description: `${variables.name} has been ${selectedItem ? "updated" : "added"} successfully.`,
+      });
+      setIsAddEditDialogOpen(false);
+      setSelectedItem(undefined);
+    },
+    onError: (error: Error) => {
+      console.error('Mutation error:', error);
+      toast({
+        title: "Error saving menu item",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -105,14 +154,10 @@ export default function Menu() {
         .from('user_roles')
         .select('role')
         .eq('user_id', session.user.id)
-        .maybeSingle(); // Changed from .single() to .maybeSingle()
+        .single();
 
-      if (error) {
-        console.error('Error fetching user role:', error);
-        return null;
-      }
-
-      return data?.role || null;
+      if (error) throw error;
+      return data?.role;
     },
   });
 
