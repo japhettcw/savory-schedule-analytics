@@ -14,7 +14,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { TrendingDown, LineChart as ChartIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { format, subDays } from "date-fns";
+import { format, subDays, addDays } from "date-fns";
 
 // Simple linear regression for waste prediction
 const predictWaste = (historicalData: Array<{ date: string; amount: number }>) => {
@@ -36,11 +36,26 @@ const predictWaste = (historicalData: Array<{ date: string; amount: number }>) =
   return Array.from({ length: 7 }, (_, i) => {
     const predictedValue = Math.max(0, slope * (n + i) + intercept);
     return {
-      date: format(subDays(new Date(), -i - 1), 'MMM dd'),
-      amount: 0,
+      date: format(addDays(new Date(), i), 'MMM dd'),
       prediction: Number(predictedValue.toFixed(2))
     };
   });
+};
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white p-4 border rounded-lg shadow-lg">
+        <p className="font-semibold">{label}</p>
+        {payload.map((item: any, index: number) => (
+          <p key={index} className="text-sm">
+            {item.name}: {item.value.toFixed(2)} kg
+          </p>
+        ))}
+      </div>
+    );
+  }
+  return null;
 };
 
 interface WasteForecastProps {
@@ -120,56 +135,73 @@ export function WasteForecast({ historicalData = [] }: WasteForecastProps) {
 
   return (
     <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-4">Waste Forecast</h2>
-      <div className="h-[300px] mb-4">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={wasteData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="date"
-              tick={{ fontSize: 12 }}
-            />
-            <YAxis 
-              tick={{ fontSize: 12 }}
-              label={{ 
-                value: 'Amount (kg)', 
-                angle: -90, 
-                position: 'insideLeft',
-                style: { fontSize: '12px' }
-              }}
-            />
-            <Tooltip />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="amount"
-              name="Historical Waste"
-              stroke="#0ea5e9"
-              strokeWidth={2}
-              dot={{ r: 4 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="prediction"
-              name="Predicted Waste"
-              stroke="#ea580c"
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              dot={{ r: 4 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+      <div className="flex flex-col space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Waste Forecast</h2>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-blue-500 mr-2" />
+              <span className="text-sm">Historical Waste</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-orange-500 mr-2" />
+              <span className="text-sm">Predicted Waste</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={wasteData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" className="opacity-50" />
+              <XAxis 
+                dataKey="date"
+                tick={{ fontSize: 12 }}
+              />
+              <YAxis 
+                tick={{ fontSize: 12 }}
+                label={{ 
+                  value: 'Amount (kg)', 
+                  angle: -90, 
+                  position: 'insideLeft',
+                  style: { fontSize: '12px' }
+                }}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="amount"
+                name="Historical Waste"
+                stroke="#0ea5e9"
+                strokeWidth={2}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="prediction"
+                name="Predicted Waste"
+                stroke="#ea580c"
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                dot={{ r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {improvement > 0 && (
+          <Alert className="bg-green-50 mt-4">
+            <TrendingDown className="h-4 w-4 text-green-600" />
+            <AlertTitle>Projected Improvement</AlertTitle>
+            <AlertDescription>
+              Based on current trends, we project a {improvement.toFixed(1)}% reduction
+              in waste over the next week.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
-      {improvement > 0 && (
-        <Alert className="bg-green-50">
-          <TrendingDown className="h-4 w-4 text-green-600" />
-          <AlertTitle>Projected Improvement</AlertTitle>
-          <AlertDescription>
-            Based on current trends, we project a {improvement.toFixed(1)}% reduction
-            in waste over the next week.
-          </AlertDescription>
-        </Alert>
-      )}
     </Card>
   );
 }
