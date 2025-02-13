@@ -101,6 +101,10 @@ export default function Inventory() {
       <VirtualizedInventoryTable items={inventoryItems} />
 
       <div className="grid gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <WasteForecast />
+          <PortionAdjustmentSuggestion data={[]} />
+        </div>
         <HighWasteAlert items={[]} />
         <SupplierQualityAlert issues={[]} />
         <OutOfStockNotification items={stockItems} />
@@ -112,8 +116,6 @@ export default function Inventory() {
         <IngredientUsageAnalysis />
         <WastageReport />
         <CostAnalysis />
-        <WasteForecast historicalData={[]} />
-        <PortionAdjustmentSuggestion data={[]} />
         <InventoryWasteLink data={[]} />
       </div>
 
