@@ -74,30 +74,11 @@
   -webkit-backdrop-filter: none !important;
 }
 
-/* Additional specific rules for popovers to ensure opacity */
-.popover-content,
-[data-radix-popper-content-wrapper] > * {
-  background-color: white !important;
-  opacity: 1 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Ensure popover content and all its children are opaque */
-.popover-content *,
-[data-radix-popper-content-wrapper] * {
-  background-color: inherit !important;
-  opacity: 1 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
 /* Z-index hierarchy for proper stacking */
 .select-content,
 .dropdown-content { z-index: 50 !important; }
 
-.popover-content,
-[data-radix-popper-content-wrapper] { z-index: 60 !important; }
+.popover-content { z-index: 60 !important; }
 
 .dialog-content,
 .modal-content,
