@@ -69,13 +69,11 @@ export function AddInventoryDialog({ open, onOpenChange }: AddInventoryDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="bg-background rounded-lg border shadow-lg w-full max-w-lg p-6">
-          <DialogHeader>
-            <DialogTitle id="add-inventory-title">Add Inventory Item</DialogTitle>
-          </DialogHeader>
-          <InventoryItemForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
-        </div>
+      <DialogContent className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg">
+        <DialogHeader>
+          <DialogTitle id="add-inventory-title">Add Inventory Item</DialogTitle>
+        </DialogHeader>
+        <InventoryItemForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       </DialogContent>
     </Dialog>
   );
