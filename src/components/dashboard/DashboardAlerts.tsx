@@ -29,7 +29,26 @@ async function fetchAlerts() {
     throw error;
   }
 
-  return data as DashboardAlert[];
+  // Type guard function to validate alert types
+  const isValidAlertType = (type: string): type is DashboardAlert['type'] => {
+    return ['low_stock', 'high_waste', 'expense'].includes(type);
+  };
+
+  // Filter and transform the data to match DashboardAlert type
+  const validAlerts = data.filter(alert => 
+    isValidAlertType(alert.type) && 
+    ['active', 'resolved', 'dismissed'].includes(alert.status)
+  ).map(alert => ({
+    id: alert.id,
+    type: alert.type as DashboardAlert['type'],
+    status: alert.status as DashboardAlert['status'],
+    title: alert.title,
+    message: alert.message,
+    data: alert.data,
+    created_at: alert.created_at
+  }));
+
+  return validAlerts;
 }
 
 async function dismissAlert(alertId: string) {
