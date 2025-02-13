@@ -41,59 +41,49 @@
   }
 }
 
-/* Force opaque backgrounds for all dialog-like components */
+/* Force opaque navigation */
+nav {
+  @apply !bg-white border-b;
+  background-color: white !important;
+  opacity: 1 !important;
+  z-index: 40;
+  position: relative;
+}
+
+/* Force opaque menu items */
+.menu-grid {
+  @apply !bg-white;
+  background-color: white !important;
+  opacity: 1 !important;
+  z-index: 10;
+  position: relative;
+}
+
+.menu-grid-item {
+  @apply !bg-white hover:!bg-gray-100;
+  background-color: white !important;
+  opacity: 1 !important;
+  z-index: 15;
+  position: relative;
+}
+
+/* Force opaque dropdowns and menus */
+[role="menu"],
 [role="dialog"],
 [role="listbox"],
-[role="menu"],
 .select-content,
 .dropdown-content,
 .popover-content,
 .dialog-content,
 .command-dialog,
-.modal-content,
-.sheet-content {
+.modal-content {
   @apply !bg-white border shadow-lg;
   background-color: white !important;
   opacity: 1 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-}
-
-/* Handle nested components within dialogs */
-[role="dialog"] *,
-[role="listbox"] *,
-[role="menu"] *,
-.select-content *,
-.dropdown-content *,
-.popover-content *,
-.dialog-content *,
-.command-dialog *,
-.modal-content *,
-.sheet-content * {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* Z-index hierarchy for proper stacking */
-.select-content,
-.dropdown-content { z-index: 50 !important; }
-
-.popover-content { z-index: 60 !important; }
-
-.dialog-content,
-.modal-content,
-.sheet-content { z-index: 70 !important; }
-
-.command-dialog { z-index: 80 !important; }
-
-/* Prevent any transparency in overlay backgrounds */
-[data-overlay-container="true"]::before,
-.overlay,
-.modal-overlay,
-.dialog-overlay {
-  background-color: rgba(0, 0, 0, 0.5) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  z-index: 50;
+  position: relative;
 }
 
 /* Base transitions */
@@ -112,6 +102,36 @@
 
 .hover-glow {
   @apply transition-all duration-200 hover:shadow-md hover:shadow-primary/20;
+}
+
+/* Loading animations */
+.loader {
+  @apply animate-spin;
+}
+
+.pulse {
+  @apply animate-pulse;
+}
+
+.shimmer {
+  @apply relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent;
+}
+
+/* State transitions */
+.fade-enter {
+  @apply opacity-0;
+}
+
+.fade-enter-active {
+  @apply opacity-100 transition-opacity duration-300;
+}
+
+.fade-exit {
+  @apply opacity-100;
+}
+
+.fade-exit-active {
+  @apply opacity-0 transition-opacity duration-300;
 }
 
 /* Page transitions */
@@ -135,11 +155,9 @@
   transition: opacity 400ms ease-out;
 }
 
-/* Animations */
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
+/* Success animation */
+.success-animation {
+  @apply animate-[success_0.5s_ease-in-out];
 }
 
 @keyframes success {
@@ -157,8 +175,31 @@
   }
 }
 
+/* Error shake animation */
+.error-shake {
+  @apply animate-[shake_0.4s_ease-in-out];
+}
+
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-4px); }
   75% { transform: translateX(4px); }
 }
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Button press effect */
+.active-press {
+  @apply active:scale-95 transition-transform duration-200;
+}
+
+/* Link hover effect */
+.link-hover {
+  @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-bottom-right after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 hover:after:origin-bottom-left hover:after:scale-x-100;
+}
+
