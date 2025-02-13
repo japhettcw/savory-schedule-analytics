@@ -566,6 +566,30 @@ export type Database = {
           },
         ]
       }
+      waste_forecasts: {
+        Row: {
+          amount: number
+          created_at: string
+          date: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          date: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          date?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       waste_logs: {
         Row: {
           cost_impact: number
