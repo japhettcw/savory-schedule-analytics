@@ -1,3 +1,4 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
@@ -9,11 +10,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
+// Import the StaffScheduling component directly since we're on that route
+import StaffScheduling from "./pages/StaffScheduling";
+
+// Lazy load other components
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Menu = lazy(() => import("./pages/Menu"));
 const Inventory = lazy(() => import("./pages/Inventory"));
 const Waste = lazy(() => import("./pages/Waste"));
-const StaffScheduling = lazy(() => import("./pages/StaffScheduling"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Auth = lazy(() => import("./pages/Auth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -142,9 +146,7 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Layout>
-                  <Suspense fallback={<LoadingFallback />}>
-                    <StaffScheduling />
-                  </Suspense>
+                  <StaffScheduling />
                 </Layout>
               </ProtectedRoute>
             }
