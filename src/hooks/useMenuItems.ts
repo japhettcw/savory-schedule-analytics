@@ -1,8 +1,23 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+
+type RealtimePayload = {
+  new: {
+    id: string;
+    name: string;
+    stock_level: number;
+    [key: string]: any;
+  };
+  old: {
+    id: string;
+    [key: string]: any;
+  } | null;
+  eventType: 'INSERT' | 'UPDATE' | 'DELETE';
+};
 
 export function useMenuItems() {
   const { toast } = useToast();
@@ -19,7 +34,7 @@ export function useMenuItems() {
           schema: 'public',
           table: 'menu_items'
         },
-        (payload) => {
+        (payload: RealtimePayload) => {
           console.log('Received real-time update:', payload);
           queryClient.invalidateQueries({ queryKey: ['menuItems'] });
           
@@ -28,7 +43,7 @@ export function useMenuItems() {
             toast({
               title: "Low Stock Alert",
               description: `${payload.new.name} is running low on stock (${payload.new.stock_level} remaining)`,
-              variant: "warning",
+              variant: "destructive",
             });
           }
         }

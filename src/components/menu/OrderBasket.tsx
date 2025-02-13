@@ -1,3 +1,4 @@
+
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
@@ -6,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import type { OrderBasketItem } from "@/types/menu";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 interface OrderBasketProps {
   items: OrderBasketItem[];
