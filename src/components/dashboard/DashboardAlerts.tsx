@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -34,21 +33,30 @@ async function fetchAlerts() {
     return ['low_stock', 'high_waste', 'expense'].includes(type);
   };
 
-  // Filter and transform the data to match DashboardAlert type
-  const validAlerts = data.filter(alert => 
-    isValidAlertType(alert.type) && 
-    ['active', 'resolved', 'dismissed'].includes(alert.status)
-  ).map(alert => ({
-    id: alert.id,
-    type: alert.type as DashboardAlert['type'],
-    status: alert.status as DashboardAlert['status'],
-    title: alert.title,
-    message: alert.message,
-    data: alert.data,
-    created_at: alert.created_at
-  }));
+  // Group alerts by type and keep only the most recent one
+  const alertsByType = new Map<string, DashboardAlert>();
+  
+  data.forEach(alert => {
+    if (isValidAlertType(alert.type) && 
+        ['active', 'resolved', 'dismissed'].includes(alert.status)) {
+      const existingAlert = alertsByType.get(alert.type);
+      
+      // Only update if this is the first alert of this type or if it's more recent
+      if (!existingAlert || new Date(alert.created_at) > new Date(existingAlert.created_at)) {
+        alertsByType.set(alert.type, {
+          id: alert.id,
+          type: alert.type,
+          status: alert.status as DashboardAlert['status'],
+          title: alert.title,
+          message: alert.message,
+          data: alert.data,
+          created_at: alert.created_at
+        });
+      }
+    }
+  });
 
-  return validAlerts;
+  return Array.from(alertsByType.values());
 }
 
 async function dismissAlert(alertId: string) {
