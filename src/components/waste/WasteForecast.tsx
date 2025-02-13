@@ -37,6 +37,7 @@ const predictWaste = (historicalData: Array<{ date: string; amount: number }>) =
     const predictedValue = Math.max(0, slope * (n + i) + intercept);
     return {
       date: format(addDays(new Date(), i), 'MMM dd'),
+      amount: 0, // Add default amount for type consistency
       prediction: Number(predictedValue.toFixed(2))
     };
   });
@@ -90,18 +91,21 @@ export function WasteForecast({ historicalData = [] }: WasteForecastProps) {
 
         if (error) throw error;
 
+        // Format historical data
         const formattedData = (data || []).map(item => ({
           date: format(new Date(item.date), 'MMM dd'),
-          amount: Number(item.amount)
+          amount: Number(item.amount),
+          prediction: undefined
         }));
 
-        // Get predictions for next 7 days
+        // Get and format predictions
         const predictions = predictWaste(formattedData);
+        const formattedPredictions = predictions || [];
         
         // Combine historical data with predictions
         const combinedData = [
           ...formattedData,
-          ...(predictions || [])
+          ...formattedPredictions
         ];
 
         setWasteData(combinedData);
