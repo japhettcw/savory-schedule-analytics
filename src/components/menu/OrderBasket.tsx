@@ -1,7 +1,8 @@
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import type { OrderBasketItem } from "@/types/menu";
 
 interface OrderBasketProps {
@@ -10,6 +11,12 @@ interface OrderBasketProps {
 }
 
 export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
+  // Calculate subtotal by summing up (item price × quantity) for all items
+  const subtotal = items.reduce((sum, basketItem) => {
+    const itemTotal = basketItem.item.price * basketItem.quantity;
+    return sum + itemTotal;
+  }, 0);
+
   return (
     <Card className="bg-white border shadow-sm">
       <CardHeader>
@@ -27,7 +34,12 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
                 key={basketItem.item.id} 
                 className="flex items-center justify-between gap-4 text-sm"
               >
-                <span className="flex-grow">{basketItem.item.name}</span>
+                <div className="flex flex-col flex-grow">
+                  <span>{basketItem.item.name}</span>
+                  <span className="text-muted-foreground text-xs">
+                    ${basketItem.item.price.toFixed(2)} each
+                  </span>
+                </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -53,6 +65,15 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
           </ul>
         )}
       </CardContent>
+      {items.length > 0 && (
+        <CardFooter className="flex flex-col">
+          <Separator className="my-4" />
+          <div className="flex justify-between w-full text-lg font-semibold">
+            <span>Subtotal</span>
+            <span>${subtotal.toFixed(2)}</span>
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 }
