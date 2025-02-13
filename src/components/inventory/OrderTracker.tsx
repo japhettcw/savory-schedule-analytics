@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,7 +61,14 @@ export function OrderTracker() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setOrders(data || []);
+      
+      // Type cast the status to ensure it matches OrderStatus
+      const typedData = data?.map(order => ({
+        ...order,
+        status: order.status as OrderStatus
+      })) || [];
+      
+      setOrders(typedData);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast({
@@ -128,9 +134,15 @@ export function OrderTracker() {
     const formData = new FormData(e.currentTarget);
     
     try {
+      const status = formData.get('status');
+      // Validate status before proceeding
+      if (status !== 'pending' && status !== 'shipped' && status !== 'delivered') {
+        throw new Error('Invalid status');
+      }
+
       const orderData = {
         supplier_id: formData.get('supplier_id') as string,
-        status: formData.get('status') as OrderStatus,
+        status: status as OrderStatus,
         expected_delivery: formData.get('expected_delivery') as string,
         notes: formData.get('notes') as string | null,
         user_id: (await supabase.auth.getUser()).data.user?.id,
