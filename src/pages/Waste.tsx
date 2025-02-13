@@ -170,7 +170,7 @@ export default function Waste() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <MostWastedItemsReport items={wastedItems} />
-        <InventoryWasteLink data={inventoryWasteData} />
+        <InventoryWasteLink />
       </div>
 
       <Card>

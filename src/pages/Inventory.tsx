@@ -116,7 +116,7 @@ export default function Inventory() {
         <IngredientUsageAnalysis />
         <WastageReport />
         <CostAnalysis />
-        <InventoryWasteLink data={[]} />
+        <InventoryWasteLink />
       </div>
 
       <AddInventoryDialog
