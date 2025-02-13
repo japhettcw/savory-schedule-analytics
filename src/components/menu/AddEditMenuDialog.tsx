@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -111,7 +111,7 @@ export function AddEditMenuDialog({
   });
 
   // Reset form when item changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       form.reset({
         name: item?.name || "",
