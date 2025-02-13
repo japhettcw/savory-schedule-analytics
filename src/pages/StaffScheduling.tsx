@@ -157,26 +157,28 @@ export default function StaffScheduling() {
 
       <SchedulingAlerts alerts={conflicts} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-4 sm:p-6 overflow-hidden">
-          <div className="h-[500px] sm:h-[600px]">
-            <Calendar
-              localizer={localizer}
-              events={calendarEvents}
-              startAccessor="start"
-              endAccessor="end"
-              defaultView={isMobile ? "day" : "week"}
-              views={["month", "week", "day"]}
-              tooltipAccessor={(event) => event.resource.notes}
-              onSelectEvent={(event) => {
-                setSelectedShift(event.resource);
-                setIsDialogOpen(true);
-              }}
-              className="rounded-md touch-pan-y"
-            />
-          </div>
-        </Card>
+      {/* Calendar Section - Full Width at Top */}
+      <Card className="p-4 sm:p-6 overflow-hidden">
+        <div className="h-[500px] sm:h-[600px]">
+          <Calendar
+            localizer={localizer}
+            events={calendarEvents}
+            startAccessor="start"
+            endAccessor="end"
+            defaultView={isMobile ? "day" : "week"}
+            views={["month", "week", "day"]}
+            tooltipAccessor={(event) => event.resource.notes}
+            onSelectEvent={(event) => {
+              setSelectedShift(event.resource);
+              setIsDialogOpen(true);
+            }}
+            className="rounded-md touch-pan-y"
+          />
+        </div>
+      </Card>
 
+      {/* Side by Side Forms Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {isMobile ? (
           <Collapsible
             open={!isFormsCollapsed}
@@ -188,7 +190,7 @@ export default function StaffScheduling() {
                 variant="outline"
                 className="w-full flex items-center justify-between"
               >
-                <span>Forms & Requests</span>
+                <span>Staff Actions</span>
                 <ChevronDown
                   className={`h-4 w-4 transition-transform ${
                     !isFormsCollapsed ? "transform rotate-180" : ""
@@ -197,23 +199,27 @@ export default function StaffScheduling() {
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="space-y-4">
-              <EmployeeAvailabilityForm />
               <TimeOffRequestForm />
               <ShiftSwapRequestForm />
             </CollapsibleContent>
           </Collapsible>
         ) : (
-          <div className="space-y-6">
-            <EmployeeAvailabilityForm />
+          <>
             <TimeOffRequestForm />
             <ShiftSwapRequestForm />
-          </div>
+          </>
         )}
       </div>
 
       <OpenShiftsBoard />
       <TimeOffApprovalDashboard />
 
+      {/* Weekly Availability Form at Bottom */}
+      <Card className="p-4 sm:p-6">
+        <EmployeeAvailabilityForm />
+      </Card>
+
+      {/* Upcoming Shifts Table */}
       <Card className="overflow-hidden">
         <div className="p-4 sm:p-6">
           <h2 className="text-xl font-semibold mb-4">Upcoming Shifts</h2>
