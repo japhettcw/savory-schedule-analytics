@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import type { OrderBasketItem } from "@/types/menu";
+import { useToast } from "@/hooks/use-toast";
 
 interface OrderBasketProps {
   items: OrderBasketItem[];
@@ -15,6 +16,7 @@ interface OrderBasketProps {
 export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
   const [taxPercentage, setTaxPercentage] = useState("8.875"); // Default tax rate
   const [tipPercentage, setTipPercentage] = useState("15"); // Default tip percentage
+  const { toast } = useToast();
 
   // Calculate subtotal by summing up (item price × quantity) for all items
   const subtotal = items.reduce((sum, basketItem) => {
@@ -26,6 +28,19 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
   const taxAmount = (subtotal * (parseFloat(taxPercentage) / 100));
   const tipAmount = (subtotal * (parseFloat(tipPercentage) / 100));
   const total = subtotal + taxAmount + tipAmount;
+
+  const handleConfirmOrder = () => {
+    // Show success message
+    toast({
+      title: "Order Confirmed",
+      description: `Your order total of $${total.toFixed(2)} has been confirmed.`,
+    });
+
+    // Reset quantities to 0 to clear the basket
+    items.forEach(item => {
+      onUpdateQuantity(item.item.id, -item.quantity);
+    });
+  };
 
   return (
     <Card className="bg-white border shadow-sm">
@@ -125,6 +140,14 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
               <span>${total.toFixed(2)}</span>
             </div>
           </div>
+
+          <Button 
+            className="w-full mt-4" 
+            size="lg"
+            onClick={handleConfirmOrder}
+          >
+            Confirm Order (${total.toFixed(2)})
+          </Button>
         </CardFooter>
       )}
     </Card>
