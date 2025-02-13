@@ -17,6 +17,7 @@ interface OrderBasketProps {
 export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
   const [taxPercentage, setTaxPercentage] = useState("8.875");
   const [tipPercentage, setTipPercentage] = useState("15");
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
   // Calculate totals
@@ -30,6 +31,9 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
   const total = subtotal + taxAmount + tipAmount;
 
   const handleConfirmOrder = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
     try {
       // Check current stock levels for all items
       for (const basketItem of items) {
@@ -64,9 +68,18 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
         }
       }
 
+      // Show success notifications
       toast({
-        title: "Order Confirmed",
-        description: `Your order total of $${total.toFixed(2)} has been confirmed.`,
+        title: "Order Confirmed! 🎉",
+        description: `Your order for $${total.toFixed(2)} has been confirmed.`,
+      });
+
+      // Show individual confirmations for each item
+      items.forEach(item => {
+        toast({
+          title: `${item.item.name} - ${item.quantity}x`,
+          description: `$${(item.item.price * item.quantity).toFixed(2)}`,
+        });
       });
 
       // Reset quantities to clear the basket
@@ -81,6 +94,8 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
         description: error instanceof Error ? error.message : "There was an error processing your order. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -210,8 +225,12 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
             className="w-full mt-4 hover:scale-[1.02] transition-transform"
             size="lg"
             onClick={handleConfirmOrder}
+            disabled={isProcessing}
           >
-            Confirm Order (${total.toFixed(2)})
+            {isProcessing ? 
+              "Processing Order..." : 
+              `Confirm Order ($${total.toFixed(2)})`
+            }
           </Button>
         </CardFooter>
       )}
