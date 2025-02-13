@@ -14,9 +14,8 @@ import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
 import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
 import { MenuHeader } from "@/components/menu/MenuHeader";
 import { MenuFilters } from "@/components/menu/MenuFilters";
-import { OrderBasket } from "@/components/menu/OrderBasket";
-import { useMenuItems } from "@/hooks/useMenuItems";
 import type { MenuItem, OrderBasketItem } from "@/types/menu";
+import { useMenuItems } from "@/hooks/useMenuItems";
 import { useToast } from "@/hooks/use-toast";
 
 const categories = [
@@ -119,41 +118,34 @@ export default function Menu() {
           setSelectedItem(undefined);
           setIsAddEditDialogOpen(true);
         }}
+        basketItems={orderBasket}
+        onUpdateQuantity={handleUpdateQuantity}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr,380px] gap-8">
-        <div className="space-y-8">
-          <MenuFilters
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedCategory={selectedCategory}
-            onCategoryChange={setSelectedCategory}
-            categories={categories}
-          />
+      <div className="space-y-8">
+        <MenuFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+          categories={categories}
+        />
 
-          <div className="min-h-[500px]">
-            {filteredItems.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                No menu items found
-              </div>
-            ) : (
-              <VirtualizedMenuList
-                items={filteredItems}
-                onEdit={handleEditClick}
-                onDelete={handleDeleteClick}
-                onAddToCart={handleAddToCart}
-                isStaff={true}
-                columnCount={1}
-              />
-            )}
-          </div>
-        </div>
-
-        <div className="lg:sticky lg:top-24">
-          <OrderBasket 
-            items={orderBasket}
-            onUpdateQuantity={handleUpdateQuantity}
-          />
+        <div className="min-h-[500px]">
+          {filteredItems.length === 0 ? (
+            <div className="text-center text-muted-foreground py-8">
+              No menu items found
+            </div>
+          ) : (
+            <VirtualizedMenuList
+              items={filteredItems}
+              onEdit={handleEditClick}
+              onDelete={handleDeleteClick}
+              onAddToCart={handleAddToCart}
+              isStaff={true}
+              columnCount={1}
+            />
+          )}
         </div>
       </div>
 
