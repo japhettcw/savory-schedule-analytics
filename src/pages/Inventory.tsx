@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -70,7 +71,7 @@ export default function Inventory() {
   }));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 relative">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Inventory Management</h1>
         <Button onClick={() => setIsAddInventoryOpen(true)}>
