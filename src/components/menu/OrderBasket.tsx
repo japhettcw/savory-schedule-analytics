@@ -3,6 +3,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/componen
 import { Button } from "@/components/ui/button";
 import { Plus, Minus } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import type { OrderBasketItem } from "@/types/menu";
 
 interface OrderBasketProps {
@@ -11,11 +13,19 @@ interface OrderBasketProps {
 }
 
 export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
+  const [taxPercentage, setTaxPercentage] = useState("8.875"); // Default tax rate
+  const [tipPercentage, setTipPercentage] = useState("15"); // Default tip percentage
+
   // Calculate subtotal by summing up (item price × quantity) for all items
   const subtotal = items.reduce((sum, basketItem) => {
     const itemTotal = basketItem.item.price * basketItem.quantity;
     return sum + itemTotal;
   }, 0);
+
+  // Calculate tax and tip amounts
+  const taxAmount = (subtotal * (parseFloat(taxPercentage) / 100));
+  const tipAmount = (subtotal * (parseFloat(tipPercentage) / 100));
+  const total = subtotal + taxAmount + tipAmount;
 
   return (
     <Card className="bg-white border shadow-sm">
@@ -65,11 +75,55 @@ export function OrderBasket({ items, onUpdateQuantity }: OrderBasketProps) {
         )}
       </CardContent>
       {items.length > 0 && (
-        <CardFooter className="flex flex-col">
-          <Separator className="my-4" />
-          <div className="flex justify-between w-full text-lg font-semibold">
-            <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
+        <CardFooter className="flex flex-col w-full gap-4">
+          <Separator className="my-2" />
+          
+          <div className="w-full space-y-4">
+            <div className="flex items-center gap-4">
+              <label className="text-sm w-24">Tax Rate (%)</label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                step="0.001"
+                value={taxPercentage}
+                onChange={(e) => setTaxPercentage(e.target.value)}
+                className="max-w-[100px]"
+              />
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <label className="text-sm w-24">Tip (%)</label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                step="1"
+                value={tipPercentage}
+                onChange={(e) => setTipPercentage(e.target.value)}
+                className="max-w-[100px]"
+              />
+            </div>
+          </div>
+
+          <div className="w-full space-y-2 pt-2">
+            <div className="flex justify-between w-full text-sm">
+              <span>Subtotal</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between w-full text-sm">
+              <span>Tax ({taxPercentage}%)</span>
+              <span>${taxAmount.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between w-full text-sm">
+              <span>Tip ({tipPercentage}%)</span>
+              <span>${tipAmount.toFixed(2)}</span>
+            </div>
+            <Separator className="my-2" />
+            <div className="flex justify-between w-full text-lg font-semibold">
+              <span>Total</span>
+              <span>${total.toFixed(2)}</span>
+            </div>
           </div>
         </CardFooter>
       )}
