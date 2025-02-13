@@ -29,29 +29,38 @@ export function AddWasteLogDialog({
   initialData,
 }: AddWasteLogDialogProps) {
   const [inventoryItems, setInventoryItems] = useState<ComboboxItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchInventoryItems = async () => {
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .select('id, name');
-      
-      if (error) {
-        console.error('Error fetching inventory items:', error);
-        return;
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('inventory_items')
+          .select('id, name');
+        
+        if (error) {
+          console.error('Error fetching inventory items:', error);
+          return;
+        }
+
+        const formattedItems = data?.map(item => ({
+          label: item.name,
+          value: item.id
+        })) || [];
+
+        setInventoryItems(formattedItems);
+      } catch (error) {
+        console.error('Error in fetchInventoryItems:', error);
+      } finally {
+        setIsLoading(false);
       }
-
-      const formattedItems = data?.map(item => ({
-        label: item.name,
-        value: item.id
-      })) || [];
-
-      console.log('Formatted inventory items:', formattedItems);
-      setInventoryItems(formattedItems);
     };
 
-    fetchInventoryItems();
-  }, []);
+    if (open) {
+      fetchInventoryItems();
+    }
+  }, [open]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -65,6 +74,7 @@ export function AddWasteLogDialog({
           onSubmit={onSubmit}
           initialData={initialData as WasteLogFormData}
           inventoryItems={inventoryItems}
+          isLoading={isLoading}
         />
       </DialogContent>
     </Dialog>

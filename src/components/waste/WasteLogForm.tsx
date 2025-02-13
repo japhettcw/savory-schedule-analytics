@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -19,6 +20,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Combobox } from "@/components/ui/combobox";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const wasteReasons = [
   { label: "Spoiled", value: "spoiled" },
@@ -44,12 +46,15 @@ interface WasteLogFormProps {
   onSubmit: (data: WasteLogFormData) => void;
   initialData?: WasteLogFormData;
   inventoryItems: { label: string; value: string }[];
+  isLoading?: boolean;
 }
 
-export function WasteLogForm({ onSubmit, initialData, inventoryItems }: WasteLogFormProps) {
-  console.log('WasteLogForm initialData:', initialData);
-  console.log('Available inventory items:', inventoryItems);
-
+export function WasteLogForm({ 
+  onSubmit, 
+  initialData, 
+  inventoryItems = [],
+  isLoading = false 
+}: WasteLogFormProps) {
   const form = useForm<WasteLogFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -62,6 +67,16 @@ export function WasteLogForm({ onSubmit, initialData, inventoryItems }: WasteLog
       notes: initialData?.notes ?? "",
     },
   });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    );
+  }
 
   return (
     <Form {...form}>
