@@ -84,6 +84,9 @@ export default function Inventory() {
         lowStockItems={lowStockItems}
       />
 
+      {/* Move the VirtualizedInventoryTable right after the summary */}
+      <VirtualizedInventoryTable items={inventoryItems} />
+
       <div className="grid gap-6">
         <HighWasteAlert items={[]} />
         <SupplierQualityAlert issues={[]} />
@@ -96,7 +99,6 @@ export default function Inventory() {
         <IngredientUsageAnalysis />
         <WastageReport />
         <CostAnalysis />
-        <VirtualizedInventoryTable items={inventoryItems} />
         <WasteForecast historicalData={[]} />
         <PortionAdjustmentSuggestion data={[]} />
         <InventoryWasteLink data={[]} />
