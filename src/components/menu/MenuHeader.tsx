@@ -4,6 +4,7 @@ import { Plus, ShoppingBasket } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from "@/components/ui/dialog";
 import { OrderBasket } from "@/components/menu/OrderBasket";
 import type { OrderBasketItem } from "@/types/menu";
+import { useState } from "react";
 
 interface MenuHeaderProps {
   onAddItem: () => void;
@@ -12,7 +13,13 @@ interface MenuHeaderProps {
 }
 
 export function MenuHeader({ onAddItem, basketItems, onUpdateQuantity }: MenuHeaderProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const basketItemCount = basketItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleDialogOpenChange = (open: boolean) => {
+    console.log('Dialog open state changed:', open);
+    setIsDialogOpen(open);
+  };
 
   return (
     <div className="flex justify-between items-center">
@@ -23,12 +30,13 @@ export function MenuHeader({ onAddItem, basketItems, onUpdateQuantity }: MenuHea
         </p>
       </div>
       <div className="flex items-center gap-3">
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
           <DialogTrigger asChild>
             <Button
               variant="outline"
               size="icon"
               className="relative"
+              onClick={() => console.log('Basket button clicked')}
             >
               <ShoppingBasket className="h-5 w-5" />
               {basketItemCount > 0 && (
@@ -38,7 +46,17 @@ export function MenuHeader({ onAddItem, basketItems, onUpdateQuantity }: MenuHea
               )}
             </Button>
           </DialogTrigger>
-          <DialogContent className="fixed left-[50%] top-[50%] -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[425px] max-h-[85vh] overflow-y-auto bg-background rounded-lg shadow-lg z-50">
+          <DialogContent 
+            className="fixed left-[50%] top-[50%] -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[425px] max-h-[85vh] overflow-y-auto bg-background rounded-lg shadow-lg z-[100]"
+            onOpenAutoFocus={(e) => {
+              e.preventDefault();
+              console.log('Dialog content mounted');
+            }}
+            onCloseAutoFocus={(e) => {
+              e.preventDefault();
+              console.log('Dialog content unmounted');
+            }}
+          >
             <DialogHeader className="sticky top-0 bg-background pb-4 border-b">
               <DialogTitle>Your Order</DialogTitle>
               <DialogDescription className="sr-only">
