@@ -38,8 +38,8 @@ export function MenuHeader({ onAddItem, basketItems, onUpdateQuantity }: MenuHea
               )}
             </Button>
           </DialogTrigger>
-          <DialogContent className="fixed inset-0 sm:inset-auto sm:max-w-[425px] z-50">
-            <DialogHeader>
+          <DialogContent className="fixed left-[50%] top-[50%] -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-[425px] max-h-[85vh] overflow-y-auto bg-background rounded-lg shadow-lg z-50">
+            <DialogHeader className="sticky top-0 bg-background pb-4 border-b">
               <DialogTitle>Your Order</DialogTitle>
               <DialogDescription className="sr-only">
                 Manage your order items and checkout
