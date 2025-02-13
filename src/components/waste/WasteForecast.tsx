@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import {
@@ -32,12 +31,12 @@ const predictWaste = (historicalData: Array<{ date: string; amount: number }>) =
   const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
   const intercept = (sumY - slope * sumX) / n;
 
-  // Predict next 7 days
+  const lastDate = new Date(historicalData[historicalData.length - 1].date);
   return Array.from({ length: 7 }, (_, i) => {
     const predictedValue = Math.max(0, slope * (n + i) + intercept);
     return {
-      date: format(addDays(new Date(), i), 'MMM dd'),
-      amount: 0, // Add default amount for type consistency
+      date: format(addDays(lastDate, i + 1), 'MMM dd'),
+      amount: 0,
       prediction: Number(predictedValue.toFixed(2))
     };
   });
@@ -89,10 +88,21 @@ export function WasteForecast({ historicalData = [] }: WasteForecastProps) {
           .gte('date', thirtyDaysAgo)
           .order('date', { ascending: true });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Error fetching waste data:', error);
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          console.log('No waste forecast data found');
+          setIsLoading(false);
+          return;
+        }
+
+        console.log('Fetched waste data:', data); // Debug log
 
         // Format historical data
-        const formattedData = (data || []).map(item => ({
+        const formattedData = data.map(item => ({
           date: format(new Date(item.date), 'MMM dd'),
           amount: Number(item.amount),
           prediction: undefined
@@ -102,11 +112,16 @@ export function WasteForecast({ historicalData = [] }: WasteForecastProps) {
         const predictions = predictWaste(formattedData);
         const formattedPredictions = predictions || [];
         
+        console.log('Historical data:', formattedData); // Debug log
+        console.log('Predictions:', formattedPredictions); // Debug log
+
         // Combine historical data with predictions
         const combinedData = [
           ...formattedData,
           ...formattedPredictions
         ];
+
+        console.log('Combined data:', combinedData); // Debug log
 
         setWasteData(combinedData);
       } catch (error) {
