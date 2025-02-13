@@ -242,7 +242,7 @@ export function AddEditMenuDialog({
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-white !z-[100]">
                       {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
