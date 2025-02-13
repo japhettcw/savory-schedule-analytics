@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 type RealtimePayload = {
   new: {
@@ -25,10 +26,11 @@ export function useMenuItems() {
 
   // Set up realtime subscription for stock updates
   useEffect(() => {
-    const channel = supabase
-      .channel('menu-items-changes')
+    const channel = supabase.channel('menu-items-changes');
+
+    channel
       .on(
-        'postgres_changes',
+        'postgres_changes' as any,
         {
           event: '*',
           schema: 'public',
