@@ -34,6 +34,7 @@ export default function Menu() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [orderBasket, setOrderBasket] = useState<MenuItem[]>([]);
   const { toast } = useToast();
 
   const { 
@@ -57,6 +58,7 @@ export default function Menu() {
   }, []);
 
   const handleAddToCart = useCallback((item: MenuItem) => {
+    setOrderBasket(prevBasket => [...prevBasket, item]);
     toast({
       title: "Added to cart",
       description: `${item.name} has been added to your cart.`,
@@ -118,7 +120,7 @@ export default function Menu() {
         </div>
 
         <div className="lg:sticky lg:top-24">
-          <OrderBasket />
+          <OrderBasket items={orderBasket} />
         </div>
       </div>
 
