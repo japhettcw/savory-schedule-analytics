@@ -296,7 +296,7 @@ export function OrderTracker() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg" style={{ position: 'fixed', margin: 'auto' }}>
           <DialogHeader>
             <DialogTitle>{editingOrder ? 'Edit Order' : 'Create New Order'}</DialogTitle>
           </DialogHeader>
