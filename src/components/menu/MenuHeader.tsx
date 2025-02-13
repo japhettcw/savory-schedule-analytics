@@ -38,9 +38,9 @@ export function MenuHeader({ onAddItem, basketItems, onUpdateQuantity }: MenuHea
               )}
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="fixed inset-0 sm:inset-auto sm:max-w-[425px] z-50">
             <DialogHeader>
-              <DialogTitle className="text-xl font-semibold">Your Order</DialogTitle>
+              <DialogTitle>Your Order</DialogTitle>
               <DialogDescription className="sr-only">
                 Manage your order items and checkout
               </DialogDescription>
