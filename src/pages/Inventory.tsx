@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
@@ -54,13 +53,11 @@ export default function Inventory() {
     fetchInventoryItems();
   }, [fetchInventoryItems]);
 
-  // Set up realtime sync using our custom hook
   useRealtimeSync({
     tableName: 'inventory_items',
     onDataChange: fetchInventoryItems,
   });
 
-  // Calculate summary values
   const totalItems = inventoryItems.length;
   const totalValue = inventoryItems.reduce((sum, item: any) => 
     sum + (item.quantity * item.unit_price), 0
@@ -69,7 +66,6 @@ export default function Inventory() {
     item.quantity <= item.reorder_point
   ).length;
 
-  // Transform data for components that need specific formats
   const stockItems = inventoryItems.map((item: any) => ({
     name: item.name,
     quantity: item.quantity,
@@ -102,8 +98,8 @@ export default function Inventory() {
 
       <div className="grid gap-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <WasteForecast />
           <PortionAdjustmentSuggestion data={[]} />
+          <InventoryWasteLink />
         </div>
         <HighWasteAlert items={[]} />
         <SupplierQualityAlert issues={[]} />
@@ -114,9 +110,7 @@ export default function Inventory() {
         <AutomaticReorderSystem items={inventoryItems} />
         <OrderTracker />
         <IngredientUsageAnalysis />
-        <WastageReport />
         <CostAnalysis />
-        <InventoryWasteLink />
       </div>
 
       <AddInventoryDialog

@@ -9,8 +9,9 @@ import { WasteTrendChart } from "@/components/waste/WasteTrendChart";
 import { MostWastedItemsReport } from "@/components/waste/MostWastedItemsReport";
 import { WasteCostCalculator } from "@/components/waste/WasteCostCalculator";
 import { InventoryWasteLink } from "@/components/waste/InventoryWasteLink";
+import { WasteForecast } from "@/components/waste/WasteForecast";
+import { WastageReport } from "@/components/inventory/WastageReport";
 
-// Temporary mock data until we integrate with Supabase
 const initialWasteData: WasteLog[] = [
   {
     id: 1,
@@ -85,7 +86,6 @@ export default function Waste() {
     0
   );
 
-  // Calculate waste by reason for the WasteCostCalculator
   const wasteByReason = Object.entries(
     wasteLogs.reduce((acc, log) => {
       acc[log.reason] = (acc[log.reason] || 0) + log.costImpact;
@@ -93,7 +93,6 @@ export default function Waste() {
     }, {} as Record<string, number>)
   ).map(([reason, cost]) => ({ reason, cost }));
 
-  // Prepare data for MostWastedItemsReport
   const wastedItems = Object.entries(
     wasteLogs.reduce((acc, log) => {
       if (!acc[log.itemName]) {
@@ -114,7 +113,6 @@ export default function Waste() {
     percentage: (item.costImpact / totalWasteCost) * 100,
   }));
 
-  // Prepare data for InventoryWasteLink
   const inventoryWasteData = wasteLogs.map(log => ({
     inventoryLevel: Math.random() * 100, // This would come from your inventory system in production
     wasteAmount: log.quantity,
@@ -158,6 +156,11 @@ export default function Waste() {
             }
           </p>
         </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <WasteForecast />
+        <WastageReport />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
