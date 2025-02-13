@@ -9,69 +9,16 @@ import {
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
-import { AllergenSelector } from "./AllergenSelector";
-import { IngredientList } from "./IngredientList";
 import { ImageUploader } from "./ImageUploader";
-import { VariationsList } from "./VariationsList";
 import { calculateSuggestedPrice } from "@/utils/priceCalculator";
 import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
-
-const ingredientSchema = z.object({
-  name: z.string().min(1, "Ingredient name is required"),
-  quantity: z.string().min(1, "Quantity is required"),
-  unit: z.string().min(1, "Unit is required"),
-});
-
-const variationSchema = z.object({
-  id: z.number(),
-  name: z.string().min(1, "Variation name is required"),
-  price: z.number().min(0, "Price must be a positive number"),
-});
-
-const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
-  category: z.string().min(1, "Category is required"),
-  description: z.string().optional(),
-  allergens: z.array(z.string()),
-  ingredients: z.array(ingredientSchema),
-  stockLevel: z.string().regex(/^\d+$/, "Stock level must be a positive number"),
-  variations: z.array(z.object({
-    id: z.string(),
-    name: z.string().min(1, "Variation name is required"),
-    price: z.number().min(0, "Price must be a positive number"),
-  })),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
-const categories = [
-  "Starters",
-  "Main Course",
-  "Desserts",
-  "Beverages",
-  "Sides",
-];
+import { FormValues, formSchema } from "./MenuItemFormSchema";
+import { MenuItemBasicDetails } from "./MenuItemBasicDetails";
+import { MenuItemAdditionalDetails } from "./MenuItemAdditionalDetails";
 
 type AddEditMenuDialogProps = {
   open: boolean;
@@ -91,7 +38,6 @@ export function AddEditMenuDialog({
     item?.image || "/placeholder.svg"
   );
 
-  // Initialize form with existing item data or defaults
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -110,7 +56,6 @@ export function AddEditMenuDialog({
     },
   });
 
-  // Reset form when item changes
   useEffect(() => {
     if (open) {
       form.reset({
@@ -191,159 +136,8 @@ export function AddEditMenuDialog({
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter item name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex gap-4">
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Price</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        {...field}
-                      />
-                    </FormControl>
-                    <p className="text-sm text-muted-foreground">
-                      Suggested price: ${suggestedPrice.toFixed(2)}
-                    </p>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="stockLevel"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Stock Level</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min="0"
-                        placeholder="0"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter item description"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="allergens"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Allergens</FormLabel>
-                  <FormControl>
-                    <AllergenSelector
-                      selectedAllergens={field.value}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="ingredients"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ingredients</FormLabel>
-                  <FormControl>
-                    <IngredientList
-                      ingredients={field.value as Ingredient[]}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="variations"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Variations</FormLabel>
-                  <FormControl>
-                    <VariationsList
-                      variations={field.value as MenuItemVariation[]}
-                      onChange={field.onChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <MenuItemBasicDetails form={form} suggestedPrice={suggestedPrice} />
+            <MenuItemAdditionalDetails form={form} />
           </form>
         </Form>
 
