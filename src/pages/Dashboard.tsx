@@ -1,4 +1,3 @@
-
 import { useState, useTransition } from "react";
 import { DateRange } from "react-day-picker";
 import { Card } from "@/components/ui/card";
@@ -18,6 +17,7 @@ import { MetricsChart } from "@/components/dashboard/MetricsChart";
 import { ExpenseBreakdown } from "@/components/dashboard/ExpenseBreakdown";
 import { TopSellingItems } from "@/components/dashboard/TopSellingItems";
 import { BusinessHealthCheck } from "@/components/dashboard/BusinessHealthCheck";
+import { PredictiveSalesChart } from "@/components/dashboard/PredictiveSalesChart";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -98,7 +98,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Single instance of DashboardAlerts */}
       <DashboardAlerts />
 
       <div className="grid gap-4 sm:gap-6 relative z-0">
@@ -119,15 +118,18 @@ export default function Dashboard() {
               <MetricsChart />
             </Card>
             <Card className="bg-card shadow-lg border">
-              <ExpenseBreakdown />
+              <PredictiveSalesChart />
             </Card>
           </div>
-        </div>
-        
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-          <Card className="bg-card shadow-lg border">
-            <TopSellingItems />
-          </Card>
+
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+            <Card className="bg-card shadow-lg border">
+              <ExpenseBreakdown />
+            </Card>
+            <Card className="bg-card shadow-lg border">
+              <TopSellingItems />
+            </Card>
+          </div>
         </div>
       </div>
     </div>
