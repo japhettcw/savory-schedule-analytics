@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -180,6 +181,13 @@ export default function Menu() {
     setIsDeleteDialogOpen(true);
   }, []);
 
+  const handleAddToCart = useCallback((item: MenuItem) => {
+    toast({
+      title: "Added to cart",
+      description: `${item.name} has been added to your cart.`,
+    });
+  }, [toast]);
+
   const filteredItems = useMemo(() => {
     console.log('Filtering items:', { menuItems, searchTerm, selectedCategory });
     return menuItems.filter((item) => {
@@ -251,6 +259,8 @@ export default function Menu() {
             items={filteredItems}
             onEdit={handleEditClick}
             onDelete={handleDeleteClick}
+            onAddToCart={handleAddToCart}
+            isStaff={true} // For now, everyone has staff privileges as requested
             columnCount={1}
           />
         )}
