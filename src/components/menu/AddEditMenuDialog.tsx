@@ -146,7 +146,7 @@ export function AddEditMenuDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!fixed !top-[50vh] !left-1/2 !-translate-x-1/2 w-[90vw] sm:max-w-[600px] h-[85vh] flex flex-col bg-background">
+      <DialogContent className="!fixed !top-[50vh] !left-1/2 !-translate-x-1/2 w-[90vw] sm:max-w-[600px] h-[85vh] flex flex-col bg-white shadow-lg border-0 !z-50">
         <DialogDescription className="sr-only">
           {item ? "Edit menu item form" : "Add new menu item form"}
         </DialogDescription>
