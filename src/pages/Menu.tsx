@@ -1,6 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, ShoppingCart } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,9 +21,8 @@ import {
 } from "@/components/ui/select";
 import { AddEditMenuDialog } from "@/components/menu/AddEditMenuDialog";
 import VirtualizedMenuList from "@/components/menu/VirtualizedMenuList";
-import { Cart } from "@/components/menu/Cart";
 import { useToast } from "@/hooks/use-toast";
-import type { MenuItem } from "@/types/menu";
+import type { MenuItem, Ingredient, MenuItemVariation } from "@/types/menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -36,18 +35,12 @@ const categories = [
   "Sides",
 ];
 
-interface CartItem extends MenuItem {
-  quantity: number;
-}
-
 export default function Menu() {
   const [isAddEditDialogOpen, setIsAddEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -144,69 +137,6 @@ export default function Menu() {
     },
   });
 
-  const { data: userRole } = useQuery({
-    queryKey: ['userRole'],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.user) return null;
-
-      const { data, error } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', session.user.id)
-        .single();
-
-      if (error) throw error;
-      return data?.role;
-    },
-  });
-
-  const isStaff = userRole === 'staff' || userRole === 'manager' || userRole === 'owner';
-
-  const handleAddToCart = useCallback((item: MenuItem) => {
-    setCartItems(prev => {
-      const existingItem = prev.find(i => i.id === item.id);
-      if (existingItem) {
-        return prev.map(i => 
-          i.id === item.id 
-            ? { ...i, quantity: i.quantity + 1 }
-            : i
-        );
-      }
-      return [...prev, { ...item, quantity: 1 }];
-    });
-    toast({
-      title: "Added to cart",
-      description: `${item.name} has been added to your cart`,
-    });
-  }, [toast]);
-
-  const handleUpdateCartItemQuantity = useCallback((itemId: string, quantity: number) => {
-    setCartItems(prev => 
-      prev.map(item => 
-        item.id === itemId 
-          ? { ...item, quantity }
-          : item
-      )
-    );
-  }, []);
-
-  const handleRemoveCartItem = useCallback((itemId: string) => {
-    setCartItems(prev => prev.filter(item => item.id !== itemId));
-  }, []);
-
-  const handleEditClick = useCallback((item: MenuItem) => {
-    console.log('Edit clicked for item:', item);
-    setSelectedItem(item);
-    setIsAddEditDialogOpen(true);
-  }, []);
-
-  const handleDeleteClick = useCallback((item: MenuItem) => {
-    console.log('Delete clicked for item:', item);
-    setSelectedItem(item);
-    setIsDeleteDialogOpen(true);
-  }, []);
-
   const { mutate: handleDeleteItem } = useMutation({
     mutationFn: async (id: string) => {
       console.log('Deleting menu item:', id);
@@ -238,12 +168,25 @@ export default function Menu() {
     },
   });
 
+  const handleEditClick = useCallback((item: MenuItem) => {
+    console.log('Edit clicked for item:', item);
+    setSelectedItem(item);
+    setIsAddEditDialogOpen(true);
+  }, []);
+
+  const handleDeleteClick = useCallback((item: MenuItem) => {
+    console.log('Delete clicked for item:', item);
+    setSelectedItem(item);
+    setIsDeleteDialogOpen(true);
+  }, []);
+
   const filteredItems = useMemo(() => {
-    return menuItems?.filter((item) => {
+    console.log('Filtering items:', { menuItems, searchTerm, selectedCategory });
+    return menuItems.filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
       return matchesSearch && matchesCategory;
-    }) ?? [];
+    });
   }, [menuItems, searchTerm, selectedCategory]);
 
   if (isLoading) {
@@ -263,28 +206,16 @@ export default function Menu() {
             Manage your restaurant's menu items
           </p>
         </div>
-        <div className="flex gap-4">
-          {isStaff && (
-            <Button
-              className="flex items-center gap-2"
-              onClick={() => {
-                setSelectedItem(undefined);
-                setIsAddEditDialogOpen(true);
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              Add Item
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            className="flex items-center gap-2"
-            onClick={() => setIsCartOpen(true)}
-          >
-            <ShoppingCart className="h-4 w-4" />
-            Cart ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
-          </Button>
-        </div>
+        <Button
+          className="flex items-center gap-2"
+          onClick={() => {
+            setSelectedItem(undefined);
+            setIsAddEditDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Item
+        </Button>
       </div>
 
       <div className="flex flex-col md:flex-row gap-4">
@@ -320,8 +251,6 @@ export default function Menu() {
             items={filteredItems}
             onEdit={handleEditClick}
             onDelete={handleDeleteClick}
-            onAddToCart={handleAddToCart}
-            isStaff={isStaff}
             columnCount={1}
           />
         )}
@@ -354,14 +283,6 @@ export default function Menu() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <Cart
-        items={cartItems}
-        onUpdateQuantity={handleUpdateCartItemQuantity}
-        onRemoveItem={handleRemoveCartItem}
-        open={isCartOpen}
-        onOpenChange={setIsCartOpen}
-      />
     </div>
   );
 }
