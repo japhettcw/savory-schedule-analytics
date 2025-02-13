@@ -1,4 +1,3 @@
-
 export type Ingredient = {
   name: string;
   quantity: string;
@@ -23,4 +22,9 @@ export type MenuItem = {
   ingredients: Ingredient[];
   stockLevel?: number;
   variations?: MenuItemVariation[];
+};
+
+export type OrderBasketItem = {
+  item: MenuItem;
+  quantity: number;
 };

@@ -16,7 +16,7 @@ import { MenuHeader } from "@/components/menu/MenuHeader";
 import { MenuFilters } from "@/components/menu/MenuFilters";
 import { OrderBasket } from "@/components/menu/OrderBasket";
 import { useMenuItems } from "@/hooks/useMenuItems";
-import type { MenuItem } from "@/types/menu";
+import type { MenuItem, OrderBasketItem } from "@/types/menu";
 import { useToast } from "@/hooks/use-toast";
 
 const categories = [
@@ -34,7 +34,7 @@ export default function Menu() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | undefined>();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [orderBasket, setOrderBasket] = useState<MenuItem[]>([]);
+  const [orderBasket, setOrderBasket] = useState<OrderBasketItem[]>([]);
   const { toast } = useToast();
 
   const { 
@@ -58,12 +58,42 @@ export default function Menu() {
   }, []);
 
   const handleAddToCart = useCallback((item: MenuItem) => {
-    setOrderBasket(prevBasket => [...prevBasket, item]);
+    setOrderBasket(prevBasket => {
+      const existingItem = prevBasket.find(basketItem => basketItem.item.id === item.id);
+      
+      if (existingItem) {
+        return prevBasket.map(basketItem =>
+          basketItem.item.id === item.id
+            ? { ...basketItem, quantity: basketItem.quantity + 1 }
+            : basketItem
+        );
+      }
+      
+      return [...prevBasket, { item, quantity: 1 }];
+    });
+
     toast({
       title: "Added to cart",
       description: `${item.name} has been added to your cart.`,
     });
   }, [toast]);
+
+  const handleUpdateQuantity = useCallback((itemId: string, change: number) => {
+    setOrderBasket(prevBasket => {
+      return prevBasket.reduce((acc: OrderBasketItem[], basketItem) => {
+        if (basketItem.item.id !== itemId) {
+          return [...acc, basketItem];
+        }
+        
+        const newQuantity = basketItem.quantity + change;
+        if (newQuantity <= 0) {
+          return acc;
+        }
+        
+        return [...acc, { ...basketItem, quantity: newQuantity }];
+      }, []);
+    });
+  }, []);
 
   const filteredItems = useMemo(() => {
     console.log('Filtering items:', { menuItems, searchTerm, selectedCategory });
@@ -120,7 +150,10 @@ export default function Menu() {
         </div>
 
         <div className="lg:sticky lg:top-24">
-          <OrderBasket items={orderBasket} />
+          <OrderBasket 
+            items={orderBasket}
+            onUpdateQuantity={handleUpdateQuantity}
+          />
         </div>
       </div>
 
