@@ -7,6 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -145,7 +146,10 @@ export function AddEditMenuDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed inset-0 -mt-20 m-auto w-[90vw] sm:max-w-[600px] h-[90vh] sm:h-[85vh] flex flex-col bg-background">
+      <DialogContent className="fixed top-[10vh] left-1/2 -translate-x-1/2 w-[90vw] sm:max-w-[600px] h-[85vh] flex flex-col bg-background">
+        <DialogDescription className="sr-only">
+          {item ? "Edit menu item form" : "Add new menu item form"}
+        </DialogDescription>
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>
             {item ? "Edit Menu Item" : "Add New Menu Item"}
