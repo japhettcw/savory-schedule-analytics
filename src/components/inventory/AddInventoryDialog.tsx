@@ -26,8 +26,9 @@ export function AddInventoryDialog({ open, onOpenChange }: AddInventoryDialogPro
 
       const { data, error } = await supabase
         .from('inventory_items')
-        .insert([{
+        .insert({
           name: values.name,
+          sku: values.sku || `SKU-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
           category: values.category,
           quantity: values.quantity,
           unit: values.unit,
@@ -36,7 +37,7 @@ export function AddInventoryDialog({ open, onOpenChange }: AddInventoryDialogPro
           expiry_date: values.expiryDate || null,
           unit_price: values.unitPrice || 0,
           user_id: (await supabase.auth.getUser()).data.user?.id
-        }])
+        })
         .select()
         .single();
 

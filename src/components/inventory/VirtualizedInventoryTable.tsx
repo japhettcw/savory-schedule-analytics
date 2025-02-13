@@ -63,50 +63,55 @@ const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
         isLowStock && !isOutOfStock && "bg-yellow-50 dark:bg-yellow-950"
       )}
     >
-      <TableCell className="font-medium">{item.name}</TableCell>
-      <TableCell className="font-mono text-sm">{item.sku}</TableCell>
-      <TableCell className="capitalize">{item.category}</TableCell>
-      <TableCell>
+      <TableCell className="font-medium text-left">{item.name}</TableCell>
+      <TableCell className="font-mono text-sm text-left">{item.sku}</TableCell>
+      <TableCell className="capitalize text-left">{item.category}</TableCell>
+      <TableCell className="text-right">
         <span className={cn(
-          "px-2 py-1 rounded-full text-sm font-medium",
+          "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-sm font-medium",
           isOutOfStock && "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
           isLowStock && !isOutOfStock && "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
           !isLowStock && "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
         )}>
-          {item.quantity} {item.unit}
+          {item.quantity.toLocaleString()} {item.unit}
         </span>
       </TableCell>
-      <TableCell>{formatCurrency(item.unit_price)}</TableCell>
-      <TableCell>{item.supplier}</TableCell>
-      <TableCell>
+      <TableCell className="text-right tabular-nums">
+        {formatCurrency(item.unit_price)}
+      </TableCell>
+      <TableCell className="text-left">
+        {item.supplier || "—"}
+      </TableCell>
+      <TableCell className="text-center whitespace-nowrap">
         {isOutOfStock ? (
           <span 
-            className="text-red-600 dark:text-red-400 font-medium"
+            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
             role="status"
           >
             Out of Stock
           </span>
         ) : isLowStock ? (
           <span 
-            className="text-yellow-600 dark:text-yellow-400 font-medium"
+            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
             role="status"
           >
             Low Stock
           </span>
         ) : (
           <span 
-            className="text-green-600 dark:text-green-400 font-medium"
+            className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
             role="status"
           >
-            OK
+            In Stock
           </span>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="text-center">
         <Button
           variant="ghost"
           size="icon"
           onClick={() => onEdit(item)}
+          className="h-8 w-8"
         >
           <Edit className="h-4 w-4" />
         </Button>
