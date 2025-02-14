@@ -71,42 +71,57 @@ export default function Inventory() {
   }));
 
   return (
-    <div className="p-6 space-y-6 relative">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Inventory Management</h1>
-        <Button onClick={() => setIsAddInventoryOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Item
-        </Button>
-      </div>
-
-      <InventorySummary 
-        totalItems={totalItems}
-        totalValue={totalValue}
-        lowStockItems={lowStockItems}
-      />
-
-      <VirtualizedInventoryTable items={inventoryItems} />
-
-      <div className="grid gap-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <PortionAdjustmentSuggestion data={[]} />
-          <InventoryWasteLink />
+    <div className="max-w-[100vw] overflow-x-hidden">
+      <div className="p-4 sm:p-6 space-y-6">
+        <div className="flex flex-wrap justify-between items-center gap-4">
+          <h1 className="text-2xl sm:text-3xl font-bold">Inventory Management</h1>
+          <Button onClick={() => setIsAddInventoryOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add Item
+          </Button>
         </div>
-        <HighWasteAlert items={[]} />
-        <SupplierQualityAlert issues={[]} />
-        <OutOfStockNotification items={stockItems} />
-        <LowStockAlert items={stockItems} />
-        <SupplierManagement />
-        <AutomaticReorderSystem items={inventoryItems} />
-        <OrderTracker />
-        <IngredientUsageAnalysis />
-        <CostAnalysis />
-      </div>
 
-      <AddInventoryDialog
-        open={isAddInventoryOpen}
-        onOpenChange={setIsAddInventoryOpen}
-      />
+        <div className="w-full">
+          <InventorySummary 
+            totalItems={totalItems}
+            totalValue={totalValue}
+            lowStockItems={lowStockItems}
+          />
+        </div>
+
+        <div className="w-full">
+          <VirtualizedInventoryTable items={inventoryItems} />
+        </div>
+
+        <div className="grid gap-4 sm:gap-6">
+          {/* Portion Adjustment and Waste Link */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <PortionAdjustmentSuggestion data={[]} />
+            <InventoryWasteLink />
+          </div>
+
+          {/* Alerts Section */}
+          <div className="space-y-4">
+            <HighWasteAlert items={[]} />
+            <SupplierQualityAlert issues={[]} />
+            <OutOfStockNotification items={stockItems} />
+            <LowStockAlert items={stockItems} />
+          </div>
+          
+          {/* Management Cards */}
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <SupplierManagement />
+            <AutomaticReorderSystem items={inventoryItems} />
+            <OrderTracker />
+            <IngredientUsageAnalysis />
+            <CostAnalysis />
+          </div>
+        </div>
+
+        <AddInventoryDialog
+          open={isAddInventoryOpen}
+          onOpenChange={setIsAddInventoryOpen}
+        />
+      </div>
     </div>
   );
 }
