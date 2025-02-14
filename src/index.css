@@ -86,21 +86,6 @@ nav {
   position: relative;
 }
 
-/* Set rendering optimizations */
-[role="dialog"] {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-font-smoothing: subpixel-antialiased;
-  will-change: transform;
-}
-
-/* Prevent blurry text */
-.dialog-content * {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 /* Base transitions */
 .transition-base {
   @apply transition-all duration-200 ease-in-out;
@@ -217,3 +202,4 @@ nav {
 .link-hover {
   @apply relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-bottom-right after:scale-x-0 after:bg-primary after:transition-transform after:duration-300 hover:after:origin-bottom-left hover:after:scale-x-100;
 }
+
