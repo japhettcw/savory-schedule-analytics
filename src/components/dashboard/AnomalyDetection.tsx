@@ -62,12 +62,17 @@ const fetchAnomalies = async (): Promise<Anomaly[]> => {
     expensesByCategory[category].push(expense.amount);
   });
 
+  // Track seen revenue anomalies by date to prevent duplicates
+  const seenRevenueAnomalies = new Set<string>();
   const anomalies: Anomaly[] = [];
 
   // Detect revenue anomalies (2 standard deviations from mean)
   revenueData.forEach(day => {
     const deviation = Math.abs(day.total_revenue - avgRevenue) / stdDevRevenue;
-    if (deviation > 2) {
+    // Only add if we haven't seen an anomaly for this date
+    const anomalyKey = `revenue-${day.date}`;
+    if (deviation > 2 && !seenRevenueAnomalies.has(anomalyKey)) {
+      seenRevenueAnomalies.add(anomalyKey);
       const percentageChange = ((day.total_revenue - avgRevenue) / avgRevenue) * 100;
       anomalies.push({
         date: day.date,
@@ -78,6 +83,9 @@ const fetchAnomalies = async (): Promise<Anomaly[]> => {
     }
   });
 
+  // Track seen expense anomalies by category and date to prevent duplicates
+  const seenExpenseAnomalies = new Set<string>();
+
   // Detect expense anomalies
   Object.entries(expensesByCategory).forEach(([category, amounts]) => {
     const avgExpense = amounts.reduce((a, b) => a + b, 0) / amounts.length;
@@ -87,7 +95,9 @@ const fetchAnomalies = async (): Promise<Anomaly[]> => {
 
     amounts.forEach((amount, index) => {
       const deviation = Math.abs(amount - avgExpense) / stdDevExpense;
-      if (deviation > 2) {
+      const anomalyKey = `expense-${category}-${expenseData[index].date}`;
+      if (deviation > 2 && !seenExpenseAnomalies.has(anomalyKey)) {
+        seenExpenseAnomalies.add(anomalyKey);
         const percentageChange = ((amount - avgExpense) / avgExpense) * 100;
         anomalies.push({
           date: expenseData[index].date,
