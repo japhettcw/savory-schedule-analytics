@@ -19,60 +19,61 @@ interface SchedulingAlertsProps {
 
 export function SchedulingAlerts({ alerts }: SchedulingAlertsProps) {
   const [isStaffingDialogOpen, setIsStaffingDialogOpen] = useState(false);
+  
+  if (!alerts.length) return null;
 
-  // Filter alerts
   const staffingAlerts = alerts.filter(alert => alert.type === 'staffing');
   const otherAlerts = alerts.filter(alert => alert.type !== 'staffing');
 
-  if (!alerts?.length) return null;
-
   return (
-    <div className="space-y-4">
-      {staffingAlerts.length > 0 && (
-        <Alert
-          variant="default"
-          className="cursor-pointer hover:bg-accent transition-colors"
-          onClick={() => setIsStaffingDialogOpen(true)}
-        >
-          <Users className="h-4 w-4" />
-          <AlertTitle>Staffing Level Issues</AlertTitle>
-          <AlertDescription>
-            {staffingAlerts.length} staffing level {staffingAlerts.length === 1 ? 'issue' : 'issues'} detected. Click to view details.
-          </AlertDescription>
-        </Alert>
-      )}
+    <>
+      <div className="space-y-4">
+        {staffingAlerts.length > 0 && (
+          <Alert
+            variant="default"
+            className="cursor-pointer"
+            onClick={() => setIsStaffingDialogOpen(true)}
+          >
+            <Users className="h-4 w-4" />
+            <AlertTitle>Staffing Level Issues</AlertTitle>
+            <AlertDescription>
+              {staffingAlerts.length} staffing level {staffingAlerts.length === 1 ? 'issue' : 'issues'} detected. Click to view details.
+            </AlertDescription>
+          </Alert>
+        )}
 
-      {otherAlerts.map((alert) => (
-        <Alert
-          key={alert.id}
-          variant={alert.severity === 'error' ? "destructive" : "default"}
-        >
-          {alert.severity === 'error' ? (
-            <AlertCircle className="h-4 w-4" />
-          ) : (
-            <AlertTriangle className="h-4 w-4" />
-          )}
-          <AlertTitle>
-            {alert.type === 'overlap' && "Shift Overlap Detected"}
-            {alert.type === 'break' && "Break Time Required"}
-          </AlertTitle>
-          <AlertDescription className="mt-2">
-            {alert.message}
-            {alert.shifts && alert.shifts.length > 0 && (
-              <div className="mt-2 text-sm">
-                {alert.shifts.map((shift) => (
-                  <div key={shift.id} className="text-muted-foreground">
-                    {format(shift.start, "PPp")} - {format(shift.end, "p")}
-                  </div>
-                ))}
-              </div>
+        {otherAlerts.map((alert) => (
+          <Alert
+            key={alert.id}
+            variant={alert.severity === 'error' ? "destructive" : "default"}
+          >
+            {alert.severity === 'error' ? (
+              <AlertCircle className="h-4 w-4" />
+            ) : (
+              <AlertTriangle className="h-4 w-4" />
             )}
-          </AlertDescription>
-        </Alert>
-      ))}
+            <AlertTitle>
+              {alert.type === 'overlap' && "Shift Overlap Detected"}
+              {alert.type === 'break' && "Break Time Required"}
+            </AlertTitle>
+            <AlertDescription className="mt-2">
+              {alert.message}
+              {alert.shifts && alert.shifts.length > 0 && (
+                <div className="mt-2 text-sm">
+                  {alert.shifts.map((shift) => (
+                    <div key={shift.id} className="text-muted-foreground">
+                      {format(shift.start, "PPp")} - {format(shift.end, "p")}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        ))}
+      </div>
 
       <Dialog open={isStaffingDialogOpen} onOpenChange={setIsStaffingDialogOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Staffing Level Issues</DialogTitle>
             <DialogDescription>
@@ -106,6 +107,6 @@ export function SchedulingAlerts({ alerts }: SchedulingAlertsProps) {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
