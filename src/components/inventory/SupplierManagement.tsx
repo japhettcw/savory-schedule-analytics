@@ -225,9 +225,11 @@ export function SupplierManagement() {
       </div>
 
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg" style={{ position: 'fixed', margin: 'auto' }}>
+        <DialogContent className="sm:max-w-[425px] bg-background">
           <DialogHeader>
-            <DialogTitle>{editingSupplier ? 'Edit Supplier' : 'Add New Supplier'}</DialogTitle>
+            <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
+              {editingSupplier ? 'Edit Supplier' : 'Add New Supplier'}
+            </DialogTitle>
           </DialogHeader>
           <form onSubmit={(e) => {
             e.preventDefault();
