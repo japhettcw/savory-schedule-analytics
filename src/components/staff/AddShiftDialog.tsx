@@ -23,7 +23,7 @@ export function AddShiftDialog({
 }: AddShiftDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] !mt-0 !block sm:max-w-[425px] overflow-y-auto max-h-[85vh] z-[9999]">
+      <DialogContent className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg" style={{ position: 'fixed', margin: 'auto' }}>
         <DialogHeader>
           <DialogTitle>
             {initialData ? "Edit Shift" : "Add New Shift"}
