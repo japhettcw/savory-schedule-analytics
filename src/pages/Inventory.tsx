@@ -71,43 +71,66 @@ export default function Inventory() {
   }));
 
   return (
-    <div className="p-6 max-w-[100vw] overflow-x-hidden">
-      <div className="flex flex-col space-y-6 max-w-full">
-        <div className="flex flex-wrap justify-between items-center gap-4">
-          <h1 className="text-3xl font-bold">Inventory Management</h1>
-          <Button onClick={() => setIsAddInventoryOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add Item
-          </Button>
-        </div>
-
-        <InventorySummary 
-          totalItems={totalItems}
-          totalValue={totalValue}
-          lowStockItems={lowStockItems}
-        />
-
-        <div className="w-full overflow-hidden">
-          <VirtualizedInventoryTable items={inventoryItems} />
-        </div>
-
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
-          <div className="col-span-1 md:col-span-2 xl:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6">
-            <PortionAdjustmentSuggestion data={[]} />
-            <InventoryWasteLink />
+    <div className="relative w-full overflow-x-hidden">
+      <div className="p-4 sm:p-6 max-w-full mx-auto">
+        <div className="flex flex-col space-y-6">
+          {/* Header Section */}
+          <div className="flex flex-wrap justify-between items-center gap-4 w-full">
+            <h1 className="text-2xl sm:text-3xl font-bold">Inventory Management</h1>
+            <Button onClick={() => setIsAddInventoryOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" /> Add Item
+            </Button>
           </div>
-          
-          <div className="col-span-1 md:col-span-2 xl:col-span-3">
-            <HighWasteAlert items={[]} />
-            <SupplierQualityAlert issues={[]} />
-            <OutOfStockNotification items={stockItems} />
-            <LowStockAlert items={stockItems} />
+
+          {/* Summary Cards */}
+          <div className="w-full">
+            <InventorySummary 
+              totalItems={totalItems}
+              totalValue={totalValue}
+              lowStockItems={lowStockItems}
+            />
           </div>
-          
-          <SupplierManagement />
-          <AutomaticReorderSystem items={inventoryItems} />
-          <OrderTracker />
-          <IngredientUsageAnalysis />
-          <CostAnalysis />
+
+          {/* Inventory Table */}
+          <div className="w-full overflow-hidden rounded-lg">
+            <VirtualizedInventoryTable items={inventoryItems} />
+          </div>
+
+          {/* Alerts and Analytics Grid */}
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 w-full">
+            {/* Full Width Items */}
+            <div className="col-span-1 md:col-span-2 xl:col-span-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <PortionAdjustmentSuggestion data={[]} />
+                <InventoryWasteLink />
+              </div>
+            </div>
+            
+            {/* Alerts Section */}
+            <div className="col-span-1 md:col-span-2 xl:col-span-3 space-y-4">
+              <HighWasteAlert items={[]} />
+              <SupplierQualityAlert issues={[]} />
+              <OutOfStockNotification items={stockItems} />
+              <LowStockAlert items={stockItems} />
+            </div>
+            
+            {/* Management Cards */}
+            <div className="w-full overflow-hidden">
+              <SupplierManagement />
+            </div>
+            <div className="w-full overflow-hidden">
+              <AutomaticReorderSystem items={inventoryItems} />
+            </div>
+            <div className="w-full overflow-hidden">
+              <OrderTracker />
+            </div>
+            <div className="w-full overflow-hidden">
+              <IngredientUsageAnalysis />
+            </div>
+            <div className="w-full overflow-hidden">
+              <CostAnalysis />
+            </div>
+          </div>
         </div>
 
         <AddInventoryDialog

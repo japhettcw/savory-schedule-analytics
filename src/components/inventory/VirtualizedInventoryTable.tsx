@@ -282,107 +282,111 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
   );
 
   return (
-    <div className="space-y-4 max-w-full">
-      <div className="flex flex-wrap gap-4">
-        <div className="flex-1 min-w-[200px] relative">
+    <div className="space-y-4 w-full overflow-hidden">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+        <div className="w-full sm:flex-1 min-w-[200px] relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Search by name, SKU, category, or supplier..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 w-full"
           />
         </div>
         
-        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
-            {categories.map(category => (
-              <SelectItem key={category} value={category}>
-                {category}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[140px] sm:w-[180px]">
+              <SelectValue placeholder="Category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              {categories.map(category => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select value={supplierFilter} onValueChange={setSupplierFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by supplier" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All suppliers</SelectItem>
-            {suppliers.map(supplier => (
-              <SelectItem key={supplier} value={supplier}>
-                {supplier}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Select value={supplierFilter} onValueChange={setSupplierFilter}>
+            <SelectTrigger className="w-[140px] sm:w-[180px]">
+              <SelectValue placeholder="Supplier" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All suppliers</SelectItem>
+              {suppliers.map(supplier => (
+                <SelectItem key={supplier} value={supplier}>
+                  {supplier}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All statuses</SelectItem>
-            <SelectItem value="out">Out of Stock</SelectItem>
-            <SelectItem value="low">Low Stock</SelectItem>
-            <SelectItem value="ok">OK</SelectItem>
-          </SelectContent>
-        </Select>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[140px] sm:w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              <SelectItem value="out">Out of Stock</SelectItem>
+              <SelectItem value="low">Low Stock</SelectItem>
+              <SelectItem value="ok">OK</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       
-      <div className="rounded-md border overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="flex w-full">
-              <TableHead className="flex-[2] min-w-[120px] max-w-[200px]">
-                <Button variant="ghost" onClick={() => handleSort('name')} className="h-8 flex items-center gap-1">
-                  Name {sortField === 'name' && <ArrowUpDown className="h-4 w-4" />}
-                </Button>
-              </TableHead>
-              <TableHead className="flex-1 min-w-[80px] max-w-[120px]">
-                <Button variant="ghost" onClick={() => handleSort('sku')} className="h-8 flex items-center gap-1">
-                  SKU {sortField === 'sku' && <ArrowUpDown className="h-4 w-4" />}
-                </Button>
-              </TableHead>
-              <TableHead className="flex-1 min-w-[80px] max-w-[120px]">
-                <Button variant="ghost" onClick={() => handleSort('category')} className="h-8 flex items-center gap-1">
-                  Category {sortField === 'category' && <ArrowUpDown className="h-4 w-4" />}
-                </Button>
-              </TableHead>
-              <TableHead className="flex-1 min-w-[80px] max-w-[120px] text-right">
-                <Button variant="ghost" onClick={() => handleSort('quantity')} className="h-8 flex items-center gap-1 justify-end">
-                  Quantity {sortField === 'quantity' && <ArrowUpDown className="h-4 w-4" />}
-                </Button>
-              </TableHead>
-              <TableHead className="flex-1 min-w-[80px] max-w-[100px] text-right">
-                <Button variant="ghost" onClick={() => handleSort('unit_price')} className="h-8 flex items-center gap-1 justify-end">
-                  Price {sortField === 'unit_price' && <ArrowUpDown className="h-4 w-4" />}
-                </Button>
-              </TableHead>
-              <TableHead className="flex-1 min-w-[80px] max-w-[120px]">Supplier</TableHead>
-              <TableHead className="flex-1 min-w-[80px] max-w-[120px] text-center">Status</TableHead>
-              <TableHead className="flex-none w-[60px] text-center">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-        </Table>
-        <div style={{ height: Math.min(filteredAndSortedItems.length * 52 + 40, 400) }}>
-          <FixedSizeList
-            height={Math.min(filteredAndSortedItems.length * 52 + 40, 400)}
-            itemCount={filteredAndSortedItems.length}
-            itemSize={52}
-            width="100%"
-            itemData={{
-              items: filteredAndSortedItems,
-              onEdit: setEditingItem,
-            }}
-          >
-            {Row}
-          </FixedSizeList>
+      <div className="rounded-md border overflow-hidden w-full">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="flex w-full min-w-[800px]">
+                <TableHead className="flex-[2] min-w-[120px] max-w-[200px]">
+                  <Button variant="ghost" onClick={() => handleSort('name')} className="h-8 flex items-center gap-1">
+                    Name {sortField === 'name' && <ArrowUpDown className="h-4 w-4" />}
+                  </Button>
+                </TableHead>
+                <TableHead className="flex-1 min-w-[80px] max-w-[120px]">
+                  <Button variant="ghost" onClick={() => handleSort('sku')} className="h-8 flex items-center gap-1">
+                    SKU {sortField === 'sku' && <ArrowUpDown className="h-4 w-4" />}
+                  </Button>
+                </TableHead>
+                <TableHead className="flex-1 min-w-[80px] max-w-[120px]">
+                  <Button variant="ghost" onClick={() => handleSort('category')} className="h-8 flex items-center gap-1">
+                    Category {sortField === 'category' && <ArrowUpDown className="h-4 w-4" />}
+                  </Button>
+                </TableHead>
+                <TableHead className="flex-1 min-w-[80px] max-w-[120px] text-right">
+                  <Button variant="ghost" onClick={() => handleSort('quantity')} className="h-8 flex items-center gap-1 justify-end">
+                    Quantity {sortField === 'quantity' && <ArrowUpDown className="h-4 w-4" />}
+                  </Button>
+                </TableHead>
+                <TableHead className="flex-1 min-w-[80px] max-w-[100px] text-right">
+                  <Button variant="ghost" onClick={() => handleSort('unit_price')} className="h-8 flex items-center gap-1 justify-end">
+                    Price {sortField === 'unit_price' && <ArrowUpDown className="h-4 w-4" />}
+                  </Button>
+                </TableHead>
+                <TableHead className="flex-1 min-w-[80px] max-w-[120px]">Supplier</TableHead>
+                <TableHead className="flex-1 min-w-[80px] max-w-[120px] text-center">Status</TableHead>
+                <TableHead className="flex-none w-[60px] text-center">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+          </Table>
+          <div className="overflow-x-auto min-w-[800px]" style={{ height: Math.min(filteredAndSortedItems.length * 52 + 40, 400) }}>
+            <FixedSizeList
+              height={Math.min(filteredAndSortedItems.length * 52 + 40, 400)}
+              itemCount={filteredAndSortedItems.length}
+              itemSize={52}
+              width="100%"
+              itemData={{
+                items: filteredAndSortedItems,
+                onEdit: setEditingItem,
+              }}
+            >
+              {Row}
+            </FixedSizeList>
+          </div>
         </div>
       </div>
 
