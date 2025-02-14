@@ -64,9 +64,9 @@ export function AddWasteLogDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg" style={{ position: 'fixed', margin: 'auto' }}>
+      <DialogContent className="sm:max-w-[425px] bg-background">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
             {initialData ? "Edit Waste Log" : "Add Waste Log"}
           </DialogTitle>
         </DialogHeader>
