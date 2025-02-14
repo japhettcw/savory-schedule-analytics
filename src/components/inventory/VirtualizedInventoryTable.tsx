@@ -68,10 +68,16 @@ const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
         isLowStock && !isOutOfStock && "bg-yellow-50 dark:bg-yellow-950"
       )}
     >
-      <TableCell className="flex-[2] min-w-[200px] font-medium">{item.name}</TableCell>
-      <TableCell className="flex-1 min-w-[120px] font-mono text-sm">{item.sku}</TableCell>
-      <TableCell className="flex-1 min-w-[120px] capitalize">{item.category}</TableCell>
-      <TableCell className="flex-1 min-w-[120px] text-right">
+      <TableCell className="flex-[2] min-w-[120px] max-w-[200px] font-medium truncate">
+        {item.name}
+      </TableCell>
+      <TableCell className="flex-1 min-w-[80px] max-w-[120px] font-mono text-sm truncate">
+        {item.sku}
+      </TableCell>
+      <TableCell className="flex-1 min-w-[80px] max-w-[120px] capitalize truncate">
+        {item.category}
+      </TableCell>
+      <TableCell className="flex-1 min-w-[80px] max-w-[120px] text-right">
         <span className={cn(
           "inline-flex items-center justify-center px-2.5 py-1 rounded-full text-sm font-medium",
           isOutOfStock && "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
@@ -81,13 +87,13 @@ const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
           {item.quantity.toLocaleString()} {item.unit}
         </span>
       </TableCell>
-      <TableCell className="flex-1 min-w-[100px] text-right tabular-nums">
+      <TableCell className="flex-1 min-w-[80px] max-w-[100px] text-right tabular-nums truncate">
         {formatCurrency(item.unit_price)}
       </TableCell>
-      <TableCell className="flex-1 min-w-[120px]">
+      <TableCell className="flex-1 min-w-[80px] max-w-[120px] truncate">
         {item.supplier || "—"}
       </TableCell>
-      <TableCell className="flex-1 min-w-[120px] text-center">
+      <TableCell className="flex-1 min-w-[80px] max-w-[120px] text-center">
         {isOutOfStock ? (
           <span 
             className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
@@ -111,7 +117,7 @@ const Row = React.memo(({ index, style, data: { items, onEdit } }: any) => {
           </span>
         )}
       </TableCell>
-      <TableCell className="flex-none w-[80px] text-center">
+      <TableCell className="flex-none w-[60px] text-center">
         <Button
           variant="ghost"
           size="icon"
@@ -276,7 +282,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-full">
       <div className="flex flex-wrap gap-4">
         <div className="flex-1 min-w-[200px] relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -289,7 +295,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
         </div>
         
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by category" />
           </SelectTrigger>
           <SelectContent>
@@ -303,7 +309,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
         </Select>
 
         <Select value={supplierFilter} onValueChange={setSupplierFilter}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by supplier" />
           </SelectTrigger>
           <SelectContent>
@@ -317,7 +323,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
         </Select>
 
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[200px]">
+          <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
@@ -329,44 +335,44 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
         </Select>
       </div>
       
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow className="flex w-full">
-              <TableHead className="flex-[2] min-w-[200px]">
+              <TableHead className="flex-[2] min-w-[120px] max-w-[200px]">
                 <Button variant="ghost" onClick={() => handleSort('name')} className="h-8 flex items-center gap-1">
                   Name {sortField === 'name' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead className="flex-1 min-w-[120px]">
+              <TableHead className="flex-1 min-w-[80px] max-w-[120px]">
                 <Button variant="ghost" onClick={() => handleSort('sku')} className="h-8 flex items-center gap-1">
                   SKU {sortField === 'sku' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead className="flex-1 min-w-[120px]">
+              <TableHead className="flex-1 min-w-[80px] max-w-[120px]">
                 <Button variant="ghost" onClick={() => handleSort('category')} className="h-8 flex items-center gap-1">
                   Category {sortField === 'category' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead className="flex-1 min-w-[120px] text-right">
+              <TableHead className="flex-1 min-w-[80px] max-w-[120px] text-right">
                 <Button variant="ghost" onClick={() => handleSort('quantity')} className="h-8 flex items-center gap-1 justify-end">
                   Quantity {sortField === 'quantity' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead className="flex-1 min-w-[100px] text-right">
+              <TableHead className="flex-1 min-w-[80px] max-w-[100px] text-right">
                 <Button variant="ghost" onClick={() => handleSort('unit_price')} className="h-8 flex items-center gap-1 justify-end">
                   Price {sortField === 'unit_price' && <ArrowUpDown className="h-4 w-4" />}
                 </Button>
               </TableHead>
-              <TableHead className="flex-1 min-w-[120px]">Supplier</TableHead>
-              <TableHead className="flex-1 min-w-[120px] text-center">Status</TableHead>
-              <TableHead className="flex-none w-[80px] text-center">Actions</TableHead>
+              <TableHead className="flex-1 min-w-[80px] max-w-[120px]">Supplier</TableHead>
+              <TableHead className="flex-1 min-w-[80px] max-w-[120px] text-center">Status</TableHead>
+              <TableHead className="flex-none w-[60px] text-center">Actions</TableHead>
             </TableRow>
           </TableHeader>
         </Table>
-        <div style={{ height: visibleHeight - headerHeight }}>
+        <div style={{ height: Math.min(filteredAndSortedItems.length * 52 + 40, 400) }}>
           <FixedSizeList
-            height={visibleHeight - headerHeight}
+            height={Math.min(filteredAndSortedItems.length * 52 + 40, 400)}
             itemCount={filteredAndSortedItems.length}
             itemSize={52}
             width="100%"
@@ -381,7 +387,7 @@ export const VirtualizedInventoryTable = React.memo(({ items }: VirtualizedInven
       </div>
 
       <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
-        <DialogContent className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg">
+        <DialogContent className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg sm:rounded-lg" style={{ position: 'fixed', margin: 'auto' }}>
           <DialogHeader>
             <DialogTitle>Edit Inventory Item</DialogTitle>
           </DialogHeader>
