@@ -71,68 +71,42 @@ export default function Inventory() {
   }));
 
   return (
-    <div className="min-h-screen max-w-[100vw] overflow-x-hidden">
-      <div className="p-4 sm:p-6 space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-2xl sm:text-3xl font-bold">Inventory Management</h1>
-          <Button onClick={() => setIsAddInventoryOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Add Item
-          </Button>
-        </div>
-
-        <div className="w-full">
-          <InventorySummary 
-            totalItems={totalItems}
-            totalValue={totalValue}
-            lowStockItems={lowStockItems}
-          />
-        </div>
-
-        <div className="w-full">
-          <VirtualizedInventoryTable items={inventoryItems} />
-        </div>
-
-        <div className="grid gap-4 sm:gap-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-            <div className="w-full">
-              <PortionAdjustmentSuggestion data={[]} />
-            </div>
-            <div className="w-full">
-              <InventoryWasteLink />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <HighWasteAlert items={[]} />
-            <SupplierQualityAlert issues={[]} />
-            <OutOfStockNotification items={stockItems} />
-            <LowStockAlert items={stockItems} />
-          </div>
-
-          <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="w-full">
-              <SupplierManagement />
-            </div>
-            <div className="w-full">
-              <AutomaticReorderSystem items={inventoryItems} />
-            </div>
-            <div className="w-full">
-              <OrderTracker />
-            </div>
-            <div className="w-full">
-              <IngredientUsageAnalysis />
-            </div>
-            <div className="w-full">
-              <CostAnalysis />
-            </div>
-          </div>
-        </div>
-
-        <AddInventoryDialog
-          open={isAddInventoryOpen}
-          onOpenChange={setIsAddInventoryOpen}
-        />
+    <div className="p-6 space-y-6 relative">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Inventory Management</h1>
+        <Button onClick={() => setIsAddInventoryOpen(true)}>
+          <Plus className="mr-2 h-4 w-4" /> Add Item
+        </Button>
       </div>
+
+      <InventorySummary 
+        totalItems={totalItems}
+        totalValue={totalValue}
+        lowStockItems={lowStockItems}
+      />
+
+      <VirtualizedInventoryTable items={inventoryItems} />
+
+      <div className="grid gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <PortionAdjustmentSuggestion data={[]} />
+          <InventoryWasteLink />
+        </div>
+        <HighWasteAlert items={[]} />
+        <SupplierQualityAlert issues={[]} />
+        <OutOfStockNotification items={stockItems} />
+        <LowStockAlert items={stockItems} />
+        <SupplierManagement />
+        <AutomaticReorderSystem items={inventoryItems} />
+        <OrderTracker />
+        <IngredientUsageAnalysis />
+        <CostAnalysis />
+      </div>
+
+      <AddInventoryDialog
+        open={isAddInventoryOpen}
+        onOpenChange={setIsAddInventoryOpen}
+      />
     </div>
   );
 }
