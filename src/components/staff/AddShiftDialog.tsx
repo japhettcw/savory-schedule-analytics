@@ -127,11 +127,9 @@ export function AddShiftDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white text-gray-900">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-gray-900">
-            {initialData ? "Edit Shift" : "Add New Shift"}
-          </DialogTitle>
+          <DialogTitle>{initialData ? "Edit Shift" : "Add New Shift"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
